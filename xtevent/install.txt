@@ -1,0 +1,2 @@
+To install, please add the files from this archive to your personal directory:
+https://www.stata.com/support/faqs/programming/personal-ado-directory/
