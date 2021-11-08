@@ -1,24 +1,8 @@
-/*===========================================================================
-project:      pretrends
-Author:       Jorge Perez
-Program Name: xteventtest.do
-Dependencies: Banxico
----------------------------------------------------------------------------
-Creation Date:      Aug 14 2019
-Modification Date:    
-version:            1  
-References:     
----------------------------------------------------------------------------
-* Tests xtevent	
----------------------------------------------------------------------------
-Change log:
-				
-	
-===========================================================================*/
+cap log close
+
+cap log using test.log, replace text
 
 clear all
-
-cd "source/lib/stata/xtevent/test"
 
 /*=========================================================================
                         1: Load data 
@@ -431,3 +415,4 @@ xteventtest, overidpre(2)
 xteventtest, overidpost(3)
 xteventtest, overid
 
+cap log close
