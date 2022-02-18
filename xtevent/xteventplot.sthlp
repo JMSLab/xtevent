@@ -170,7 +170,7 @@ the confidence region plot. These options are only active if {opt smpath} is spe
 overlay plot. These options are only active if {opt overlay(trend)} is specified.
 
 {phang}
-{opt staticovopts} specifies options to be passed to {cmd:line} for the static effect overlay
+{opt staticovplotopts} specifies options to be passed to {cmd:line} for the static effect overlay
  plot. These options are only active if {opt overlay(static)} is specified.
 
 {phang}
