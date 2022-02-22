@@ -235,11 +235,11 @@ program define _eventiv, rclass
 	else {
 		loc cmd "reghdfe"
 		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
-			loc noabsorb "noabsorb"
+			loc noabsorb ""
 			loc abs ""
 		}
 		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc noabsorb "noabsorb"
+			loc noabsorb ""
 			loc abs "absorb(`absorb')"
 		}
 		else if "`fe'" == "nofe" & "`te'"!=""{
@@ -254,7 +254,7 @@ program define _eventiv, rclass
 			loc abs "absorb(`i' `te' `absorb')"	
 			loc noabsorb ""
 		}
-		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
+		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 	}
 	
 	* Return coefficients and variance matrix of the delta k estimates separately
