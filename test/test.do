@@ -128,6 +128,9 @@ xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) nostaggered plot
 * Test reghdfe
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) reghdfe plot
 
+* Test reghdfe and proxy and absorbing a variable 
+xtevent y eta, policyvar(z) window(3) proxy(x) nofe addabsorb(i) reghdfe
+
 * Overlay static plot
 xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, overlay(static)
