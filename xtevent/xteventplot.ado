@@ -9,10 +9,10 @@ program define xteventplot
 	[	
 	noci /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
-	nozeroline */ Supress line at 0 */
-	nominus1label */ Supress label for value of dependent variable at event time = -1 */
-	noprepval */ Supress p-vale for pre-trends test */
-	nopostpval */ Supress p-vale for leveling-off test */
+	nozeroline /* Supress line at 0 */
+	nominus1label /* Supress label for value of dependent variable at event time = -1 */
+	noprepval /* Supress p-vale for pre-trends test */
+	nopostpval /* Supress p-vale for leveling-off test */
 	suptreps(integer 1000) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
@@ -109,7 +109,7 @@ program define xteventplot
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
 	if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
 	if "`minus1label'"=="nominus1label" di as txt _n "{option bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
-	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pre-trends test won't be displayed"
+	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
 	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
 	
 	loc kmiss = e(kmiss)
@@ -453,7 +453,7 @@ program define xteventplot
 				}
 				
 			}
-			if ("`prepval'"!="noprepval") loc notepre "Pre-trends p-value = `pvalpre'"
+			if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
 			else loc notepre ""
 			if ("`postpval'"!="nopostpval") {
 				loc notepost "Leveling off p-value = `pvalpost'"
