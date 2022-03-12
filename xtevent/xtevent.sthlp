@@ -34,10 +34,10 @@
 {synopt: {opth w:indow(numlist)}} # of periods in the estimation window{p_end}
 {synopt: {opth pre(integer)}} # of periods with anticipation effects{p_end}
 {synopt: {opth post(integer)}} # of periods with policy effects{p_end}
-{synopt: {opth overidpre(integer)}} # of periods to test pretrends{p_end}
+{synopt: {opth overidpre(integer)}} # of periods to test pre-trends{p_end}
 {synopt: {opth overidpost(integer)}} # of periods to test effects leveling off
 {p_end}
-{synopt:{opth norm(integer)} event-time coefficient to normalize to 0{p_end}
+{synopt:{opth norm(integer)}} event-time coefficient to normalize to 0{p_end}
 {synopt:{opth proxy(varname)}} proxy for the confound{p_end}
 {synopt:{opt proxyiv(string)}} instruments for the proxy variable{p_end}
 {synopt:{opt nofe}} omit panel fixed effects {p_end}
@@ -109,7 +109,7 @@ positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (pl
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
 of periods after the event.
 
-{phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pretrends. With {opt window}, {opt overidpre}
+{phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
 
 {phang2} {opt overidpost} is the number of post-event periods for an overidentification test of effects leveling off. With {opt window},

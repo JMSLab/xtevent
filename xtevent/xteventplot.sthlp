@@ -44,7 +44,6 @@
 {synopt:{opt suptciplotopts(string)}} graphics options for sup-t confidence interval plot{p_end}
 {synopt:{opt staticovplotopts(string)}} graphics options for smoothest path plot{p_end}
 {synopt:{opt trendplotopts(string)}} graphics options for extrapolated trend plot{p_end}
-{synopt:{opt scatterplotopts(string)}} graphics options for coefficient scatter plot{p_end}
 {synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
 {synopt:{it: additional_options}} additional options to be passed to {cmd:twoway}{p_end}
 
@@ -170,7 +169,7 @@ the confidence region plot. These options are only active if {opt smpath} is spe
 overlay plot. These options are only active if {opt overlay(trend)} is specified.
 
 {phang}
-{opt staticovplotopts} specifies options to be passed to {cmd:line} for the static effect overlay
+{opt staticovopts} specifies options to be passed to {cmd:line} for the static effect overlay
  plot. These options are only active if {opt overlay(static)} is specified.
 
 {phang}
