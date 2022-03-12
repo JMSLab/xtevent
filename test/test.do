@@ -132,6 +132,16 @@ xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) reghdfe plot
 gen k=round(x) //generate a categorical variable. Use it as a control 
 xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe
 
+*Test additional cluster and robust specifications
+xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe robust cluster(i)
+*equivalent specification (it admits use of vce)
+xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(robust cluster i)
+
+/*
+*Test other standar-error specifications (not allowed)
+xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(bootstrap) //will show an error message
+*/
+
 * Overlay static plot
 xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, overlay(static)
