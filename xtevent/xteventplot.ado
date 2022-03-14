@@ -26,7 +26,7 @@ program define xteventplot
 	suptciplotopts(string)
 	smplotopts(string)
 	trendplotopts(string)
-	staticovplotopts(string)
+	staticovopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	
 	*
