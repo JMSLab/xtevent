@@ -128,6 +128,10 @@ xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) nostaggered plot
 * Test reghdfe
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) reghdfe plot
 
+* Test reghdfe, proxy and absorbing a variable 
+gen k=round(x) //generate a categorical variable. Use it as a control 
+xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe
+
 * Overlay static plot
 xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, overlay(static)

@@ -233,28 +233,34 @@ program define _eventiv, rclass
 		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'		
 	}
 	else {
-		loc cmd "reghdfe"
-		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
-			loc noabsorb "noabsorb"
+		if "`fe'" == "" & "`te'"=="" & "`absorb'"=="" {						
+			loc abs "absorb(`i' `t')"
+		}
+		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
+			loc abs "absorb(`t')"
+		}
+		else if "`fe'" == "" & "`te'"=="note" & "`absorb'"=="" {						
+			loc abs "absorb(`i')"
+		}
+		else if "`fe'" == "" & "`te'"=="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `t' `absorb')"
+		}
+		else if "`fe'" == "nofe" & "`te'"=="note" & "`absorb'"=="" {						
 			loc abs ""
 		}
 		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc noabsorb "noabsorb"
+			loc abs "absorb(`t' `absorb')"
+		}
+		else if "`fe'" == "" & "`te'"=="note" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `absorb')"
+		}
+		else if "`fe'" == "nofe" & "`te'"=="note" & "`absorb'"!="" {						
 			loc abs "absorb(`absorb')"
 		}
-		else if "`fe'" == "nofe" & "`te'"!=""{
-			loc abs "absorb(`te' `absorb')"	
-			loc noabsorb ""
-		}
-		else if "`fe'" != "nofe" & "`te'"==""{
-			loc abs "absorb(`i' `absorb')"	
-			loc noabsorb ""
-		}
 		else {
-			loc abs "absorb(`i' `te' `absorb')"	
-			loc noabsorb ""
+			loc abs "absorb(`i' `t' `absorb')"	
 		}
-		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
+		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `options'
 	}
 	
 	* Return coefficients and variance matrix of the delta k estimates separately
