@@ -29,3 +29,4 @@ temp
 *converted-to.pdf
 *texput.log
 *.synctex(busy)
+test/test.log
