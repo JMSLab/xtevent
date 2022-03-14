@@ -233,6 +233,7 @@ program define _eventiv, rclass
 		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'		
 	}
 	else {
+	
 		if "`fe'" == "" & "`te'"=="" & "`absorb'"=="" {						
 			loc abs "absorb(`i' `t')"
 		}
@@ -260,7 +261,70 @@ program define _eventiv, rclass
 		else {
 			loc abs "absorb(`i' `t' `absorb')"	
 		}
+		*analyze inclusion of vce in options
+		loc vce_y= strmatch("`options'","*vce(*)*")
+		
+		*if user did not specify vce option 
+		if "`vce_y'"=="0" { 
 		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `options'
+		}
+		*if user did specify vce option
+		else {  
+			*find start and end of vce text 
+			loc vces=strpos("`options'","vce(")
+			loc vcef=0
+			loc ocopy="`options'"
+			while `vcef'<`vces' {
+				loc vcef=strpos("`ocopy'", ")")
+				loc ocopy=subinstr("`ocopy'",")", " ",1)
+			}
+			*substrac vce words
+			loc svce_or=substr("`options'",`vces',`vcef')
+			loc vce_len=strlen("`svce_or'")
+			loc svce=substr("`svce_or'",5,`vce_len'-5)
+			loc svce=strltrim("`svce'")
+			loc svce=strrtrim("`svce'")
+			*inspect whether vce contains bootstrap or jackknife
+			loc vce_bt= strmatch("`svce'","*boot*")
+			loc vce_jk= strmatch("`svce'","*jack*")
+			if `vce_bt'==1 | `vce_jk'==1 {
+				di as err "Options {bf:bootstrap} and {bf:jackknife} are not allowed"
+				exit 301
+			}
+			
+			*if vce contains valid options, parse those options
+			*erase vce from original options
+			loc options_wcve=subinstr("`options'","`svce_or'"," ",1)
+			*** parse vce(*) ****
+			loc vce_wc=wordcount("`svce'")
+			tokenize `svce'
+			*extract vce arguments 
+			*robust 
+			loc vce_r= strmatch("`svce'","*robust*")
+			loc vce_r2=0
+			forv i=1/`vce_wc'{
+				loc z= strmatch("``i''","r")
+				loc vce_r2=`vce_r2'+`z'
+			}
+			if `vce_r'==1 | `vce_r2'==1 {
+				loc vceop_r="robust"
+			}
+			*cluster
+			loc vce_c= strmatch("`svce'","*cluster*")
+			loc vce_c2= strmatch("`svce'","*cl*")
+			if `vce_c'==1 | `vce_c2'==1 {
+				forv i=1/`vce_wc'{
+					loc vce_r2= strmatch("``i''","*cl*")
+					if `vce_r2'==1 {
+						loc j=`i'+1
+						}
+				}
+				loc vceop_c="cluster(``j'')"
+			}
+			
+			ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options_wcve' `vceop_r' `vceop_c'
+		}
+
 	}
 	
 	* Return coefficients and variance matrix of the delta k estimates separately
