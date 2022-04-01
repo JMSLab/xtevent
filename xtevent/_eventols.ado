@@ -22,8 +22,10 @@ program define _eventols, rclass
 	nodrop /* Do not drop _k variables */
 	norm(integer -1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
-	nostaggered /* Calculate endpoints without absorbing policy assumption, requires z */
-	impute /* Impute outside missing values in policyvar */
+	*nostaggered /* Calculate endpoints without absorbing policy assumption, requires z */
+	stag /* impute outer missing values in policyvar if staggered assumptions hold */
+	nuchange /* Impute outside missing values in policyvar */ 
+	instag 
 	absorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
@@ -65,7 +67,7 @@ program define _eventols, rclass
 	loc z = "`policyvar'"
 	
 	if "`gen'" != "nogen" {
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') norm(`norm') `staggered' `impute'
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') norm(`norm') `stag' `nuchange' `instag'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)

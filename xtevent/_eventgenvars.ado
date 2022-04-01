@@ -15,8 +15,9 @@ program define _eventgenvars, rclass
 	norm(numlist) /* Coefficients to normalize */
 	[
 	trend(string) /* Lower limit for trend */	
-	nostaggered /* Calculate endpoints without staggered adoption assumption, requires z */
-	impute /* Impute outside missing values of z*/
+	stag /* Imputes outside missing values of z assuming staggered adoption*/
+	nuchange /* Impute outside missing values of z*/
+	instag /* impute outer and inner missing values */
 	]	
 	;
 	#d cr	
@@ -76,7 +77,30 @@ program define _eventgenvars, rclass
 		exit 110
 	}
 	
-	********** check consistency with staggered adoption *******************
+********************* find first and last observed values *********************
+	*find minimum valid time
+	cap drop zmint zmint2 zminv zminv2
+	by `panelvar' (`timevar'): egen zmint=min(`timevar') if !missing(`z') & `touse'
+	by `panelvar' (`timevar'): egen zmint2=min(zmint)
+	*find minimum valid value
+	by `panelvar' (`timevar'): gen zminv=`z' if `timevar'==zmint2 
+	by `panelvar' (`timevar'): egen zminv2=min(zminv)
+
+	*find maximum valid time
+	cap drop zmaxt zmaxt2 zmaxv zmaxv2
+	cap by `panelvar' (`timevar'): egen zmaxt=max(`timevar') if !missing(`z') & `touse'
+	cap by `panelvar' (`timevar'): egen zmaxt2=max(zmaxt)
+	*find maximum valid value
+	cap by `panelvar' (`timevar'): gen zmaxv=`z' if `timevar'==zmaxt2 
+	cap by `panelvar' (`timevar'): egen zmaxv2=max(zmaxv)
+
+	*create a copy of z. If imputation happens, it will be on this copy
+	cap drop zn2 
+	gen zn2=`z'
+	order zn2, after(`z')
+	
+
+********** check consistency with staggered adoption *******************
 	
 	tempvar zn l1 notmiss   
 	
@@ -84,55 +108,44 @@ program define _eventgenvars, rclass
 	cap assert inlist(`z',0,1,.) if `touse'
 	if _rc {
 		qui su `z' if `touse'
-		*cap assert inlist(`z',0,`=r(max)')
-		cap assert inlist(`z',`=r(min)',`=r(max)',.) //cc
+		cap assert inlist(`z',`=r(min)',`=r(max)',.) 
 		if !_rc loc bin 1
 		else loc bin 0
 	}
 	else loc bin 1
-	*if binary, create a copy of z normalized to 0 1
-	if `bin'==1 {
-		qui su `z' if `touse'
-		qui recode `z' (`=r(min)'=0) (`=r(max)'=1), generate(`zn')
-	}
-	else {
-	gen `zn'=`z'
-	}
-	
-	* If not binary default to nostaggered adoption
-	if `bin'==0 {
-		*loc staggered ="nostaggered"
-		*di "The policy variable is not binary. Assuming no staggered adoption."
-		di "The policy variable is not binary."
-		if "`impute'"=="impute"{
-			di "Imputation is not possible since the policy variable is not binary."
-		}
-		loc impute ="noimpute"
-		di "If event dummies and variables are saved, event-time will be missing."		
+
+	* If not binary default to nostaggered adoption & no_unobserved_change cannot be applied
+	if `bin'==0 & "`stag'"=="stag" {
+		
+		di "The policy variable is not binary. Assuming no-staggered adoption."
+		di "If event dummies and variables are saved, event-time will be missing."	
+		loc stag =""
 	}
 	
 	
-	****** if binary holds, verify no-reversion (once reached 1, never returns to zero)
+	****** verify no reversion (once reached 1, never returns to zero)
+	tempvar zr
+	gen `zr'=`z'
+	cap by `panelvar' (`timevar'): replace `zr'=`zr'[_n-1] if missing(`zr') & `timevar'>=zmint2 & `timevar'<=zmaxt2 
+	
 	loc norever 0
-	if `bin'==1 {
-		cap gen `l1'= (F1.`zn'>=`zn') if !missing(`zn') & !missing(F1.`zn') & `touse'
-		qui sum `l1' if `touse'
-		loc l1min=`=r(min)'
-		if `l1min'==0 {
-			*di "Some units fail to follow the staggered pattern of no reversion. Returning to no-staggered adoption mode."
-		if "`impute'"=="impute"{
-			di "Imputation is not possible because some units fail to follow the staggered pattern of no reversion."
-		}
-			loc norever 0
-			loc impute ="noimpute"
-		}
-		else loc norever 1
+	cap by `panelvar' (`timevar'): gen `l1'= (F1.`zr'>=`zr') if !missing(`zr') & !missing(F1.`zr') & `touse'
+	cap assert `l1'==1 if !missing(`l1')
+	if ! _rc{
+		loc norever 1
 	}
+	else loc norever 0
 	
-	****** if no-reversion holds, verify "bounds" condition: 0 at the begining and 1 at the end
+	if `norever'==0 & "`stag'"=="stag" {
+		di "Some units fail to follow the staggered pattern of no reversion. Assuming no-staggered adoption."
+		loc stag=""
+	}
+
+	
+	****** if no-reversion holds, verify "bounds" condition: 0 as the first observed and 1 as the last observed 
 	cap drop `notmiss'
-	cap gen `notmiss'=!missing(`zn')
-	*order `notmiss', after(`zn')
+	cap gen `notmiss'=!missing(`z')
+	*order `notmiss', after(`z')
 	
 	cap drop zt
 	cap by `panelvar' (`timevar'): gen zt=`timevar' if `notmiss'==1 &  `touse'
@@ -142,44 +155,48 @@ program define _eventgenvars, rclass
 	*order zt maxzt minzt,after(`notmiss')
 
 	loc bounds 0
-	if `norever'==1 {
+	if `bin'==1 & `norever'==1 {
 		*verify the condition 
-		cap assert `zn'==0 if minzt==`timevar' & `touse'
+		cap assert `z'==0 if minzt==`timevar' & `touse'
 		* if low-bound value is zero, then test the upper-bound
 		if !_rc{
-			cap assert `zn'==1 if maxzt==`timevar' & `touse'
+			cap assert `z'==1 if maxzt==`timevar' & `touse'
 			if !_rc loc bounds 1
 		} 
 		
 		if `bounds'==0 {
-			if "`impute'"=="impute"{
-				di "For some units, the first observed value is not zero and the last observed value is not one. Imputation is not possible."
-			}
-			loc impute ="noimpute"
+			if "`stag'"=="stag"{
+				di "For some units, the first observed value is not zero and the last observed value is not one. Assuming no-staggered adoption."
+				loc stag =""
+			}	
 		}
-		}
+	}
 		
-	
-	********************** apply imputation *************************
-	*if conditions holds, impute z (apply no_unobserved_change)
-	
-	cap drop zn2
-	gen zn2=`zn'
-	order zn2, after(`z')
-	
-	*by the moment staggered is empty
-	
-	*if `bounds'==1 & "`staggered'"=="" { 
-	if "`impute'"=="impute" { 
+***************** no unobserved change ***************************
 
-		replace zn2=0 if t<minzt
-		replace zn2=1 if t>maxzt
+	if "`nuchange'"=="nuchange" | "`stag'"=="stag" | "`instag'"=="instag" {
+		replace zn2=zminv2 if `timevar'<zmint2
+		replace zn2=zmaxv2 if `timevar'>zmaxt2
+	}
+
+************** impute inner missing values ***********************
+	if `bin'==1 & `norever'==1 & `bounds'==1 & "`instag'"=="instag" {
+		
+		tempvar zdown zup 
+		gen `zdown'=`z'
+		gsort `panelvar' `timevar'
+		replace `zdown'=`zdown'[_n-1] if missing(`zdown')
+		gen `zup'=`z'
+		gsort + `panelvar' - `timevar'
+		replace `zup'=`zup'[_n-1] if missing(`zup')
+		sort `panelvar' `timevar'
+		
+		replace zn2=`zdown' if `timevar'>=zmint2 & `timevar'<=zmaxt2 & missing(`z') & `zdown'==`zup'
 		
 	}
-	
 
+****************************** event-time dummies ***********************
 	
-	******************************************************************
 	qui xtset `panelvar' `timevar', noquery
 	
 	qui sort `panelvar' `timevar', stable
@@ -197,10 +214,10 @@ program define _eventgenvars, rclass
 	
 	*matrix limits
 	tempvar minz maxz minz2 maxz2 
-	by `panelvar' (`timevar'): egen `minz'=min(`timevar') if !missing(F`=-`lwindow''.zd)
+	by `panelvar' (`timevar'): egen `minz'=min(`timevar') if !missing(zn2)
 	by `panelvar' (`timevar'): egen `minz2'=min(`minz')
 			
-	by `panelvar' (`timevar'): egen `maxz'=max(`timevar') if !missing(L`rwindow'.zd)
+	by `panelvar' (`timevar'): egen `maxz'=max(`timevar') if !missing(zn2)
 	by `panelvar' (`timevar'): egen `maxz2'=max(`maxz')
 	
 	*qui forv klevel=`lwindow'(1)`rwindow' {
@@ -212,7 +229,7 @@ program define _eventgenvars, rclass
 			loc plus = "m"
 			* bys `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=`z'[_n+`absk']-`z'[_n+`absk'-1] if `touse'
 			*by `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=F`absk'.`z'-F`=`absk'-1'.`z' if `touse'
-			by `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=F`absk'.zd if `touse'
+			by `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=F`absk'.zd if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
 			la var _k_eq_`plus'`absk' "Event-time = - `absk'"
 			*this to impute zeros in the corner 
 			cap drop minp minp2 maxp maxp2 
@@ -226,7 +243,7 @@ program define _eventgenvars, rclass
 			loc plus "p" 
 			* bys `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=`z'[_n-`absk']-`z'[_n-`absk'-1] if `touse'		 
 			*by `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=L`absk'.`z'-L`=`absk'+1'.`z' if `touse'
-			by `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=L`absk'.zd if `touse'
+			by `panelvar' (`timevar'): gen _k_eq_`plus'`absk'=L`absk'.zd if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
 			la var _k_eq_`plus'`absk' "Event-time = + `absk'"
 			*this to impute zeros in the corner 
 			cap drop minp minp2 maxp maxp2 
@@ -303,90 +320,56 @@ program define _eventgenvars, rclass
 	
 	
 	* Absorbing version
-	*if "`staggered'"=="" {
+	di "stag:`stag'"
+	if "`stag'"=="stag" | "`nuchange'"=="nuchange" | "`instag'"=="instag" { 
 		qui {
-			****** Left
-			*gen _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if !missing(f`=-`lwindow''.`zn2') & `touse'
-			cap drop _k_eq_m`=-`lwindow'+1'
-			cap drop p0min p0min2
-			cap drop p0max p0max2
-			cap drop onemin
-			cap drop lonemin
-			cap drop lmin
-			cap drop zeromax
-			cap drop rzeromax
-			qui by `panelvar' (`timevar'): egen p0min=min(`timevar') if !missing(_k_eq_p0)
-			qui by `panelvar' (`timevar'): egen p0min2=max(p0min)
-			qui by `panelvar' (`timevar'): egen p0max=max(`timevar') if !missing(_k_eq_p0)
-			qui by `panelvar' (`timevar'): egen p0max2=max(p0max)
-			
-			gen _k_eq_m`=-`lwindow'+1' = (f`=-`lwindow'+1'.zd) if (`timevar'>=p0min2) & `touse'
-			*ones
-			qui by `panelvar' (`timevar'): egen onemin=min(`timevar') if !missing(_k_eq_m`=-`lwindow'+1') & _k_eq_m`=-`lwindow'+1'==1
-			qui by `panelvar' (`timevar'): egen lonemin=max(onemin)
-			replace _k_eq_m`=-`lwindow'+1'=1 if `timevar'<lonemin & !missing(_k_eq_m`=-`lwindow'+1')
-			*zeros
-			qui by `panelvar' (`timevar'): egen zeromax=max(`timevar') if !missing(_k_eq_m`=-`lwindow'+1') & _k_eq_m`=-`lwindow'+1'==0
-			qui by `panelvar' (`timevar'): egen rzeromax=max(zeromax)
-			replace _k_eq_m`=-`lwindow'+1'=0 if `timevar'>rzeromax & `timevar'<=p0max2
-			
-			*replace _k_eq_m`=-`lwindow'+1' = 0 if _k_eq_m`=-`lwindow'+1' == . & `touse' //cc:this replacement is not allowed anymore
-			by `panelvar' (`timevar'): egen double `mz' = max(`z') if `touse'
-			replace _k_eq_m`=-`lwindow'+1' =0 if `mz'==0  & `touse'
+			* Left
+			gen _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.zn2) if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse' //cc:this guarantees there will be 1's before the 1 corresponding to that _k_eq_m variable. See the excel file
+			*find maximum valid time for left endpoint
+			cap drop maxl maxl2
+			by `panelvar' (`timevar'): egen maxl=max(`timevar') if !missing(_k_eq_m`=-`lwindow'+1')
+			by `panelvar' (`timevar'): egen maxl2=max(maxl)
+			*replace with zeros
+			replace _k_eq_m`=-`lwindow'+1' = 0 if _k_eq_m`=-`lwindow'+1' == . & (`timevar'>maxl2) & (`timevar'<=`maxz2') & `touse'
+			by `panelvar' (`timevar'): egen double `mz' = max(zn2) if `touse'
+			replace _k_eq_m`=-`lwindow'+1' =0 if `mz'==0 & ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
 			drop `mz'
 			order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
-			
-			******* right 
-			cap drop _k_eq_p`=`rwindow'+1'
-			cap drop p0min p0min2
-			cap drop p0max p0max2
-			cap drop onemax
-			cap drop ronemax
-			cap drop lmin
-			cap drop zeromin
-			cap drop rzeromin
-			qui by `panelvar' (`timevar'): egen p0min=min(`timevar') if !missing(_k_eq_p0)
-			qui by `panelvar' (`timevar'): egen p0min2=max(p0min)
-			qui by `panelvar' (`timevar'): egen p0max=max(`timevar') if !missing(_k_eq_p0)
-			qui by `panelvar' (`timevar'): egen p0max2=max(p0max)
-			
-			gen _k_eq_p`=`rwindow'+1' = (l`=`rwindow'+1'.zd) if (`timevar'<=p0max2) & `touse'
-			*ones
-			qui by `panelvar' (`timevar'): egen onemax=max(`timevar') if !missing(_k_eq_p`=`rwindow'+1') & _k_eq_p`=`rwindow'+1'==1
-			qui by `panelvar' (`timevar'): egen ronemax=max(onemax)
-			replace _k_eq_p`=`rwindow'+1'=1 if `timevar'>ronemax & !missing(_k_eq_p`=`rwindow'+1')
-			*zeros
-			qui by `panelvar' (`timevar'): egen zeromin=min(`timevar') if !missing(_k_eq_p`=`rwindow'+1') & _k_eq_p`=`rwindow'+1'==0
-			qui by `panelvar' (`timevar'): egen rzeromin=max(zeromin)
-			replace _k_eq_p`=`rwindow'+1'=0 if `timevar'<rzeromin & `timevar'>=p0min2
-			
 			
 			* Right
 			
 			*egen double `mz' = rowmax(_k_eq_m`=-`lwindow'+1'-_k_eq_p`=`rwindow'') if `touse'
 			*gen _k_eq_p`=`rwindow'+1'= 1-`mz' if `touse'
-			by `panelvar' (`timevar'): egen `mz2' = max(`z') if `touse'		
-			replace _k_eq_p`=`rwindow'+1'=0 if `mz2'==0 & `touse'
-			cap drop `mz'
-			cap drop `mz2'	
-			order _k_eq_p`=`rwindow'+1', after(_k_eq_p`=`rwindow'')	
+			gen _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.zn2 if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
+			*find minimun valid time for right endpoint 
+			cap drop minr minr2 
+			by `panelvar' (`timevar'): egen minr=min(`timevar') if !missing(_k_eq_p`=`rwindow'+1') & `touse'
+			by `panelvar' (`timevar'): egen minr2=min(minr)
+			*replace missing values in the upper-right corner
+			by `panelvar' (`timevar'): replace _k_eq_p`=`rwindow'+1'=0 if (`timevar'>=`minz2') & (`timevar'<minr2) & `touse'
+			by `panelvar' (`timevar'): egen `mz2' = max(zn2) if `touse'		
+			replace _k_eq_p`=`rwindow'+1'=0 if `mz2'==0 & ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) &  `touse'
+			*drop `mz'
+			drop `mz2'	
 			order __k, after(_k_eq_p`=`rwindow'+1')			
 		}	
-
-	
-	/*
+	}
 	* Not absorbing version
-	else if "`staggered'"=="nostaggered" {
+	*else if "`stag'"=="" {
+	else {
 		qui {
 			* Left
-			gen _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`z') if `touse'
+			gen _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.zn2) if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
 			order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
 			* Right
-			gen _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`z' if `touse'			
+			gen _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.zn2 if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'			
 			order __k, after(_k_eq_p`=`rwindow'+1')
 		}
 	}
-	*/
+	
+	order z zn2 zd _k* __k, after(y)
+	
+	
 	
 	la var _k_eq_m`=-`lwindow'+1' "Event time <= - `=-`lwindow'+1'"
 	la var _k_eq_p`=`rwindow'+1' "Event time >= + `=`rwindow'+1'"
@@ -395,7 +378,7 @@ program define _eventgenvars, rclass
 	
 	* If z is binary, check if event-time is missing
 	*if `bin' & "`staggered'"=="" {
-	if `bin' {
+	if `bin' & ("`stag'"=="stag" | "`instag'"=="instag") {
 		cap assert __k !=. if `touse'
 		* If it is, check for which units
 		if _rc {
