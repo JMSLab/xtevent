@@ -21,7 +21,7 @@ program define _eventiv, rclass
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */		
 	norm(integer -1) /* Normalization */	
 	reghdfe /* Use reghdfe for estimation */	
-	nostaggered /* Calculate endpoints without absorbing policy assumption, requires z */
+	impute(string) /*imputation on policyvar*/
 	absorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
@@ -169,7 +169,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit		
 	
 	if "`gen'" != "nogen" {	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') `staggered'
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute')
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
@@ -206,7 +206,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit	
 	
 	* Check that the iv normalization works
-	
+
 	foreach v in `leadivs' `varivs' {
 		qui _regress `v' `included' [`weight'`exp'] if `touse', absorb(`i')
 		if e(r2)==1 {
@@ -230,7 +230,7 @@ program define _eventiv, rclass
 			loc cmd "xtivreg"
 			loc ffe "fe"
 		}
-		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'		
+		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
 	}
 	else {
 	

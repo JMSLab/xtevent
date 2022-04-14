@@ -16,7 +16,8 @@ program define _eventivstatic, rclass
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
 	absorb(string) /* Absorb additional variables in reghdfe */ 
-	
+	impute(string)
+	STatic
 	*
 	]
 	;
@@ -98,8 +99,19 @@ program define _eventivstatic, rclass
 		}
 		loc insvars = "`proxyiv'"
 	}
+	
+	*call _eventgenvars to impute z
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static'
+	
 		
 	* Main regression
+	
+	if "`impute'"!="" {
+		loc zreg="`policyvar'_imputed"
+	}
+	else {
+		loc zreg="`z'"
+	}
 	
 	if "`reghdfe'"=="" {
 		if "`fe'" == "nofe" {
@@ -110,7 +122,7 @@ program define _eventivstatic, rclass
 			loc cmd "xtivreg"
 			loc ffe "fe"
 		}
-		`cmd' `varlist' (`proxy' = `insvars') `z' `tte' [`weight'`exp'] if `touse' , `ffe' `options'
+		`cmd' `varlist' (`proxy' = `insvars') `zreg' `tte' [`weight'`exp'] if `touse' , `ffe' `options'
 	}
 	else {
 		loc cmd "reghdfe"
@@ -134,7 +146,7 @@ program define _eventivstatic, rclass
 			loc abs "absorb(`i' `te' `absorb')"	
 			loc noabsorb ""
 		}
-		ivreghdfe `varlist' (`proxy' = `insvars') `z' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
+		ivreghdfe `varlist' (`proxy' = `insvars') `zreg' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
 	}
 	
 	

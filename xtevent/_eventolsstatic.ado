@@ -15,6 +15,8 @@ program define _eventolsstatic, rclass
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
 	absorb(string) /* Absorb additional variables in reghdfe */ 
+	impute(string)
+	STatic
 	*
 	]
 	;
@@ -28,7 +30,17 @@ program define _eventolsstatic, rclass
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
 	
+	*call _eventgenvars to impute z
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static'
+	
 	* Main regression
+	
+	if "`impute'"!="" {
+		loc zreg="`policyvar'_imputed"
+	}
+	else {
+		loc zreg="`z'"
+	}
 	
 	if "`te'" == "note" loc te ""
 	else loc te "i.`t'"
@@ -42,7 +54,7 @@ program define _eventolsstatic, rclass
 			loc absorb "absorb(`i')"
 			loc cmd "areg"
 		}
-		`cmd' `varlist' `z' `te' [`weight'`exp'] if `touse', `absorb' `options'
+		`cmd' `varlist' `zreg' `te' [`weight'`exp'] if `touse', `absorb' `options'
 	}
 	else {
 		loc cmd "reghdfe"
@@ -66,7 +78,7 @@ program define _eventolsstatic, rclass
 			loc abs "absorb(`i' `te' `absorb')"	
 			loc noabsorb ""
 		}
-		reghdfe `varlist' `z' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
+		reghdfe `varlist' `zreg' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
 	}
 	
 	mat `bb' = e(b)
