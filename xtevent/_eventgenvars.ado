@@ -21,7 +21,7 @@ program define _eventgenvars, rclass
 	/*nuchange  imputes outer missing values of policyvar without verifying staggered adoption*/
 	/*stag  imputes outer missing values of policyvar verifying staggered adoption*/
 	/*instag  imputes outer and inner missing values verifying staggered adoption*/
-	STatic
+	STatic /* Estimate static model */
 	
 
 	
@@ -45,7 +45,7 @@ program define _eventgenvars, rclass
 		loc tmax=r(max)
 		loc tdiff = `tmax'-`tmin'
 		
-		* Using notation from latest draft 
+		* Using notation from latest draft: https://jorgeperezperez.com/files/EventStudy.pdf 
 		
 		* Endpoints are left: G+L+1
 		* Right: M+1
@@ -90,7 +90,7 @@ program define _eventgenvars, rclass
 
 	*find minimum valid time (time where there is a no-missing observation)
 	tempvar zmint zmint2 zminv zminv2 zmaxt zmaxt2 zmaxv zmaxv2
-	cap by `panelvar' (`timevar'): egen `zmint'=min(`timevar') if !missing(`z') & `touse'
+	cap by `panelvar' (`timevar'): egen `zmint'=min(`timevar') if !missing(`z') & `touse'	
 	cap by `panelvar' (`timevar'): egen `zmint2'=min(`zmint')
 	*find the corresponding minimum valid value
 	cap by `panelvar' (`timevar'): gen `zminv'=`z' if `timevar'==`zmint2' 
@@ -106,24 +106,28 @@ program define _eventgenvars, rclass
 	*create a copy of z. If imputation happens, it will be on this copy
 	cap drop zn2 
 	qui gen zn2=`z'
-
-	********** show a warning message if we don't know treatment time for some units due to missing values in policyvar 
-	tempvar zwd zwu 
-	qui gen `zwd'=`z' if `touse'
-	cap by `panelvar' (`timevar'): replace `zwd'=`zwd'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
-	qui gen `zwu'=`z' if `touse'
-	gsort + `panelvar' - `timevar'
-	cap by `panelvar': replace `zwu'=`zwu'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
-	sort `panelvar' `timevar'
-	cap assert `zwd'==`zwu' if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
-	if _rc{
-		di "Event time is unknown for some units due to missing values in policyvar."
-	}
 	
 	********** Verify consistency with staggered adoption *******************
-	
+	 
 	loc bin 0
+	loc norever 0
+	loc bounds 0
 	if "`impute'"=="stag" | "`impute'"=="instag" {
+	* show a warning message if we don't know treatment time for some units due to missing values in policyvar 
+		tempvar zwd zwu 
+		qui gen `zwd'=`z' if `touse'
+		cap by `panelvar' (`timevar'): replace `zwd'=`zwd'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
+		qui gen `zwu'=`z' if `touse'
+		gsort + `panelvar' - `timevar'
+		cap by `panelvar': replace `zwu'=`zwu'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
+		sort `panelvar' `timevar'
+		cap assert `zwd'==`zwu' if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
+		if _rc{
+			di "Event time is unknown for some units due to missing values in policyvar."
+		}
+	
+		************* verify whether policyvar is binary *******************
+	
 		tempvar zn l1   
 		****** Check if z is binary
 		cap assert inlist(`z',0,1,.) if `touse'
@@ -145,21 +149,18 @@ program define _eventgenvars, rclass
 			loc rmaxz=1
 			loc bin 1
 		}
-	}
 
-	* If not binary, default 
-	if `bin'==0 & ("`impute'"=="stag" | "`impute'"=="instag") {
+		* If not binary, default 
+		if `bin'==0 {
+			
+			di "The policy variable is not binary. Assuming non-staggered adoption (no imputation)."
+			di "If event dummies and variables are saved, event-time will be missing."	
+			loc impute =""
+		}
 		
-		di "The policy variable is not binary. Assuming non-staggered adoption (no imputation)."
-		di "If event dummies and variables are saved, event-time will be missing."	
-		loc impute =""
-	}
+		*********** verify no reversion  ****************************
+		*(e.g. if binary 0 and 1, once reached 1, never returns to zero)
 	
-	*********** verify no reversion  ****************************
-	*(e.g. if binary 0 and 1, once reached 1, never returns to zero)
-	
-	loc norever 0
-	if "`impute'"=="stag" | "`impute'"=="instag" {
 		tempvar zr
 		cap gen `zr'=`z'
 		*where there are missings, impute the previous value
@@ -170,18 +171,16 @@ program define _eventgenvars, rclass
 		if ! _rc{
 			loc norever 1
 		}
-	}
 	
-	if `norever'==0 & ("`impute'"=="stag" | "`impute'"=="instag") {
-		di "Policyvar changes more than once for some units. Assuming non-staggered adoption (no imputation)."
-		loc impute=""
-	}
+	
+		if `norever'==0 & "`impute'"=="stag" | "`impute'"=="instag" {
+			di "Policyvar changes more than once for some units. Assuming non-staggered adoption (no imputation)."
+			loc impute=""
+		}
 
 	
-	****** if no-reversion holds, verify "bounds" condition: e.g. if binary 0 and 1, verify 0 as the first observed value and 1 as the last observed value
+		****** if no-reversion holds, verify "bounds" condition: e.g. if binary 0 and 1, verify 0 as the first observed value and 1 as the last observed value
 	
-	loc bounds 0
-	if "`impute'"=="stag" | "`impute'"=="instag" {
 		tempvar notmiss zt minzt maxzt
 		cap gen `notmiss'=!missing(`z')
 		
@@ -213,12 +212,14 @@ program define _eventgenvars, rclass
 		cap assert inlist(`z',`rminz',`rmaxz') if `sbmin'==0
 		if !_rc loc bounds 1
 		}
+	
+	
+		if `bounds'==0 & "`impute'"=="stag" | "`impute'"=="instag" {
+				di "For some units, the changes in policyvar are not consistent with no-unobserved-change. Reverting to default (no imputation)."
+				loc impute =""	
+		}
 	}
 	
-	if `bounds'==0 & ("`impute'"=="stag" | "`impute'"=="instag") {
-			di "For some units, the changes in policyvar are not consistent with no-unobserved-change. Reverting to default (no imputation)."
-			loc impute =""	
-	}
 	***************** no unobserved change ***************************
 
 	if "`impute'"!="" {
