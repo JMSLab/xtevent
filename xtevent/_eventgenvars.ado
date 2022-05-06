@@ -498,7 +498,6 @@ program define _eventgenvars, rclass
 	******* add the imputed policyvar to the database 
 	
 	if "`impute'"!="" {
-		cap drop `policyvar'_imputed
 		qui gen `policyvar'_imputed=`zn2' 
 		lab var `policyvar'_imputed "policyvar after imputation"
 		order `policyvar'_imputed, after(`z')
