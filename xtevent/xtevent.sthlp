@@ -150,7 +150,7 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(string)} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. It also adds the new variable to the database.
+{opt impute(string)} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. It also adds the new variable to the database as {it:policyvar_imputed}.
 
 {phang2}
 {cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and

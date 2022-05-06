@@ -46,10 +46,7 @@ program define _eventiv, rclass
 	*if impute is specified, bring the imputed policyvar calling the part of _eventgenvars that imputes
 	if "`impute'"!=""{
 		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static
-		loc zimp="`policyvar'_imputed"
-	}
-	else {
-		loc zimp="`z'"
+		loc z="`policyvar'_imputed"
 	}
 				
 	loc leads : word count `proxy'
@@ -76,7 +73,7 @@ program define _eventiv, rclass
 			loc Fstart = 0
 			forv v=1(1)`=-`lwindow'' {
 				tempvar _fd`v'`z'
-				qui gen double `_fd`v'`z'' = f`v'.d.`zimp' if `touse'
+				qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
 				qui reg `proxy' `_fd`v'`z'' if `touse'
 				loc Floop = e(F)
 				if `Floop' > `Fstart' {
@@ -103,7 +100,7 @@ program define _eventiv, rclass
 	if `rc' == 0 {
 		loc leadivs ""
 		foreach v in `proxyiv' {
-			qui gen double _fd`v'`z' = f`v'.d.`zimp' if `touse'
+			qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
 			loc leadivs "`leadivs' _fd`v'`z'"
 		}
 		loc instype = "numlist"		
@@ -126,7 +123,7 @@ program define _eventiv, rclass
 			cap confirm integer number `v'
 			if _rc loc varivs "`varivs' `v'"
 			else {
-				qui gen double_fd`v'`z' = f`v'.d.`zimp' if `touse'
+				qui gen double_fd`v'`z' = f`v'.d.`z' if `touse'
 				loc leadivs "`leadivs' _fd`v'`z'"
 			}
 		}
@@ -179,7 +176,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit		
 	
 	if "`gen'" != "nogen" {	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') 
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
