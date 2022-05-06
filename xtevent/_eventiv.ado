@@ -21,7 +21,8 @@ program define _eventiv, rclass
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */		
 	norm(integer -1) /* Normalization */	
 	reghdfe /* Use reghdfe for estimation */	
-	nostaggered /* Calculate endpoints without absorbing policy assumption, requires z */
+	impute(string) /*imputation on policyvar*/
+	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
 	absorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
@@ -42,6 +43,12 @@ program define _eventiv, rclass
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
 	
+	*if impute is specified, bring the imputed policyvar calling the part of _eventgenvars that imputes
+	if "`impute'"!=""{
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static
+		loc z="`policyvar'_imputed"
+	}
+				
 	loc leads : word count `proxy'
 	if "`proxyiv'"=="" & `leads'==1 loc proxyiv "select"
 	
@@ -169,7 +176,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit		
 	
 	if "`gen'" != "nogen" {	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') `staggered'
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') 
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
@@ -206,7 +213,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit	
 	
 	* Check that the iv normalization works
-	
+
 	foreach v in `leadivs' `varivs' {
 		qui _regress `v' `included' [`weight'`exp'] if `touse', absorb(`i')
 		if e(r2)==1 {
@@ -230,43 +237,51 @@ program define _eventiv, rclass
 			loc cmd "xtivreg"
 			loc ffe "fe"
 		}
-		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'		
+		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
 	}
 	else {
-	
-		if "`fe'" == "" & "`te'"=="" & "`absorb'"=="" {						
-			loc abs "absorb(`i' `t')"
-		}
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
-			loc abs "absorb(`t')"
-		}
-		else if "`fe'" == "" & "`te'"=="note" & "`absorb'"=="" {						
-			loc abs "absorb(`i')"
-		}
-		else if "`fe'" == "" & "`te'"=="" & "`absorb'"!="" {						
-			loc abs "absorb(`i' `t' `absorb')"
-		}
-		else if "`fe'" == "nofe" & "`te'"=="note" & "`absorb'"=="" {						
+		loc noabsorb "" 
+		*absorb nothing
+		if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"=="" {
+			*loc noabsorb "noabsorb"
+			/*the only option ivreghdfe inherits from reghdfe is absorb, therefore it doesn't support noabsorb. In contrast with reghdfe, ivreghdfe doesn't require noabsorb when absorb is not specified*/ 
 			loc abs ""
 		}
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc abs "absorb(`t' `absorb')"
-		}
-		else if "`fe'" == "" & "`te'"=="note" & "`absorb'"!="" {						
-			loc abs "absorb(`i' `absorb')"
-		}
-		else if "`fe'" == "nofe" & "`te'"=="note" & "`absorb'"!="" {						
+		*absorb only one
+		else if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"!="" {
 			loc abs "absorb(`absorb')"
 		}
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`t')"
+		}
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"=="" {						
+			loc abs "absorb(`i')"
+		}
+		*absorb two
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`t' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`i' `t')"
+		}
+		*absorb three
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `t' `absorb')"
+		}
+		*
 		else {
 			loc abs "absorb(`i' `t' `absorb')"	
 		}
+		
 		*analyze inclusion of vce in options
 		loc vce_y= strmatch("`options'","*vce(*)*")
 		
 		*if user did not specify vce option 
 		if "`vce_y'"=="0" { 
-		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `options'
+		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 		}
 		*if user did specify vce option
 		else {  
@@ -303,8 +318,8 @@ program define _eventiv, rclass
 			loc vce_r= strmatch("`svce'","*robust*")
 			loc vce_r2=0
 			forv i=1/`vce_wc'{
-				loc z= strmatch("``i''","r")
-				loc vce_r2=`vce_r2'+`z'
+				loc zz= strmatch("``i''","r")
+				loc vce_r2=`vce_r2'+`zz'
 			}
 			if `vce_r'==1 | `vce_r2'==1 {
 				loc vceop_r="robust"

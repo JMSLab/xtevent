@@ -42,7 +42,7 @@ program define xtevent, eclass
 	nofe /* No fixed effects */
 	note /* No time effects */
 	kvars(string) /* Use previously generated dummies */
-	nostaggered /* Calculate endpoints without absorbing policy assumption, requires z */
+	impute(string) /* impute policyvar */
 		
 	*/
 	]
@@ -57,7 +57,7 @@ program define xtevent, eclass
 		di as err "option {bf:addabsorb} only allowed with option {bf:reghdfe}"
 		exit 198
 	}	
-	
+
 	if "`proxy'" == "" & "`proxyiv'" != "" {
 		di as err _n "With instruments, you must specify a proxy variable"
 		exit 198
@@ -164,7 +164,8 @@ program define xtevent, eclass
 		else if "`window'"=="" & ("`pre'"!="" & "`post'"!="" & "`overidpre'"!="" & "`overidpost'"!="") {
 			loc lwindow = `pre' + `overidpre'
 			loc lwindow = -`lwindow'
-			loc rwindow = `post' + `overidpost'
+			*loc rwindow = `post' + `overidpost'
+			loc rwindow = `post' + `overidpost' -1 //change suggested by Veli 
 		}
 		
 		* If allowing for anticipation effects, change the normalization if norm is missing, or warn the user
@@ -190,7 +191,7 @@ program define xtevent, eclass
 						
 		if "`trend'"!="" loc trend "trend(`trend')"
 		else loc trend ""
-		
+
 		* Estimate
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
@@ -199,7 +200,7 @@ program define xtevent, eclass
 			if _rc {
 				errpostest
 			}
-		}		
+		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' absorb(`addabsorb') `options' 		
@@ -208,7 +209,6 @@ program define xtevent, eclass
 			}
 		}		
 	}
-	
 	else if "`static'"=="static" {
 		loc lwindow=.
 		loc rwindow=.
@@ -216,8 +216,7 @@ program define xtevent, eclass
 		di as txt _n "Plotting options ignored"
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			
-			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' absorb(`addabsorb') `options'
+			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' absorb(`addabsorb') `options' `static'
 			if _rc {
 				errpostest
 			}
@@ -226,7 +225,7 @@ program define xtevent, eclass
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			
-			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' absorb(`addabsorb') `options'
+			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' absorb(`addabsorb') `options' `static'
 			if _rc {
 				errpostest
 			}

@@ -16,7 +16,8 @@ program define _eventivstatic, rclass
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
 	absorb(string) /* Absorb additional variables in reghdfe */ 
-	
+	impute(string)
+	STatic
 	*
 	]
 	;
@@ -38,6 +39,12 @@ program define _eventivstatic, rclass
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
+	
+	*call _eventgenvars to impute z
+	if "`impute'"!="" {
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static'
+	loc z="`policyvar'_imputed"
+	}
 	
 	loc leads : word count `proxy'
 	if "`proxyiv'"=="" & `leads'==1 loc proxyiv "select"
@@ -98,6 +105,10 @@ program define _eventivstatic, rclass
 		}
 		loc insvars = "`proxyiv'"
 	}
+
+	
+	if "`te'" == "note" loc tte ""
+	else loc tte "i.`t'"
 		
 	* Main regression
 	
@@ -113,35 +124,107 @@ program define _eventivstatic, rclass
 		`cmd' `varlist' (`proxy' = `insvars') `z' `tte' [`weight'`exp'] if `touse' , `ffe' `options'
 	}
 	else {
-		loc cmd "reghdfe"
-		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
-			loc noabsorb "noabsorb"
+		loc noabsorb "" 
+		*absorb nothing
+		if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"=="" {
+			*loc noabsorb "noabsorb"
+			/*the only option ivreghdfe inherits from reghdfe is absorb, therefore it doesn't support noabsorb. In contrast with reghdfe, ivreghdfe doesn't require noabsorb when absorb is not specified*/ 
 			loc abs ""
 		}
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc noabsorb "noabsorb"
+		*absorb only one
+		else if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"!="" {
 			loc abs "absorb(`absorb')"
 		}
-		else if "`fe'" == "nofe" & "`te'"!=""{
-			loc abs "absorb(`te' `absorb')"	
-			loc noabsorb ""
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`te'"==""{
-			loc abs "absorb(`i' `absorb')"	
-			loc noabsorb ""
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"=="" {						
+			loc abs "absorb(`i')"
 		}
+		*absorb two
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`t' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`i' `t')"
+		}
+		*absorb three
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `t' `absorb')"
+		}
+		*
 		else {
-			loc abs "absorb(`i' `te' `absorb')"	
-			loc noabsorb ""
+			loc abs "absorb(`i' `t' `absorb')"	
 		}
-		ivreghdfe `varlist' (`proxy' = `insvars') `z' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
-	}
+		
+		*analyze inclusion of vce in options
+		loc vce_y= strmatch("`options'","*vce(*)*")
+		
+		*if user did not specify vce option 
+		if "`vce_y'"=="0" { 
+		ivreghdfe `varlist' (`proxy' = `insvars') `z' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+		}
+		*if user did specify vce option
+		else {  
+			*find start and end of vce text 
+			loc vces=strpos("`options'","vce(")
+			loc vcef=0
+			loc ocopy="`options'"
+			while `vcef'<`vces' {
+				loc vcef=strpos("`ocopy'", ")")
+				loc ocopy=subinstr("`ocopy'",")", " ",1)
+			}
+			*substrac vce words
+			loc svce_or=substr("`options'",`vces',`vcef')
+			loc vce_len=strlen("`svce_or'")
+			loc svce=substr("`svce_or'",5,`vce_len'-5)
+			loc svce=strltrim("`svce'")
+			loc svce=strrtrim("`svce'")
+			*inspect whether vce contains bootstrap or jackknife
+			loc vce_bt= strmatch("`svce'","*boot*")
+			loc vce_jk= strmatch("`svce'","*jack*")
+			if `vce_bt'==1 | `vce_jk'==1 {
+				di as err "Options {bf:bootstrap} and {bf:jackknife} are not allowed"
+				exit 301
+			}
+			
+			*if vce contains valid options, parse those options
+			*erase vce from original options
+			loc options_wcve=subinstr("`options'","`svce_or'"," ",1)
+			*** parse vce(*) ****
+			loc vce_wc=wordcount("`svce'")
+			tokenize `svce'
+			*extract vce arguments 
+			*robust 
+			loc vce_r= strmatch("`svce'","*robust*")
+			loc vce_r2=0
+			forv i=1/`vce_wc'{
+				loc zz= strmatch("``i''","r")
+				loc vce_r2=`vce_r2'+`zz'
+			}
+			if `vce_r'==1 | `vce_r2'==1 {
+				loc vceop_r="robust"
+			}
+			*cluster
+			loc vce_c= strmatch("`svce'","*cluster*")
+			loc vce_c2= strmatch("`svce'","*cl*")
+			if `vce_c'==1 | `vce_c2'==1 {
+				forv i=1/`vce_wc'{
+					loc vce_r2= strmatch("``i''","*cl*")
+					if `vce_r2'==1 {
+						loc j=`i'+1
+						}
+				}
+				loc vceop_c="cluster(``j'')"
+			}
+			ivreghdfe `varlist' (`proxy' = `insvars') `z' [`weight'`exp'] if `touse', `abs' `noabsorb' `options_wcve' `vceop_r' `vceop_c'
+		}
+
+	}	
 	
-	
-	
-	
-	if "`te'" == "note" loc tte ""
-	else loc tte "i.`t'"
 	
 	mat `bb' = e(b)
 	mat `VV' = e(V)

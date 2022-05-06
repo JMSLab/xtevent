@@ -15,6 +15,8 @@ program define _eventolsstatic, rclass
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
 	absorb(string) /* Absorb additional variables in reghdfe */ 
+	impute(string) /*impute policyvar */
+	STatic /* Estimate static model */
 	*
 	]
 	;
@@ -27,6 +29,12 @@ program define _eventolsstatic, rclass
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
+	
+	*call _eventgenvars to impute z
+	if "`impute'"!="" {
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static'
+	loc z="`policyvar'_imputed"
+	}
 	
 	* Main regression
 	
@@ -45,28 +53,41 @@ program define _eventolsstatic, rclass
 		`cmd' `varlist' `z' `te' [`weight'`exp'] if `touse', `absorb' `options'
 	}
 	else {
-		loc cmd "reghdfe"
-		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
+		loc noabsorb ""
+		*absorb nothing
+		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {
 			loc noabsorb "noabsorb"
 			loc abs ""
 		}
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc noabsorb "noabsorb"
+		*absorb only one
+		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {
 			loc abs "absorb(`absorb')"
 		}
-		else if "`fe'" == "nofe" & "`te'"!=""{
-			loc abs "absorb(`te' `absorb')"	
-			loc noabsorb ""
+		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`te'"==""{
-			loc abs "absorb(`i' `absorb')"	
-			loc noabsorb ""
+		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"=="" {						
+			loc abs "absorb(`i')"
 		}
+		*absorb two
+		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`t' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`i' `t')"
+		}
+		*absorb three
+		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `t' `absorb')"
+		}
+		*
 		else {
-			loc abs "absorb(`i' `te' `absorb')"	
-			loc noabsorb ""
+			loc abs "absorb(`i' `t' `absorb')"	
 		}
-		reghdfe `varlist' `z' [`weight'`exp'] if `touse', `absorb' `noabsorb' `options'
+		reghdfe `varlist' `z' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 	}
 	
 	mat `bb' = e(b)
