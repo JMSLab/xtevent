@@ -339,7 +339,8 @@ program define xteventplot
 		* "
 		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'"
 		parsesmpath `smpath'
-		loc postwindow = r(postwindow)		
+		loc postwindow = r(postwindow)	
+		loc maxorderinput=r(maxorder) 
 		loc plottype=r(plottype)		
 		cap _return drop smpathparse
 		_return hold smpathparse			
@@ -349,6 +350,11 @@ program define xteventplot
 			di as err "Window for smoothest line must be smaller than window for the estimates. For a line on the entire window, omit the {bf:postwindow} option"
 			exit 301
 		}
+		*error if user chooses order greater than 10
+		if `maxorderinput'>10{
+			di as err "The maximum allowed order is 10"
+			exit 301
+		} 
 		
 		if "`plottype'"=="." loc plottype "line"
 				
@@ -390,7 +396,7 @@ program define xteventplot
 		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.)	
 	
 		mata: st_numscalar("maxedout",maxedout)		
-		
+
 		if !maxedout {
 		
 			mata: p=param
@@ -526,7 +532,7 @@ end
 cap program drop parsesmpath
 program define parsesmpath, rclass
 
-	syntax [anything] , [maxiter(integer 100) technique(string) postwindow(real 0) maxorder(integer 15)]
+	syntax [anything] , [maxiter(integer 100) technique(string) postwindow(real 0) maxorder(integer 10)]
 	
 	return local plottype "`anything'"	
 	return scalar maxiter=`maxiter'
