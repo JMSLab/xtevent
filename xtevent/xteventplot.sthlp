@@ -106,7 +106,7 @@ all the estimates in the post event window.
 {opt , maxiter(integer)} sets the maximum number of inner iterations for optimization. The default is 100.
 
 {phang2}
-{opt , maxorder(integer)} sets the maximum order for the polynomial smoothest line. The maximum allowed order and default are both 10.
+{opt , maxorder(integer)} sets the maximum order for the polynomial smoothest line. Maxorder must be between 1 and 10. The default is 10.
 
 {phang2} 
 {opt , technique(string)} sets the optimization technique for the inner iterations of the quadratic program.
