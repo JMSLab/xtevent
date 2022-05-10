@@ -502,7 +502,8 @@ program define _eventgenvars, rclass
 		lab var `policyvar'_imputed "policyvar after imputation"
 		order `policyvar'_imputed, after(`z')
 	}
-	
+	*say if imputation succeeded
+	return local impute= "`impute'"	
 end
 
 
