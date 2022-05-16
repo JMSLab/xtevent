@@ -6,7 +6,8 @@ cap program drop _eventgenvars
 program define _eventgenvars, rclass
 
 	#d;
-	syntax [anything] [if] [in],
+
+	syntax [anything] [if] [in], 
 	panelvar(varname) /* Panel variable */	
 	timevar(varname) /* Time variable */
 	policyvar(varname) /* Policy variable */
@@ -22,6 +23,8 @@ program define _eventgenvars, rclass
 	/*stag  imputes outer missing values of policyvar verifying staggered adoption*/
 	/*instag  imputes outer and inner missing values verifying staggered adoption*/
 	STatic /* Estimate static model */
+	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
+	
 	
 
 	
@@ -87,12 +90,29 @@ program define _eventgenvars, rclass
 		
 	}
 	
-	* Check for a variable named as the imputed policyvar
+	*parse impute option
 	if "`impute'"!=""{
+		parseimpute `impute'
+		loc impute = r(impute)
+		loc saveimp = r(saveimp)
+		if "`saveimp'"=="." loc saveimp ""
+	}
+	
+	* Check for a variable named as the imputed policyvar
+	if "`saveimp'"!="" {
 		cap unab oldkvars : `policyvar'_imputed
 		if !_rc {
 			di as err _n "You have a variable named `policyvar'_imputed. This name is reserved for the imputed policy variable."
 			di as err _n "Please drop or rename this variable before proceeding."
+			exit 110
+		}
+	}
+	
+	* Check for a valid option in impute
+	if "`impute'"!=""{
+		cap assert "`impute'"=="nuchange" | "`impute'"=="stag" | "`impute'"=="instag"
+		if _rc {
+			di as err _n "{bf:`impute'} not allowed in option {bf:impute}."
 			exit 110
 		}
 	}
@@ -119,6 +139,7 @@ program define _eventgenvars, rclass
 	tempvar zn2  
 	qui gen `zn2'=`z'
 	
+
 	********** Verify consistency with staggered adoption *******************
 	 
 	loc bin 0
@@ -139,43 +160,43 @@ program define _eventgenvars, rclass
 		if _rc{
 			di "Event time is unknown for some units due to missing values in policyvar."
 		}
+	}
 	
-		************* verify whether policyvar is binary *******************
+	***************** verify whether policyvar is binary *******************
 	
-		tempvar zn l1   
-		****** Check if z is binary
-		cap assert inlist(`z',0,1,.) if `touse'
-		if _rc {
-			qui su `z' if `touse'
-			loc rminz=`=r(min)'
-			loc rmaxz=`=r(max)'
-			cap assert inlist(`z',`rminz',`rmaxz',.)
-			if !_rc {
-				if ("`impute'"=="stag" | "`impute'"=="instag"){
-					di "Policyvar is binary, but its values are different from 0 and 1. Assuming `=r(min)' as the unadopted policy state and `=r(max)' as the adopted policy state."
-				}
-				loc bin 1
+	****** Check if z is binary
+	cap assert inlist(`z',0,1,.) if `touse'
+	if _rc {
+		qui su `z' if `touse'
+		loc rminz=`=r(min)'
+		loc rmaxz=`=r(max)'
+		cap assert inlist(`z',`rminz',`rmaxz',.)
+		if !_rc {
+			if ("`impute'"=="stag" | "`impute'"=="instag"){
+				di "Policyvar is binary, but its values are different from 0 and 1. Assuming `=r(min)' as the unadopted policy state and `=r(max)' as the adopted policy state."
 			}
-			else loc bin 0
-		}
-		else {
-			loc rminz=0
-			loc rmaxz=1
 			loc bin 1
 		}
+		else loc bin 0
+	}
+	else {
+		loc rminz=0
+		loc rmaxz=1
+		loc bin 1
+	}
 
-		* If not binary, default 
-		if `bin'==0 {
+	* If not binary, return to default 
+	if `bin'==0 & ("`impute'"=="stag" | "`impute'"=="instag") {
 			
-			di "The policy variable is not binary. Assuming non-staggered adoption (no imputation)."
-			di "If event dummies and variables are saved, event-time will be missing."	
-			loc impute =""
-		}
+		di "The policy variable is not binary. Assuming non-staggered adoption (no imputation)."
+		di "If event dummies and variables are saved, event-time will be missing."	
+		loc impute =""
+	}
 		
-		*********** verify no reversion  ****************************
-		*(e.g. if binary 0 and 1, once reached 1, never returns to zero)
-	
-		tempvar zr
+	*********** verify no reversion  ****************************
+	*(e.g. if binary 0 and 1, once reached 1, never returns to zero)
+	if ("`impute'"=="stag" | "`impute'"=="instag") {
+		tempvar zr zn l1
 		qui gen `zr'=`z'
 		*where there are missings, impute the previous value
 		qui by `panelvar' (`timevar'): replace `zr'=`zr'[_n-1] if missing(`zr') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
@@ -496,19 +517,30 @@ program define _eventgenvars, rclass
 		
 	}
 	******* add the imputed policyvar to the database 
-	
-	if "`impute'"!="" {
+
+	if "`impute'"!="" & "`saveimp'"!="" {
 		qui gen `policyvar'_imputed=`zn2' 
 		lab var `policyvar'_imputed "policyvar after imputation"
 		order `policyvar'_imputed, after(`z')
 	}
 	*say if imputation succeeded
 	return local impute= "`impute'"	
+	return local saveimp= "`saveimp'"
+	*temporary variable equal to imputed policyvar (for _eventiv.ado)
+	if "`rr'"!="" qui replace `rr'=`zn2'
 end
 
 
 
+* Program to parse impute 
+cap program drop parseimpute
+program define parseimpute, rclass
 
+	syntax [anything] , [saveimp]
+		
+	return local impute "`anything'"
+	return local saveimp "`saveimp'"
+end	
 
 
 	

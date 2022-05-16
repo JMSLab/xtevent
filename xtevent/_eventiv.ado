@@ -45,15 +45,20 @@ program define _eventiv, rclass
 	
 	*if impute is specified, bring the imputed policyvar calling the part of _eventgenvars that imputes
 	if "`impute'"!=""{
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static
+		*tempvar to be imputed
+		tempvar rr
+		qui gen `rr'=.
+
+		*call _eventgenvars
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr')
+
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
 		*if imputation succeeded:
 		if "`impute'"!="" {
 			tempvar zimp
-			qui gen `zimp'=`policyvar'_imputed
+			qui gen `zimp'=`rr'
 			loc z="`zimp'"
-			drop `policyvar'_imputed
 		}
 		else loc z = "`policyvar'"
 	}

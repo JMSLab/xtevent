@@ -42,10 +42,29 @@ program define _eventivstatic, rclass
 	
 	*call _eventgenvars to impute z
 	if "`impute'"!="" {
-	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static'
-	loc z="`policyvar'_imputed"
+		*tempvar to be imputed
+		tempvar rr
+		qui gen `rr'=.
+		
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static' rr(`rr')
+		
+		loc impute=r(impute)
+		if "`impute'"=="." loc impute = ""
+		loc saveimp=r(saveimp)
+		if "`saveimp'"=="." loc saveimp = ""
+		*if imputation succeeded:
+		if "`impute'"!="" {
+			if "`saveimp'"=="" {
+				tempvar zimp
+				qui gen `zimp'=`rr'
+				lab var `zimp' "`policyvar'_imputed"
+				loc z "`zimp'"
+			}
+			else loc z = "`policyvar'_imputed"
+		}
+		else loc z = "`policyvar'"
 	}
-	
+
 	loc leads : word count `proxy'
 	if "`proxyiv'"=="" & `leads'==1 loc proxyiv "select"
 	
@@ -94,8 +113,8 @@ program define _eventivstatic, rclass
 	if `rc' == 0 {
 		loc insvars ""
 		foreach v in `proxyiv' {
-			qui gen _f`v'`z' = f`v'.`z' if `touse'
-			loc insvars "`insvars' _f`v'z"
+			qui gen _f`v'`z' = f`v'.`z' if `touse'			
+			loc insvars "`insvars' _f`v'`z'"
 		}
 		loc instype = "numlist"
 	}
@@ -106,7 +125,6 @@ program define _eventivstatic, rclass
 		loc insvars = "`proxyiv'"
 	}
 
-	
 	if "`te'" == "note" loc tte ""
 	else loc tte "i.`t'"
 		
@@ -120,7 +138,7 @@ program define _eventivstatic, rclass
 		else {
 			loc cmd "xtivreg"
 			loc ffe "fe"
-		}
+		}		
 		`cmd' `varlist' (`proxy' = `insvars') `z' `tte' [`weight'`exp'] if `touse' , `ffe' `options'
 	}
 	else {
