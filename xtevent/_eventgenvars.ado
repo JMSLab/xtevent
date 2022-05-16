@@ -112,7 +112,7 @@ program define _eventgenvars, rclass
 	if "`impute'"!=""{
 		cap assert "`impute'"=="nuchange" | "`impute'"=="stag" | "`impute'"=="instag"
 		if _rc {
-			di as err _n "option {bf:`impute'} not allowed."
+			di as err _n "{bf:`impute'} not allowed in option {bf:impute}."
 			exit 110
 		}
 	}
