@@ -42,7 +42,7 @@
 {synopt:{opt proxyiv(string)}} instruments for the proxy variable{p_end}
 {synopt:{opt nofe}} omit panel fixed effects {p_end}
 {synopt:{opt note}} omit time fixed effects {p_end}
-{synopt: {opt impute(string)}} impute missing values in policyvar{p_end}
+{synopt: {opt impute(type, [saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
 {synopt:{opt tr:end(#1)}} extrapolate linear trend from time period #1 before treatment{p_end}
 {synopt:{opt savek(stub)}} save time-to-event, event-time and trend variables{p_end}
@@ -94,7 +94,7 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {phang}
 {opth window(numlist)} specifies the window around the event of the policy change in which dynamic effects will be estimated. If a single
 positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (plus endpoints) around the event will be used. If two distinct integers 
-{it:k1}<0 and {it:k2}>0 are specified, an asymmetric window {it:k1}  periods before the event and {it:k2} periods after the event will be used.
+{it:k1}<0 and {it:k2}>0 are specified, an asymmetric window {it:k1}  periods before the event and {it:k2} periods after the event will be used. 
  {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, 
  {opt overidpre()} and {opt overidpost()} (See below).
 
@@ -150,7 +150,8 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(string)} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. It also adds the new variable to the database as {it:policyvar_imputed}.
+{opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
+{it:policyvar_imputed}. The following imputation types ca be implemented:
 
 {phang2}
 {cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
@@ -158,8 +159,8 @@ be used as an instrument.
 
 {phang2}
 {cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, 
-it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally, for all units: i) the first-observed value must be the unadopted-policy-state value, 
-and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
+it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally in the {it:policyvar}, for each unit: i) the first-observed value must be 
+the unadopted-policy-state value, and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing value or a group of them will be imputed only if they are both preceded and followed by the unadopted-policy state 
@@ -262,7 +263,7 @@ Based on the original policy variable, generate a policy variable that follows s
 Run the regression using the new policy variable
 {p_end}
 {phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp}
-   {cmd: tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag)}
+   {cmd: tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag, saveimp)}
 {p_end}
 {pstd}
 See the imputations in a unit
