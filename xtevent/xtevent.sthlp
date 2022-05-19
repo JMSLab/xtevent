@@ -92,23 +92,21 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {help xtset}.
 
 {phang}
-{opth window(numlist)} specifies the window around the event of the policy change in which dynamic effects will be estimated. If a single
-positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (plus endpoints) around the event will be used. If two distinct integers 
-{it:k1}<0 and {it:k2}>0 are specified, an asymmetric window {it:k1}  periods before the event and {it:k2} periods after the event will be used. In the case of subsequently generating a plot, for instance, if {it:k1=-2} and {it:k2=3}, 
-a plot with 3 pre-event period coefficients and 4 post-event period coefficients will be generated.
- {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, 
- {opt overidpre()} and {opt overidpost()} (See below).
+{opth window(numlist)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
+is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
+coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<0 and {it:k2}>0 are specified, the 
+estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = 1 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). {opt window()} is required unless 
+{opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()} 
+and {opt overidpost()} (See below).
 
 {phang}
-{opt pre},
-{opt post}, 
-{opt overidpre} and 
-{opt overidpost} offer an alternative way to specify the estimation window:
+{opt pre}, {opt post},  {opt overidpre} and  {opt overidpost} offer an alternative way to specify the estimation window:
 
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
-of periods after the event, minus 2 periods.
+of periods after the event minus 2.
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
@@ -116,11 +114,7 @@ is the number of periods before the event.
 {phang2} {opt overidpost} is the number of post-event periods for an overidentification test of effects leveling off. With {opt window},
 {opt overidpost} is 2.
 
-{phang} You can specify either {opt window}  or 
-{opt pre},
-{opt post}, 
-{opt overidpre} and 
-{opt overidpost}. 
+{phang} You can specify either {opt window}  or  {opt pre}, {opt post},  {opt overidpre} and {opt overidpost}. 
 
 {phang} {opth norm(integer)} specifies the event-time coefficient to be normalized to 0.
 The default is to normalize the coefficient on -1.
@@ -139,7 +133,8 @@ be used as an instrument.
 {cmd:proxyiv(select)} is the default for the one proxy, one instrument case, and it is only available in this case. 
 
 {phang2}
-{cmd:proxyiv(# ...)} specifies a numlist with the leads of the differenced policy variable as instruments. For example, {cmd:proxyiv(1 2)} specifies that the two first leads of the difference of the policy variable will be used as instruments.
+{cmd:proxyiv(# ...)} specifies a numlist with the leads of the differenced policy variable as instruments. For example, {cmd:proxyiv(1 2)} specifies that the two
+first leads of the difference of the policy variable will be used as instruments.
 
 {phang2}
 {cmd:proxyiv(varlist)} specifies a {it:varlist} with the additional variables to be used as instruments.
@@ -154,13 +149,14 @@ be used as an instrument.
 {opt impute(string)} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. It also adds the new variable to the database as {it:policyvar_imputed}.
 
 {phang2}
-{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
+{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, for each unit: i) in periods before the 
+first observed value, the policy value is the same as the first observed value; and
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
 {phang2}
-{cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, 
-it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally, for all units: i) the first-observed value must be the unadopted-policy-state value, 
-and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
+{cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: i) {it:policyvar} must be binary;
+and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed
+explanation of the staggered case. Additionally, for all units: i) the first-observed value must be the unadopted-policy-state value, and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing value or a group of them will be imputed only if they are both preceded and followed by the unadopted-policy state 
