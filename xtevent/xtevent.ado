@@ -164,7 +164,6 @@ program define xtevent, eclass
 		else if "`window'"=="" & ("`pre'"!="" & "`post'"!="" & "`overidpre'"!="" & "`overidpost'"!="") {
 			loc lwindow = `pre' + `overidpre'
 			loc lwindow = -`lwindow'
-			*loc rwindow = `post' + `overidpost'
 			loc rwindow = `post' + `overidpost' -1 
 		}
 		
