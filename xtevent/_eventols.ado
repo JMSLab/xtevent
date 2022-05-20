@@ -22,7 +22,7 @@ program define _eventols, rclass
 	nodrop /* Do not drop _k variables */
 	norm(integer -1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
-	nostaggered /* Calculate endpoints without absorbing policy assumption, requires z */
+	impute(string) /*imputation on policyvar*/
 	absorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
@@ -64,7 +64,7 @@ program define _eventols, rclass
 	loc z = "`policyvar'"
 	
 	if "`gen'" != "nogen" {
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') norm(`norm') `staggered'
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') norm(`norm') impute(`impute')
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
@@ -120,26 +120,39 @@ program define _eventols, rclass
 		`q' `cmd' `varlist' `included' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
 	}
 	else {
-		loc cmd "reghdfe"
-		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {						
+		loc noabsorb ""
+		*absorb nothing
+		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {
 			loc noabsorb "noabsorb"
 			loc abs ""
 		}
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc noabsorb "noabsorb"
+		*absorb only one
+		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {
 			loc abs "absorb(`absorb')"
 		}
-		else if "`fe'" == "nofe" & "`te'"!=""{
-			loc abs "absorb(`te' `absorb')"	
-			loc noabsorb ""
+		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`te'"==""{
-			loc abs "absorb(`i' `absorb')"	
-			loc noabsorb ""
+		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"=="" {						
+			loc abs "absorb(`i')"
 		}
+		*absorb two
+		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`t' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `absorb')"
+		}
+		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"=="" {						
+			loc abs "absorb(`i' `t')"
+		}
+		*absorb three
+		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"!="" {						
+			loc abs "absorb(`i' `t' `absorb')"
+		}
+		*
 		else {
-			loc abs "absorb(`i' `te' `absorb')"	
-			loc noabsorb ""
+			loc abs "absorb(`i' `t' `absorb')"	
 		}
 		`q' reghdfe `varlist' `included' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 	}
