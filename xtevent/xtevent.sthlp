@@ -92,11 +92,13 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {help xtset}.
 
 {phang}
-{opth window(numlist)} specifies the window around the event of the policy change in which dynamic effects will be estimated. If a single
-positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (plus endpoints) around the event will be used. If two distinct integers 
-{it:k1}<0 and {it:k2}>0 are specified, an asymmetric window {it:k1}  periods before the event and {it:k2} periods after the event will be used. 
- {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, 
- {opt overidpre()} and {opt overidpost()} (See below).
+{opth window(numlist)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
+is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
+coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<0 and {it:k2}>0 are specified, the 
+estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). {opt window()} is required unless 
+{opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()} 
+and {opt overidpost()} (See below).
 
 {phang}
 {opt pre},
@@ -107,7 +109,7 @@ positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (pl
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
-of periods after the event.
+of periods after the event minus 2.
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.

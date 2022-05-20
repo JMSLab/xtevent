@@ -164,8 +164,7 @@ program define xtevent, eclass
 		else if "`window'"=="" & ("`pre'"!="" & "`post'"!="" & "`overidpre'"!="" & "`overidpost'"!="") {
 			loc lwindow = `pre' + `overidpre'
 			loc lwindow = -`lwindow'
-			*loc rwindow = `post' + `overidpost'
-			loc rwindow = `post' + `overidpost' -1 //change suggested by Veli 
+			loc rwindow = `post' + `overidpost' -1 
 		}
 		
 		* If allowing for anticipation effects, change the normalization if norm is missing, or warn the user
