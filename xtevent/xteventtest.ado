@@ -222,9 +222,9 @@ program define xteventtest, rclass
 	
 	* Trend test
 	if "`trend'"!="" {
-		loc trend "trend(`trend')"
+		loc trend "trend(`trend', method(reg))"
 		loc cmd = e(cmdline)
-		loc cmd = regexr("`cmd'","trend\(.*\)","")		
+		loc cmd = regexr("`cmd'","trend\(.*\)","")	
 		_estimates hold `est'
 		qui `cmd' `trend'
 		di as txt _n "Significance test for linear trend"	

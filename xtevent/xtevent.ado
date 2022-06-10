@@ -28,7 +28,7 @@ program define xtevent, eclass
 	Timevar(varname) /* Time variable */
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
-	TRend(numlist integer ascending min=1 max=1) /* trend(a b) Include a linear trend from time a to time b*/
+	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. GMM or linear trend adjustment*/
 	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
@@ -164,8 +164,7 @@ program define xtevent, eclass
 		else if "`window'"=="" & ("`pre'"!="" & "`post'"!="" & "`overidpre'"!="" & "`overidpost'"!="") {
 			loc lwindow = `pre' + `overidpre'
 			loc lwindow = -`lwindow'
-			*loc rwindow = `post' + `overidpost'
-			loc rwindow = `post' + `overidpost' -1 //change suggested by Veli 
+			loc rwindow = `post' + `overidpost' -1 
 		}
 		
 		* If allowing for anticipation effects, change the normalization if norm is missing, or warn the user
@@ -182,21 +181,20 @@ program define xtevent, eclass
 			exit 498
 		}
 		
-		* Do not allow norm and trend
+		* Do not allow norm and trend 
 		if "`norm'" !="-1" & "`trend'" != "" {
 			di as err _n "option {bf:norm} not allowed with option {bf:trend}"
 			exit 198
 		}
-		
-						
-		if "`trend'"!="" loc trend "trend(`trend')"
-		else loc trend ""
+		*user			
+		*if "`trend'"!="" loc trend "trend(`trend')"
+		*else loc trend ""
 
 		* Estimate
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' savek(`savek') norm(`norm') `reghdfe' absorb(`addabsorb') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' absorb(`addabsorb') `options' 
 			if _rc {
 				errpostest
 			}
@@ -255,7 +253,11 @@ program define xtevent, eclass
 			if `=r(x1)'!=. ereturn local x1 = r(x1)
 			
 		}
-		if "`trend'"!="" {
+		
+		loc saveov = r(saveov)
+		if "`saveov'"=="." loc saveov ""
+		if "`saveov'"!="" {
+
 			mat mattrendy = r(mattrendy)
 			mat mattrendx = r(mattrendx)
 			mat deltaov = r(deltaov)			

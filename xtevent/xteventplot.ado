@@ -66,8 +66,8 @@ program define xteventplot
 		exit 301
 	}
 	
-	if "`overlay'"=="trend" & "`=e(trend)'"!="trend" {
-		di as err "option {bf:overlay(trend)} only allowed after {cmd:xtevent, trend()}"
+	if "`overlay'"=="trend" & "`=e(trend)'"!="trend" { 
+		di as err "option {bf:overlay(trend)} only allowed after {cmd:xtevent, trend(, saveoverlay)}"
 		exit 301
 	}
 	
@@ -81,7 +81,7 @@ program define xteventplot
 	tempname b V
 	if inlist("`overlay'","trend","iv")  {
 		mat `b' = e(deltaov)
-		mat `V' = e(Vdeltaov)			
+		mat `V' = e(Vdeltaov)
 	}
 	else if "`y'" !="" {
 		if "`=e(method)'"!="iv" {
@@ -171,10 +171,10 @@ program define xteventplot
 	loc kmin : word 1 of `kgs'
 	loc ksize : list sizeof kgs
 	loc kmax : word `ksize' of `kgs'
-	
+
 	* Omit right and left endpoints if trend
 	
-	if "`=e(trend)'"!="." {
+	if "`=e(trend)'"!="." { 
 		if "`kmiss'"=="." loc kmiss "`kmax',`kmin'"
 		else loc kmiss "`kmiss',`kmax',`kmin'"
 	}
@@ -491,9 +491,10 @@ program define xteventplot
 	
 	* Overlay plot for trend
 	
-	if "`=e(trend)'"=="trend" & "`overlay'"=="trend" {
-		mat mattrendy = e(mattrendy)
+	if "`=e(trend)'"=="trend" & "`overlay'"=="trend" { 
+		mat mattrendy = e(mattrendy) 
 		mat mattrendx = e(mattrendx)
+		 
 		tempname trendy trendx
 		svmat mattrendy, names(`trendy')
 		svmat mattrendx, names(`trendx')

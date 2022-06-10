@@ -42,9 +42,9 @@
 {synopt:{opt proxyiv(string)}} instruments for the proxy variable{p_end}
 {synopt:{opt nofe}} omit panel fixed effects {p_end}
 {synopt:{opt note}} omit time fixed effects {p_end}
-{synopt: {opt impute(string)}} impute missing values in policyvar{p_end}
+{synopt: {opt impute(type, [saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
-{synopt:{opt tr:end(#1)}} extrapolate linear trend from time period #1 before treatment{p_end}
+{synopt:{opt tr:end(#1, [subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
 {synopt:{opt savek(stub)}} save time-to-event, event-time and trend variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
@@ -92,11 +92,13 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {help xtset}.
 
 {phang}
-{opth window(numlist)} specifies the window around the event of the policy change in which dynamic effects will be estimated. If a single
-positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (plus endpoints) around the event will be used. If two distinct integers 
-{it:k1}<0 and {it:k2}>0 are specified, an asymmetric window {it:k1}  periods before the event and {it:k2} periods after the event will be used.
- {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, 
- {opt overidpre()} and {opt overidpost()} (See below).
+{opth window(numlist)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
+is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
+coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<0 and {it:k2}>0 are specified, the 
+estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). {opt window()} is required unless 
+{opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()} 
+and {opt overidpost()} (See below).
 
 {phang}
 {opt pre},
@@ -107,7 +109,7 @@ positive integer {it:k}>0 is specified, a symmetric window of {it:k} periods (pl
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
-of periods after the event.
+of periods after the event minus 2.
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
@@ -150,7 +152,8 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(string)} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. It also adds the new variable to the database as {it:policyvar_imputed}.
+{opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
+{it:policyvar_imputed}. The following imputation types ca be implemented:
 
 {phang2}
 {cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
@@ -158,8 +161,8 @@ be used as an instrument.
 
 {phang2}
 {cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, 
-it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally, for all units: i) the first-observed value must be the unadopted-policy-state value, 
-and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
+it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally in the {it:policyvar}, for each unit: i) the first-observed value must be 
+the unadopted-policy-state value, and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing value or a group of them will be imputed only if they are both preceded and followed by the unadopted-policy state 
@@ -169,8 +172,14 @@ or by the adopted-policy state.
 {opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with {opt window}.
 
 {phang}
-{opt trend(#1)} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
-effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. 
+{opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
+effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following can be passed as suboptions:
+
+{phang2}
+{opt method(string)} sets the method to estimate the linear trend. It can be linear regression {opt (reg)} or generalized method of moments {opt (gmm)}. If {opt method} is not specified, {opt trend} assumes {opt method(gmm)}.
+
+{phang2}
+{opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
 {opt savek(stub)} saves variables for event-time dummies, event-time and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
@@ -262,7 +271,7 @@ Based on the original policy variable, generate a policy variable that follows s
 Run the regression using the new policy variable
 {p_end}
 {phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp}
-   {cmd: tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag)}
+   {cmd: tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag, saveimp)}
 {p_end}
 {pstd}
 See the imputations in a unit
