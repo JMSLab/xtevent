@@ -176,7 +176,8 @@ or by the adopted-policy state.
 effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following can be passed as suboptions:
 
 {phang2}
-{opt method(string)} sets the method to estimate the linear trend. It can be linear regression {opt (reg)} or generalized method of moments {opt (gmm)}. If {opt method} is not specified, {opt trend} assumes {opt method(gmm)}.
+{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
+trend (_ttrend) to the regression. {opt (gmm)} produces a trend using event-time dummy coefficients computed by the Generalized Method of Moments. If {opt method} is not specified, {opt trend} assumes {opt method(gmm)}.
 
 {phang2}
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
@@ -242,6 +243,11 @@ that two-way clustering is allowed with {help reghdfe}.
    {cmd: tenure , pol(union) w(-3 1) norm(-2) cluster(idcode)}
 {p_end}
 
+{pstd}Correct by estimating a linear trend with gmm method {p_end}
+{phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp}
+   {cmd: tenure , pol(union) w(2) trend(-2, method(gmm)) cluster(idcode)}
+{p_end}
+
 {pstd}Impute the policy variable without verifying staggered adoption{p_end}
 {phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp}
    {cmd: tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}
@@ -274,7 +280,7 @@ Run the regression using the new policy variable
    {cmd: tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag, saveimp)}
 {p_end}
 {pstd}
-See the imputations in a unit
+See the imputations for a unit
 {p_end}
 {phang2}
 {cmd:. list idcode year union2 union2_imputed if idcode==6}

@@ -28,7 +28,7 @@ program define xtevent, eclass
 	Timevar(varname) /* Time variable */
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
-	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. GMM or linear trend adjustment*/
+	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. GMM or OLS*/
 	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */

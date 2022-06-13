@@ -14,7 +14,7 @@ program define _eventols, rclass
 	[
 	nofe /* No fixed effects */
 	note /* No time effects */
-	trend(string) /*trend adjustment: reg or gmm*/
+	trend(string) /*trend adjustment: ols or gmm*/
 	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
 	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */				
@@ -39,7 +39,7 @@ program define _eventols, rclass
 	*parse 
 	if "`trend'"!="" parsetrend `trend'
 	loc trcoef = r(trcoef)
-	loc method = r(methodt)
+	loc methodt = r(methodt)
 	loc saveov = r(saveoverlay)
 	if "`saveov'"=="." loc saveov ""
 	return loc saveov = "`saveov'"
@@ -48,7 +48,7 @@ program define _eventols, rclass
 	if "`trend'"!="" {
 		tempvar ktrend trendy trendx
 		if `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
-			di as err "{bf:trend} is outside window estimation."
+			di as err "{bf:trend} is outside estimation window."
 			exit 301
 		}
 		
@@ -60,11 +60,11 @@ program define _eventols, rclass
 			di as err "Trend extrapolation requires at least two pre-treatment points."
 			exit 301
 		}			
-		if !inlist("`method'","reg","gmm"){
-			di as err "{bf:`method'} is not a valid suboption."		
+		if !inlist("`methodt'","ols","gmm"){
+			di as err "{bf:method(`methodt')} is not a valid suboption."		
 			exit 301
 		}
-		if "`method'"=="reg" {
+		if "`methodt'"=="ols" {
 			loc ttrend "_ttrend"
 		}
 		else loc ttrend ""
@@ -81,7 +81,7 @@ program define _eventols, rclass
 	loc z = "`policyvar'"
 	
 	if "`gen'" != "nogen" {
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') method(`method') norm(`norm') impute(`impute')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute')
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
@@ -132,7 +132,7 @@ program define _eventols, rclass
 	else loc te "i.`t'"
 	
 	* If gmm trend run regression before adjustment quietly
-	if "`method'"=="gmm" loc q "quietly" 
+	if "`methodt'"=="gmm" loc q "quietly" 
 	else loc q ""
 		
 	if "`reghdfe'"=="" {
@@ -197,7 +197,7 @@ program define _eventols, rclass
 	
 	* Trend adjustment by GMM
 	
-	if "`method'"=="gmm" {
+	if "`methodt'"=="gmm" {
 		
 		tempname deltatoadj Vtoadj deltaadj Vadj bbadj VVadj
 		
@@ -226,7 +226,7 @@ program define _eventols, rclass
 		
 		mata: adjdelta(`gmmtrendsc',`lwindow',`rwindow',"`deltatoadj'","`Vdelta'","`Vtoadj'","`delta'","`Omegapsi_st'","`Omegadeltapsi_st'","`gmm_trcoefs'","`deltaadj'","`Vadj'","`Valladj'")
 
-		* Post the new results (previuos. VVadj is not used anymore)
+		* Post the new results 
 		loc dnames : colnames(`delta')
 		*change col an row names 
 		mat colnames `deltaadj' = `dnames'
@@ -310,11 +310,11 @@ program define _eventols, rclass
 		loc j=1
 		forv c=`trcoef'(1)-1 {
 			loc absc = abs(`c')
-			if "`method'"=="reg"{
+			if "`methodt'"=="ols"{
 				if `c'!=-1 qui replace `trendy'=_b[_k_eq_m`absc'] in `j' 
 				else if `c'==-1 qui replace `trendy'=0 in `j'
 			}
-			else if "`method'"=="gmm"{
+			else if "`methodt'"=="gmm"{
 				if `c'!=-1 qui replace `trendy'=`gmm_trcoefs'[1,"_k_eq_m`absc'"] in `j'
 				else if `c'==-1 qui replace `trendy'=0 in `j'
 			}
@@ -338,12 +338,12 @@ program define _eventols, rclass
 		if !_rc drop _k_eq*		
 		cap confirm var __k
 		if !_rc qui drop __k
-		if "`method'"=="reg" qui drop _ttrend
+		if "`methodt'"=="ols" qui drop _ttrend
 	}
 	else if "`savek'" != "" & "`drop'"!="nodrop"  {
 		ren __k `savek'_evtime
 		ren _k_eq* `savek'_eq*
-		if "`method'"=="reg" ren _ttrend `savek'_trend	
+		if "`methodt'"=="ols" ren _ttrend `savek'_trend	
 	}	
 
 	* Returns
