@@ -177,7 +177,7 @@ effect of the policy is the deviation from the extrapolated linear trend. #1 mus
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
-trend (_ttrend) to the regression. {opt (gmm)} produces a trend using event-time dummy coefficients computed by the Generalized Method of Moments. If {opt method} is not specified, {opt trend} assumes {opt method(gmm)}.
+trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. If {opt method} is not specified, {opt trend} assumes {opt method(gmm)}.
 
 {phang2}
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
