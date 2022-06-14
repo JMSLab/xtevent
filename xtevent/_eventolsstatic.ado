@@ -34,7 +34,7 @@ program define _eventolsstatic, rclass
 	if "`impute'"!="" {
 		*tempvar to be imputed
 		tempvar rr
-		qui gen `rr'=.
+		qui gen double `rr'=.
 
 	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static' rr(`rr')
 	
@@ -46,7 +46,7 @@ program define _eventolsstatic, rclass
 		if "`impute'"!="" {
 			if "`saveimp'"=="" {
 				tempvar zimp
-				qui gen `zimp'=`rr'
+				qui gen double `zimp'=`rr'
 				lab var `zimp' "`policyvar'_imputed"
 				loc z="`zimp'"
 			}

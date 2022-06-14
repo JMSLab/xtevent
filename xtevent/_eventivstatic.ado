@@ -44,7 +44,7 @@ program define _eventivstatic, rclass
 	if "`impute'"!="" {
 		*tempvar to be imputed
 		tempvar rr
-		qui gen `rr'=.
+		qui gen double `rr'=.
 		
 	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static' rr(`rr')
 		
@@ -56,7 +56,7 @@ program define _eventivstatic, rclass
 		if "`impute'"!="" {
 			if "`saveimp'"=="" {
 				tempvar zimp
-				qui gen `zimp'=`rr'
+				qui gen double `zimp'=`rr'
 				lab var `zimp' "`policyvar'_imputed"
 				loc z "`zimp'"
 			}
@@ -90,7 +90,7 @@ program define _eventivstatic, rclass
 			* Here I test up to 5
 			forv v=1(1)5 {
 				tempvar _fd`v'`z'
-				qui gen `_fd`v'`z'' = f`v'.d.`z' if `touse'
+				qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
 				cap qui reg `proxy' `_fd`v'`z'' [`weight'`exp'] if `touse'
 				if !_rc loc Floop = e(F)
 				if `Floop' > `Fstart' {
@@ -113,7 +113,7 @@ program define _eventivstatic, rclass
 	if `rc' == 0 {
 		loc insvars ""
 		foreach v in `proxyiv' {
-			qui gen _f`v'`z' = f`v'.`z' if `touse'			
+			qui gen double _f`v'`z' = f`v'.`z' if `touse'			
 			loc insvars "`insvars' _f`v'`z'"
 		}
 		loc instype = "numlist"
