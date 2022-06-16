@@ -25,7 +25,7 @@ program define _eventgenvars, rclass
 	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
 	trcoef(real 0) /*coefficient to start the trend*/
 	methodt(string) /* method for the trend computation*/
-	
+
 
 	
 	]	
@@ -197,7 +197,7 @@ program define _eventgenvars, rclass
 		
 	*********** verify no reversion  ****************************
 	*(e.g. if binary 0 and 1, once reached 1, never returns to zero)
-	
+
 		tempvar zr zn l1
 		qui gen `zr'=`z'
 		*where there are missings, impute the previous value
