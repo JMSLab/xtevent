@@ -26,7 +26,7 @@ program define xteventplot
 	suptciplotopts(string)
 	smplotopts(string)
 	trendplotopts(string)
-	staticovopts(string)
+	staticovplotopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	
 	*
@@ -108,7 +108,7 @@ program define xteventplot
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
 	if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
-	if "`minus1label'"=="nominus1label" di as txt _n "{option bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
+	if "`minus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
 	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
 	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
 	
