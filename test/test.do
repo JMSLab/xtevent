@@ -9,7 +9,6 @@ clear all
 ===========================================================================*/	
 use "example31.dta", clear
 
-keep if inrange(t,6,15)
 
 /*=========================================================================
                         2: Run tests
@@ -66,7 +65,7 @@ xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) nofe plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) nofe note plot
 
 * Test smoothest line
-xtevent eta, panelvar(i) timevar(t) policyvar(z) window(5) 
+xtevent eta, panelvar(i) timevar(t) policyvar(z) window(4) 
 xteventplot, smpath(scatter)
 xteventplot, smpath(line)
 xteventplot, smpath(line, technique("nr 10 bfgs 10"))
@@ -122,9 +121,6 @@ replace z2 = . if i==1 & t==7
 xtevent y eta, policyvar(z2) window(5) 
 drop z2
 
-* Test estimate witthout staggered adoption
-xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) nostaggered plot
-
 * Test reghdfe
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(3) reghdfe plot
 
@@ -142,6 +138,56 @@ xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vc
 xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(bootstrap) //will show an error message
 */
 
+*Imputation of policyvar without verifying staggered adoption conditions
+xtevent y eta, policyvar(z) timevar(t) window(5) impute(nuchange)
+
+*outer mputation of policyvar verifying staggered adoption conditions
+xtevent y eta, policyvar(z) timevar(t) window(5) impute(stag)
+
+*outer and inner mputation of policyvar verifying staggered adoption conditions
+xtevent y eta, policyvar(z) timevar(t) window(5) impute(instag)
+
+*outer and inner mputation of policyvar. Adds the imputed policyvar to the database
+xtevent y eta, policyvar(z) timevar(t) window(5) impute(instag, saveimp)
+drop z_imputed
+
+*imputation fails if staggered conditions are not satisfied. It reverts to no imputation
+replace z=0.5 in 7
+xtevent y eta, policyvar(z) timevar(t) window(5) impute(instag)
+replace z=1 in 7
+
+*Trend adjustment. Default method is GMM
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3)
+
+*Trend adjustment. Use OLS instead
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(ols))
+
+*Compare: 1) no adjustment; 2) adjustment by GMM and; 3) adjustment by OLS
+xtevent y eta, policyvar(z) timevar(t) window(5) 
+xteventplot, name(g1)
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(gmm))
+xteventplot, name(g2)
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(ols))
+xteventplot, name(g3)
+
+graph combine g1 g2 g3, rows(2)
+
+graph drop g1
+graph drop g2
+graph drop g3
+
+graph drop _all
+
+*Overlay trend plot
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(gmm) saveov)
+xteventplot, overlay(trend)
+
+/*
+*Overlay trend plot fails because suboption "saveov" was not specified
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(gmm))
+xteventplot, overlay(trend)
+*/
+
 * Overlay static plot
 xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, overlay(static)
@@ -154,7 +200,7 @@ xteventplot, ciplotopts(lcolor(green))
 xteventplot, suptciplotopts(lcolor(green))
 xteventplot, scatterplotopts(mcolor(green))
 xteventplot, overlay(static) staticovplotopts(lcolor(red))
-xtevent y2 eta, policyvar(z) timevar(t) window(5) trend(-3)
+xtevent y2 eta, policyvar(z) timevar(t) window(5) trend(-3, saveov)
 xteventplot, overlay(trend) trendplotopts(lcolor(red))
 xtevent y eta, policyvar(z) proxy(x) window(5)
 xteventplot, overlay(iv) scatterplotopts(mcolor(green red))
@@ -198,11 +244,13 @@ xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) nofe plot
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) nofe note plot
 
 * Test smoothest line
-xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) 
+xtevent y , panelvar(i) timevar(t) policyvar(z) window(3) 
 xteventplot, smpath(scatter)
 xteventplot, smpath(line)
+/* maximum order allowed is 10
 xteventplot, smpath(line, maxorder(25))
 xteventplot, smpath(line, maxorder(30))
+*/
 xteventplot, smpath(line, technique("nr 10 bfgs 10"))
 
 
@@ -251,9 +299,6 @@ replace z2 = . if i==1 & t==7
 xtevent y , policyvar(z2) window(5) 
 drop z2
 
-* Test estimate witthout staggered adoption
-xtevent y , panelvar(i) timevar(t) policyvar(z) window(3) nostaggered plot
-
 * Overlay static plot
 xtevent y , policyvar(z) timevar(t) window(5)
 xteventplot, overlay(static) 
@@ -273,15 +318,17 @@ xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) plot
 * Test alternative ways of specifying iv
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(1) plot
 xteventplot, smpath(scatter)
+/*
 * This should not work now, for leads write 1
 cap gen f1z=f1.z
 cap noi xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(f1z)
 cap drop f1z
+*/
 
 * Other leads
-xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(2) plot
+xtevent y , panelvar(i) timevar(t) policyvar(z) window(4) proxy(x) proxyiv(2) plot
 xteventplot, smpath(scatter)
-xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(3) plot
+xtevent y , panelvar(i) timevar(t) policyvar(z) window(4) proxy(x) proxyiv(3) plot
 xteventplot, smpath(scatter)
 
 * Test additional instruments
@@ -364,7 +411,7 @@ xteventplot, overlay(static)
 *------------------------ 2.5: Replicate 2e and test basic funcionality  ----------------------------------
 
 * Replicate 2e
-xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) trend(-3) plot
+xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) trend(-3, saveov) plot
 
 * Test overlay plot
 xteventplot, overlay(trend)
@@ -409,7 +456,7 @@ xtevent y l.eta , panelvar(i) timevar(t) policyvar(z) window(5) trend(-3)
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(-4 6) trend(-3) plot
 
 * Test overlay plot
-xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) trend(-3) plot
+xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) trend(-3, saveov) plot
 xteventplot, overlay(trend)
 
 *------------------------ 2.6: Hypotheses tests  ----------------------------------
