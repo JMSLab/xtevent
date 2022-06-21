@@ -478,13 +478,15 @@ program define xteventplot
 	}
 	else loc note ""
 	
+	* Set parenthetical reference value
+	
 	if "`proxy'"!="" {
-		loc y1plot : di %-9.2f `=e(x1)'
+		loc y1plot : di %9.4g `=e(x1)'
 		loc y1plot=strtrim("`y1plot'")
 		loc y1plot `""0 (`y1plot')" "'
 	}
 	else {
-		loc y1plot : di %-9.2f `=e(y1)'
+		loc y1plot : di %9.4g `=e(y1)'
 		loc y1plot=strtrim("`y1plot'")
 		loc y1plot `""0 (`y1plot')" "'
 	}
@@ -498,7 +500,6 @@ program define xteventplot
 		svmat mattrendy, names(`trendy')
 		svmat mattrendx, names(`trendx')
 		loc trendplot "lfit `trendy'1 `trendx'1, range(`=`kmin'+1' `=`kmax'-1')"
-		
 	}
 		
 	* Plot
@@ -770,7 +771,6 @@ mata
 		a1 = -pinv(i.A1)*(i.Ab*b+i.A2*a2)
 		
 		aresult = (b\a1\a2)
-		
 	}
 
 	/* Solution if number of normalized coefficients = polynomial order */
