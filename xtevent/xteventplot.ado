@@ -28,6 +28,7 @@ program define xteventplot
 	trendplotopts(string)
 	staticovopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
+	fontsize(string) /* Option for adjusting text size of the test results */
 	
 	*
 	]	
@@ -442,6 +443,9 @@ program define xteventplot
 		loc smgraph ""
 	}
 	
+	* Font size option
+	if "`fontsize'"!="" loc fontsize ", size(`fontsize')"
+	
 	* P-value for pre-trends test and value of y in label
 	if "`overlay'"!="trend" {
 		if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
@@ -457,7 +461,6 @@ program define xteventplot
 					qui xteventtest, overidpost(`overidpost')
 					loc pvalpost : di %9.2f r(p)
 				}
-				
 			}
 			if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
 			else loc notepre ""
@@ -474,7 +477,7 @@ program define xteventplot
 			loc pval : di %9.2f r(p)
 			loc note "Constant effects p-value = `pval'"
 		}
-		loc note "note(`note')"
+		loc note "note(`note' `fontsize')"
 	}
 	else loc note ""
 	
