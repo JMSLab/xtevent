@@ -65,7 +65,7 @@
 {opt linpretrend} requests a specification test to see if the coefficients before the event follow a linear trend.
 
 {phang}
-{opt trend(#1)} tests for a linear trend between from time period #1 before the policy change. #1 must be less than 0.
+{opt trend(#1)} tests for a linear trend from time period #1 before the policy change. It uses {opt xtevent, trend(#1, method(ols))} to estimate the trend. #1 must be less than 0.
 
 {phang}
 {opt constanteff} tests that all post-event coefficients are equal.

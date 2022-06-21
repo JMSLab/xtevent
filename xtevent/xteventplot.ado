@@ -26,7 +26,7 @@ program define xteventplot
 	suptciplotopts(string)
 	smplotopts(string)
 	trendplotopts(string)
-	staticovopts(string)
+	staticovplotopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	
 	*
@@ -66,8 +66,8 @@ program define xteventplot
 		exit 301
 	}
 	
-	if "`overlay'"=="trend" & "`=e(trend)'"!="trend" {
-		di as err "option {bf:overlay(trend)} only allowed after {cmd:xtevent, trend()}"
+	if "`overlay'"=="trend" & "`=e(trend)'"!="trend" { 
+		di as err "option {bf:overlay(trend)} only allowed after {cmd:xtevent, trend(, saveoverlay)}"
 		exit 301
 	}
 	
@@ -81,7 +81,7 @@ program define xteventplot
 	tempname b V
 	if inlist("`overlay'","trend","iv")  {
 		mat `b' = e(deltaov)
-		mat `V' = e(Vdeltaov)			
+		mat `V' = e(Vdeltaov)
 	}
 	else if "`y'" !="" {
 		if "`=e(method)'"!="iv" {
@@ -108,7 +108,7 @@ program define xteventplot
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
 	if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
-	if "`minus1label'"=="nominus1label" di as txt _n "{option bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
+	if "`minus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
 	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
 	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
 	
@@ -171,10 +171,10 @@ program define xteventplot
 	loc kmin : word 1 of `kgs'
 	loc ksize : list sizeof kgs
 	loc kmax : word `ksize' of `kgs'
-	
+
 	* Omit right and left endpoints if trend
 	
-	if "`=e(trend)'"!="." {
+	if "`=e(trend)'"!="." { 
 		if "`kmiss'"=="." loc kmiss "`kmax',`kmin'"
 		else loc kmiss "`kmiss',`kmax',`kmin'"
 	}
@@ -493,9 +493,10 @@ program define xteventplot
 	
 	* Overlay plot for trend
 	
-	if "`=e(trend)'"=="trend" & "`overlay'"=="trend" {
-		mat mattrendy = e(mattrendy)
+	if "`=e(trend)'"=="trend" & "`overlay'"=="trend" { 
+		mat mattrendy = e(mattrendy) 
 		mat mattrendx = e(mattrendx)
+		 
 		tempname trendy trendx
 		svmat mattrendy, names(`trendy')
 		svmat mattrendx, names(`trendx')
