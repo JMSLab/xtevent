@@ -28,7 +28,7 @@ program define xtevent, eclass
 	Timevar(varname) /* Time variable */
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
-	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. GMM or OLS*/
+	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
 	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
@@ -183,7 +183,7 @@ program define xtevent, eclass
 		
 		* Do not allow norm and trend 
 		if "`norm'" !="-1" & "`trend'" != "" {
-			di as err _n "option {bf:norm} not allowed with option {bf:trend}"
+			di as err _n "Option {bf:trend} not allowed with a value for option {bf:norm} different from -1."
 			exit 198
 		}
 		*user			

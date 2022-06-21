@@ -14,7 +14,7 @@ program define _eventols, rclass
 	[
 	nofe /* No fixed effects */
 	note /* No time effects */
-	trend(string) /*trend adjustment: ols or gmm*/
+	trend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
 	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
 	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */				
@@ -44,7 +44,7 @@ program define _eventols, rclass
 	if "`saveov'"=="." loc saveov ""
 	return loc saveov = "`saveov'"
 	
-	*errors 
+	*error messages for incorrect specification of the trend option
 	if "`trend'"!="" {
 		tempvar ktrend trendy trendx
 		if `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
@@ -228,7 +228,7 @@ program define _eventols, rclass
 
 		* Post the new results 
 		loc dnames : colnames(`delta')
-		*change col an row names 
+		*change column an row names 
 		mat colnames `deltaadj' = `dnames'
 		mat colnames `gmm_trcoefs' = `dnames'
 		mat colnames `Vadj' = `dnames'
