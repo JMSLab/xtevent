@@ -94,7 +94,7 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {phang}
 {opth window(numlist)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
 is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
-coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<0 and {it:k2}>0 are specified, the 
+coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<=0 and {it:k2}>=0 are specified, the 
 estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
 and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). {opt window()} is required unless 
 {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()} 
