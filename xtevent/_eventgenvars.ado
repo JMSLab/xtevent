@@ -23,7 +23,7 @@ program define _eventgenvars, rclass
 	/*instag  imputes outer and inner missing values verifying staggered adoption*/
 	STatic /* Estimate static model */
 	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
-	trcoef(real 0) /*coefficient to start the trend*/
+	trcoef(real 0) /*inferior limit to start the trend*/
 	methodt(string) /* method for the trend computation*/
 	
 
@@ -467,7 +467,7 @@ program define _eventgenvars, rclass
 		* di "`included'"
 		if "`methodt'" == "ols" {
 			if `bin'!=1 | `norever'!=1 {
-				di as err _n "Cannot extrapolate linear trend with a policyvar that is not binary or has multiple events. Use GMM instead."
+				di as err _n "Method ols cannot extrapolate linear trend using a policyvar that is not binary or has multiple events. Use GMM instead."
 				exit 301
 			}
 		

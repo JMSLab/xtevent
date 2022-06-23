@@ -44,7 +44,7 @@
 {synopt:{opt note}} omit time fixed effects {p_end}
 {synopt: {opt impute(type, [saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
-{synopt:{opt tr:end(#1)}} extrapolate linear trend from time period #1 before treatment{p_end}
+{synopt:{opt tr:end(#1, [subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
 {synopt:{opt savek(stub)}} save time-to-event, event-time and trend variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
@@ -172,8 +172,15 @@ or by the adopted-policy state.
 {opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with {opt window}.
 
 {phang}
-{opt trend(#1)} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
-effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. 
+{opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
+effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following can be passed as suboptions:
+
+{phang2}
+{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
+trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
+
+{phang2}
+{opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
 {opt savek(stub)} saves variables for event-time dummies, event-time and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
@@ -236,6 +243,11 @@ that two-way clustering is allowed with {help reghdfe}.
    {cmd: tenure , pol(union) w(-3 1) norm(-2) cluster(idcode)}
 {p_end}
 
+{pstd}Adjust by estimating a linear trend with gmm method {p_end}
+{phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp}
+   {cmd: tenure , pol(union) w(2) trend(-2, method(gmm)) cluster(idcode)}
+{p_end}
+
 {pstd}Impute the policy variable without verifying staggered adoption{p_end}
 {phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp}
    {cmd: tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}
@@ -268,7 +280,7 @@ Run the regression using the new policy variable
    {cmd: tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag, saveimp)}
 {p_end}
 {pstd}
-See the imputations in a unit
+Compare the imputed and original values for a unit
 {p_end}
 {phang2}
 {cmd:. list idcode year union2 union2_imputed if idcode==6}
