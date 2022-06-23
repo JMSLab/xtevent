@@ -141,10 +141,10 @@ xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vc
 *Imputation of policyvar without verifying staggered adoption conditions
 xtevent y eta, policyvar(z) timevar(t) window(5) impute(nuchange)
 
-*outer mputation of policyvar verifying staggered adoption conditions
+*outer imputation of policyvar verifying staggered adoption conditions
 xtevent y eta, policyvar(z) timevar(t) window(5) impute(stag)
 
-*outer and inner mputation of policyvar verifying staggered adoption conditions
+*outer and inner imputation of policyvar verifying staggered adoption conditions
 xtevent y eta, policyvar(z) timevar(t) window(5) impute(instag)
 
 *outer and inner mputation of policyvar. Adds the imputed policyvar to the database
@@ -200,6 +200,7 @@ xteventplot, ciplotopts(lcolor(green))
 xteventplot, suptciplotopts(lcolor(green))
 xteventplot, scatterplotopts(mcolor(green))
 xteventplot, overlay(static) staticovplotopts(lcolor(red))
+
 xtevent y2 eta, policyvar(z) timevar(t) window(5) trend(-3, saveov)
 xteventplot, overlay(trend) trendplotopts(lcolor(red))
 xtevent y eta, policyvar(z) proxy(x) window(5)
