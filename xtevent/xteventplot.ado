@@ -194,11 +194,58 @@ program define xteventplot
 		loc cmdstatic = r(cmdstatic)
 		loc cmdpredict = r(cmdpredict)
 		loc depvar = e(depvar)
-		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
+		*find name of policyvar 
+		loc policyvarp = r(policyvarp)
 		
-		qui est store `estimates'						
-		`cmdstatic'
-		qui predict `yhat' 
+		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
+		qui est store `estimates'
+		*what type of imputation the user specified 
+		loc imputec=regexm("`cmdstatic'","impute")
+		loc saveimpc=regexm("`cmdstatic'",",*saveimp*\)")
+		loc imputestag=regexm("`cmdstatic'","(impute\(*stag*\))|(impute\(*stag*,*[ a-zA-Z]*\))")
+		loc imputeinstag=regexm("`cmdstatic'","(impute\(*instag*\))|(impute\(*instag*,*[ a-zA-Z]*\))")
+		loc imputenuch=regexm("`cmdstatic'","(impute\(*nuchange*\))|(impute\(*nuchange*,*[ a-zA-Z]*\))")
+			
+		*the user didn't specify impute option
+		if `imputec'==0{
+			`cmdstatic'
+		}
+		*the user specified impute option 
+		else{
+			*the user indicated not to save the imputed policyvar
+			if `saveimpc'==0 {
+				 
+				* Check for a variable named as the imputed policyvar
+				cap unab oldkvars : `policyvarp'_imputed
+				if !_rc {
+					di as err _n "{bf:xteventplot, overlay(static)} requieres to temporarily add the imputed policyvar to the database and you already have a variable named `policyvarp'_imputed."
+					di as err _n "Please drop or rename this variable before proceeding."
+					exit 110
+				}				
+				*change to save the imputed policyvar
+				if `imputestag' loc cmdstatic=regexr("`cmdstatic'","impute\([ a-zA-Z]*\)", "impute(stag, saveimp)")
+				if `imputeinstag' loc cmdstatic=regexr("`cmdstatic'","impute\([ a-zA-Z]*\)", "impute(instag, saveimp)")
+				if `imputenuch' loc cmdstatic=regexr("`cmdstatic'","impute\([ a-zA-Z]*\)", "impute(nuchange, saveimp)")
+				`cmdstatic'
+			}
+			*the user indicated to save the imputed policyvar 
+			else {
+				loc cmdstatic=regexr("`cmdstatic'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "")
+				loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
+				loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
+				/*we have erased impute() and instead use policyvar(z_imputed)*/
+				`cmdstatic'
+				
+				*change to not to save the imputed policyvar for the prediction
+				if `imputestag' loc cmdpredict=regexr("`cmdpredict'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "impute(stag)")
+				if `imputeinstag' loc cmdpredict=regexr("`cmdpredict'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "impute(instag)")
+				if `imputenuch' loc cmdpredict=regexr("`cmdpredict'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "impute(nuchange)")
+			}
+		}
+		
+		qui predict `yhat'
+		*had temporarily added the policyvar, drop it
+		if `imputec'==1 & `saveimpc'==0 drop `policyvarp'_imputed
 		qui `cmdpredict'
 		mat `bstatic' = e(delta)
 		mat `Vstatic' = e(Vdelta)		
@@ -478,8 +525,6 @@ program define xteventplot
 	}
 	else loc note ""
 	
-	* Set parenthetical reference value
-	
 	if "`proxy'"!="" {
 		loc y1plot : di %9.4g `=e(x1)'
 		loc y1plot=strtrim("`y1plot'")
@@ -501,6 +546,7 @@ program define xteventplot
 		svmat mattrendy, names(`trendy')
 		svmat mattrendx, names(`trendx')
 		loc trendplot "lfit `trendy'1 `trendx'1, range(`=`kmin'+1' `=`kmax'-1')"
+		
 	}
 		
 	* Plot
@@ -525,7 +571,7 @@ program define xteventplot
 	* Label for value of y at -1 by default, unless supressed
 	if "`minus1label'"=="nominus1label" loc ylab ""
 	else loc ylab "ylab(#5 0 `y1plot')"	
-	
+
 	tw  `smgraph' `smplotopts' || `cigraph' `ciplotopts' || `cigraphsupt' `suptciplotopts' || `cmdov' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts' || `addplots'	|| `trendplot' `trendplotopts' ||,`zeroline' `options' `legend'
 	cap qui mata: mata drop kgs		
 end
@@ -571,6 +617,21 @@ end
 
 cap program drop parsecmdline
 program define parsecmdline, rclass
+	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot proxy(string) policyvar(string) *]
+	
+	if "`if'"=="" loc ifs "if `samplevar'"
+	else loc ifs "`if' & `samplevar'"
+	
+	loc cmdstatic `anything' [`weight'`exp'] `ifs' `in', policyvar(`policyvar') `options' proxy(`proxy') static
+	loc cmdpredict `anything' [`weight'`exp'] `if' `in', policyvar(`policyvar') window(`window') `impute' `options' proxy(`proxy')
+	return local cmdstatic = "`cmdstatic'"
+	return local cmdpredict = "`cmdpredict'"
+	return local policyvarp = "`policyvar'"
+	
+end
+/*
+cap program drop parsecmdline
+program define parsecmdline, rclass
 	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot nostaggered proxy(string) *]
 	
 	if "`if'"=="" loc ifs "if `samplevar'"
@@ -582,6 +643,7 @@ program define parsecmdline, rclass
 	return local cmdpredict = "`cmdpredict'"
 	
 end
+*/
 
 mata
 
@@ -772,6 +834,7 @@ mata
 		a1 = -pinv(i.A1)*(i.Ab*b+i.A2*a2)
 		
 		aresult = (b\a1\a2)
+		
 	}
 
 	/* Solution if number of normalized coefficients = polynomial order */
