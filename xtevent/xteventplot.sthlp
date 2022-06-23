@@ -177,7 +177,7 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 {opt addplots} specifies additional plots to be overlaid to the event-study plot.
 
 {phang}
-{opt fontsize} specifies options to be passed to the font size of the pre-trend and leveling-off tests. These options are disabled if {opt noprepval} and {opt nopostval} are specified.
+{opt fontsize} specifies options to be passed to the font size of the pre-trend and leveling-off tests. These options are disabled if {opt noprepval} and {opt nopostval} are specified. See {help textsizestyle}.
 
 {phang}
 {it: additional_options}: Additional options to be passed to {cmd:twoway}. See {help twoway}.
