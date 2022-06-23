@@ -47,7 +47,7 @@ program define _eventiv, rclass
 	if "`impute'"!=""{
 		*tempvar to be imputed
 		tempvar rr
-		qui gen `rr'=.
+		qui gen double `rr'=.
 
 		*call _eventgenvars
 		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr')
@@ -57,7 +57,7 @@ program define _eventiv, rclass
 		*if imputation succeeded:
 		if "`impute'"!="" {
 			tempvar zimp
-			qui gen `zimp'=`rr'
+			qui gen double `zimp'=`rr'
 			loc z="`zimp'"
 		}
 		else loc z = "`policyvar'"
@@ -137,7 +137,7 @@ program define _eventiv, rclass
 			cap confirm integer number `v'
 			if _rc loc varivs "`varivs' `v'"
 			else {
-				qui gen double_fd`v'`z' = f`v'.d.`z' if `touse'
+				qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
 				loc leadivs "`leadivs' _fd`v'`z'"
 			}
 		}
