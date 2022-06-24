@@ -1,5 +1,3 @@
-* _eventiv.ado 1.00 Aug 24 2021
-
 version 11.2
 
 cap program drop _eventiv
