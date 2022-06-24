@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0 Aug 24 2021}{...}
+{* *! version 2.0 Jun 24 2022}{...}
 {cmd:help xtevent}
 {hline}
 
@@ -388,7 +388,8 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 {it:Journal of Applied Econometrics}, 34: 1– 17.
 
 {title:Acknowledgements}
-{pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Ángel Espinoza, Samuele Giambra, Diego Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, and Matthias Weigand
- for testing early versions of this command.
+{pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
+Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, and Matthias Weigand  for testing early versions of this 
+command.
 
 
