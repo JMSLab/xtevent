@@ -243,7 +243,6 @@ program define xteventplot
 		qui predict `yhat'
 		*had temporarily added the policyvar, drop it
 		if "`impute'"!="" & "`saveimp'"=="" drop `policyvarp'_imputed
-		di "`cmdpredict'"
 		qui `cmdpredict'
 		mat `bstatic' = e(delta)
 		mat `Vstatic' = e(Vdelta)		
