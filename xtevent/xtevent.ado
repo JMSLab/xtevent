@@ -1,4 +1,4 @@
-* xtevent.ado 1.00 Aug 24 2021
+* xtevent.ado 2.0.0 Jun 26 2022
 
 version 11.2
 
