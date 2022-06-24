@@ -194,11 +194,55 @@ program define xteventplot
 		loc cmdstatic = r(cmdstatic)
 		loc cmdpredict = r(cmdpredict)
 		loc depvar = e(depvar)
-		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
 		
-		qui est store `estimates'						
-		`cmdstatic'
-		qui predict `yhat' 
+		*find name of policyvar 
+		loc policyvarp = r(policyvarp)
+		
+		*parse impute option 
+		loc impute = r(imputep)
+		if  "`impute'"=="." loc impute=""
+		parseimp `impute'
+		loc imptype = r(imptype)
+		if  "`imptype'"=="." loc imptype=""
+		loc saveimp = r(saveimpl)
+		if  "`saveimp'"=="." loc saveimp=""
+		
+		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
+		qui est store `estimates'
+		
+		*the user didn't specify impute option
+		if "`impute'"==""{
+			`cmdstatic'
+		}
+		*the user specified impute option 
+		else{
+			*the user indicated not to save the imputed policyvar
+			if "`saveimp'"=="" {
+				 
+				* Check for a variable named as the imputed policyvar
+				cap unab oldkvars : `policyvarp'_imputed
+				if !_rc {
+					di as err _n "{bf:xteventplot, overlay(static)} requieres to temporarily add the imputed policyvar to the database to estimate the static overlay, but you already have a variable named `policyvarp'_imputed."
+					di as err _n "Please drop or rename this variable before proceeding."
+					exit 110
+				}				
+				*change to save the imputed policyvar
+				loc cmdstatic="`cmdstatic' impute(`imptype', saveimp)"
+				`cmdstatic'
+			}
+			*the user indicated to save the imputed policyvar 
+			else {
+				loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
+				loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
+				`cmdstatic'		
+			}
+			*change to not to save the imputed policyvar for the prediction
+			loc cmdpredict="`cmdpredict' impute(`imptype')"
+		}
+		
+		qui predict `yhat'
+		*had temporarily added the policyvar, drop it
+		if "`impute'"!="" & "`saveimp'"=="" drop `policyvarp'_imputed
 		qui `cmdpredict'
 		mat `bstatic' = e(delta)
 		mat `Vstatic' = e(Vdelta)		
@@ -478,8 +522,6 @@ program define xteventplot
 	}
 	else loc note ""
 	
-	* Set parenthetical reference value
-	
 	if "`proxy'"!="" {
 		loc y1plot : di %9.4g `=e(x1)'
 		loc y1plot=strtrim("`y1plot'")
@@ -501,6 +543,7 @@ program define xteventplot
 		svmat mattrendy, names(`trendy')
 		svmat mattrendx, names(`trendx')
 		loc trendplot "lfit `trendy'1 `trendx'1, range(`=`kmin'+1' `=`kmax'-1')"
+		
 	}
 		
 	* Plot
@@ -525,7 +568,7 @@ program define xteventplot
 	* Label for value of y at -1 by default, unless supressed
 	if "`minus1label'"=="nominus1label" loc ylab ""
 	else loc ylab "ylab(#5 0 `y1plot')"	
-	
+
 	tw  `smgraph' `smplotopts' || `cigraph' `ciplotopts' || `cigraphsupt' `suptciplotopts' || `cmdov' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts' || `addplots'	|| `trendplot' `trendplotopts' ||,`zeroline' `options' `legend'
 	cap qui mata: mata drop kgs		
 end
@@ -571,17 +614,28 @@ end
 
 cap program drop parsecmdline
 program define parsecmdline, rclass
-	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot nostaggered proxy(string) *]
+	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot proxy(string) policyvar(string) impute(string) *]
 	
 	if "`if'"=="" loc ifs "if `samplevar'"
 	else loc ifs "`if' & `samplevar'"
 	
-	loc cmdstatic `anything' [`weight'`exp'] `ifs' `in', `options' proxy(`proxy') static
-	loc cmdpredict `anything' [`weight'`exp'] `if' `in', window(`window') `staggered' `options' proxy(`proxy')
+	loc cmdstatic `anything' [`weight'`exp'] `ifs' `in', policyvar(`policyvar') `options' proxy(`proxy') static
+	loc cmdpredict `anything' [`weight'`exp'] `if' `in', policyvar(`policyvar') window(`window') `options' proxy(`proxy')
 	return local cmdstatic = "`cmdstatic'"
 	return local cmdpredict = "`cmdpredict'"
+	return local policyvarp = "`policyvar'"
+	return local imputep = "`impute'"
 	
 end
+
+*program to parse impute option
+cap program drop parseimp
+program define parseimp, rclass
+	syntax [anything] , [saveimp]
+	return local imptype "`anything'"
+	return local saveimpl "`saveimp'"
+end	
+
 
 mata
 
@@ -772,6 +826,7 @@ mata
 		a1 = -pinv(i.A1)*(i.Ab*b+i.A2*a2)
 		
 		aresult = (b\a1\a2)
+		
 	}
 
 	/* Solution if number of normalized coefficients = polynomial order */
