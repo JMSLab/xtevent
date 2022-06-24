@@ -194,58 +194,56 @@ program define xteventplot
 		loc cmdstatic = r(cmdstatic)
 		loc cmdpredict = r(cmdpredict)
 		loc depvar = e(depvar)
+		
 		*find name of policyvar 
 		loc policyvarp = r(policyvarp)
 		
+		*parse impute option 
+		loc impute = r(imputep)
+		if  "`impute'"=="." loc impute=""
+		parseimp `impute'
+		loc imptype = r(imptype)
+		if  "`imptype'"=="." loc imptype=""
+		loc saveimp = r(saveimpl)
+		if  "`saveimp'"=="." loc saveimp=""
+		
 		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
 		qui est store `estimates'
-		*what type of imputation the user specified 
-		loc imputec=regexm("`cmdstatic'","impute")
-		loc saveimpc=regexm("`cmdstatic'",",*saveimp*\)")
-		loc imputestag=regexm("`cmdstatic'","(impute\(*stag*\))|(impute\(*stag*,*[ a-zA-Z]*\))")
-		loc imputeinstag=regexm("`cmdstatic'","(impute\(*instag*\))|(impute\(*instag*,*[ a-zA-Z]*\))")
-		loc imputenuch=regexm("`cmdstatic'","(impute\(*nuchange*\))|(impute\(*nuchange*,*[ a-zA-Z]*\))")
-			
+		
 		*the user didn't specify impute option
-		if `imputec'==0{
+		if "`impute'"==""{
 			`cmdstatic'
 		}
 		*the user specified impute option 
 		else{
 			*the user indicated not to save the imputed policyvar
-			if `saveimpc'==0 {
+			if "`saveimp'"=="" {
 				 
 				* Check for a variable named as the imputed policyvar
 				cap unab oldkvars : `policyvarp'_imputed
 				if !_rc {
-					di as err _n "{bf:xteventplot, overlay(static)} requieres to temporarily add the imputed policyvar to the database and you already have a variable named `policyvarp'_imputed."
+					di as err _n "{bf:xteventplot, overlay(static)} requieres to temporarily add the imputed policyvar to the database to estimate the static overlay, but you already have a variable named `policyvarp'_imputed."
 					di as err _n "Please drop or rename this variable before proceeding."
 					exit 110
 				}				
 				*change to save the imputed policyvar
-				if `imputestag' loc cmdstatic=regexr("`cmdstatic'","impute\([ a-zA-Z]*\)", "impute(stag, saveimp)")
-				if `imputeinstag' loc cmdstatic=regexr("`cmdstatic'","impute\([ a-zA-Z]*\)", "impute(instag, saveimp)")
-				if `imputenuch' loc cmdstatic=regexr("`cmdstatic'","impute\([ a-zA-Z]*\)", "impute(nuchange, saveimp)")
+				loc cmdstatic="`cmdstatic' impute(`imptype', saveimp)"
 				`cmdstatic'
 			}
 			*the user indicated to save the imputed policyvar 
 			else {
-				loc cmdstatic=regexr("`cmdstatic'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "")
 				loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
 				loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
-				/*we have erased impute() and instead use policyvar(z_imputed)*/
-				`cmdstatic'
-				
-				*change to not to save the imputed policyvar for the prediction
-				if `imputestag' loc cmdpredict=regexr("`cmdpredict'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "impute(stag)")
-				if `imputeinstag' loc cmdpredict=regexr("`cmdpredict'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "impute(instag)")
-				if `imputenuch' loc cmdpredict=regexr("`cmdpredict'","impute\(*[ a-zA-Z]*,*[ a-zA-Z]*\)", "impute(nuchange)")
+				`cmdstatic'		
 			}
+			*change to not to save the imputed policyvar for the prediction
+			loc cmdpredict="`cmdpredict' impute(`imptype')"
 		}
 		
 		qui predict `yhat'
 		*had temporarily added the policyvar, drop it
-		if `imputec'==1 & `saveimpc'==0 drop `policyvarp'_imputed
+		if "`impute'"!="" & "`saveimp'"=="" drop `policyvarp'_imputed
+		di "`cmdpredict'"
 		qui `cmdpredict'
 		mat `bstatic' = e(delta)
 		mat `Vstatic' = e(Vdelta)		
@@ -617,33 +615,28 @@ end
 
 cap program drop parsecmdline
 program define parsecmdline, rclass
-	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot proxy(string) policyvar(string) *]
+	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot proxy(string) policyvar(string) impute(string) *]
 	
 	if "`if'"=="" loc ifs "if `samplevar'"
 	else loc ifs "`if' & `samplevar'"
 	
 	loc cmdstatic `anything' [`weight'`exp'] `ifs' `in', policyvar(`policyvar') `options' proxy(`proxy') static
-	loc cmdpredict `anything' [`weight'`exp'] `if' `in', policyvar(`policyvar') window(`window') `impute' `options' proxy(`proxy')
+	loc cmdpredict `anything' [`weight'`exp'] `if' `in', policyvar(`policyvar') window(`window') `options' proxy(`proxy')
 	return local cmdstatic = "`cmdstatic'"
 	return local cmdpredict = "`cmdpredict'"
 	return local policyvarp = "`policyvar'"
+	return local imputep = "`impute'"
 	
 end
-/*
-cap program drop parsecmdline
-program define parsecmdline, rclass
-	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot nostaggered proxy(string) *]
-	
-	if "`if'"=="" loc ifs "if `samplevar'"
-	else loc ifs "`if' & `samplevar'"
-	
-	loc cmdstatic `anything' [`weight'`exp'] `ifs' `in', `options' proxy(`proxy') static
-	loc cmdpredict `anything' [`weight'`exp'] `if' `in', window(`window') `staggered' `options' proxy(`proxy')
-	return local cmdstatic = "`cmdstatic'"
-	return local cmdpredict = "`cmdpredict'"
-	
-end
-*/
+
+*program to parse impute option
+cap program drop parseimp
+program define parseimp, rclass
+	syntax [anything] , [saveimp]
+	return local imptype "`anything'"
+	return local saveimpl "`saveimp'"
+end	
+
 
 mata
 
