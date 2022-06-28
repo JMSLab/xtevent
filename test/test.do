@@ -4,10 +4,6 @@ cap log using test.log, replace text
 
 clear all
 
-if "`c(username)'" == "rayhuang" {
-	cd "/Users/rayhuang/Documents/JMSLab/xtevent-git/test"
-	}
-set scheme sj
 /*=========================================================================
                         1: Load data 
 ===========================================================================*/	
@@ -22,7 +18,7 @@ graph drop _all
 
 *------------------------ 2.1: Replicate 2a and test basic funcionality ----------------------------------
 
-xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) trend plot
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5)
 
 * Testing xtset options
 
