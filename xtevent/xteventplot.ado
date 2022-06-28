@@ -237,7 +237,7 @@ program define xteventplot
 				* Check id the user dropped or renamed the imputed policyvar
 				cap unab oldkvars : `policyvarp'_imputed
 				if _rc {
-					di as err _n "When running {bf:xtevent} you had created the variable {bf:`policyvarp'_imputed}, and then it was dropped or renamed. It is necessary to estimate the static model."
+					di as err _n "When running {bf:xtevent} you had created the variable {bf:`policyvarp'_imputed}, and then it was dropped or renamed. This variable is necessary to estimate the static model."
 					exit 110
 				}
 				`cmdstatic'		
