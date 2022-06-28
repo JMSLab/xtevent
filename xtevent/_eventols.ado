@@ -21,6 +21,7 @@ program define _eventols, rclass
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
 	absorb(string) /* Absorb additional variables in reghdfe */ 
+	staticDD /* Obtain regular DiD estimate implied by the model */
 	*
 	]
 	;
@@ -192,6 +193,21 @@ program define _eventols, rclass
 	loc df = e(df_r)
 	
 	gen byte `esample' = e(sample)
+	
+	* DiD estimate 
+	
+	loc lwindow abs(`lwindow')
+	loc rwindow `rwindow'
+	if "`staticDD'"!=""{
+		mat pre_mat = `delta'[1...,1..`lwindow'] 
+		mat post_mat = `delta'[1...,(1+`lwindow')...]
+		mat pre_total = (pre_mat * J(colsof(pre_mat), 1, 1)) / (`lwindow' + 1)
+		mat post_total = (post_mat * J(colsof(post_mat), 1, 1)) / (`rwindow' + 2)
+		mat diff = post_total - pre_total
+		scalar diff_scalar = diff[1,1] 
+		di as text _n "DiD estimate:"
+		di diff_scalar
+	}
 	
 	* Trend adjustment by GMM
 	
