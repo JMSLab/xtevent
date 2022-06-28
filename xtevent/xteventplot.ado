@@ -234,6 +234,12 @@ program define xteventplot
 			else {
 				loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
 				loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
+				* Check id the user dropped or renamed the imputed policyvar
+				cap unab oldkvars : `policyvarp'_imputed
+				if _rc {
+					di as err _n "When running {bf:xtevent} you had created the variable {bf:`policyvarp'_imputed}, and then it was dropped or renamed. This variable is necessary to estimate the static model."
+					exit 110
+				}
 				`cmdstatic'		
 			}
 			*change to not to save the imputed policyvar for the prediction
@@ -614,7 +620,7 @@ end
 
 cap program drop parsecmdline
 program define parsecmdline, rclass
-	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot proxy(string) policyvar(string) impute(string) *]
+	syntax anything [aw fw pw] [if][in], samplevar(string) [Window(numlist min=1 max=2 integer) savek(string) plot proxy(string) POLicyvar(string) impute(string) *]
 	
 	if "`if'"=="" loc ifs "if `samplevar'"
 	else loc ifs "`if' & `samplevar'"
