@@ -45,7 +45,7 @@
 {synopt:{opt staticovplotopts(string)}} graphics options for smoothest path plot{p_end}
 {synopt:{opt trendplotopts(string)}} graphics options for extrapolated trend plot{p_end}
 {synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
-{synopt:{opt fontsize(string)}} text size options for the p-values of the pre-trend and leveling-off tests{p_end}
+{synopt:{opt textboxoption(string)}} textbox options for displaying the p-values of the pre-trend and leveling-off tests{p_end}
 {synopt:{it: additional_options}} additional options to be passed to {cmd:twoway}{p_end}
 
 {synoptline}
@@ -177,7 +177,7 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 {opt addplots} specifies additional plots to be overlaid to the event-study plot.
 
 {phang}
-{opt fontsize} specifies options to be passed to the font size of the pre-trend and leveling-off tests. These options are disabled if {opt noprepval} and {opt nopostval} are specified. See {help textsizestyle}.
+{opt textboxoption} specifies options to be passed to the textbox of the pre-trend and leveling-off tests. These options are disabled if {opt noprepval} and {opt nopostval} are specified. See {help textbox_options}.
 
 {phang}
 {it: additional_options}: Additional options to be passed to {cmd:twoway}. See {help twoway}.
