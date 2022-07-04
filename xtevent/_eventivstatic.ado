@@ -4,16 +4,16 @@ cap program drop _eventivstatic
 program define _eventivstatic, rclass
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Covariates go in varlist. Can add fv ts later */
-	panelvar(varname) /* Panel variable */
-	timevar(varname) /* Time variable */
-	policyvar(varname) /* Policy variable */	
+	Panelvar(varname) /* Panel variable */
+	Timevar(varname) /* Time variable */
+	POLicyvar(varname) /* Policy variable */	
 	proxy (varlist numeric) /* Proxy variable(s) */
 	[
 	proxyiv(string) /* Instruments. Either numlist with lags or varlist with names of instrumental variables */
 	nofe /* No fixed effects */
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
-	absorb(string) /* Absorb additional variables in reghdfe */ 
+	ABSorb(string) /* Absorb additional variables in reghdfe */ 
 	impute(string)
 	STatic
 	*

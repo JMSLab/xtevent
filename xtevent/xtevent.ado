@@ -29,10 +29,10 @@ program define xtevent, eclass
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
 	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
-	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
+	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
-	addabsorb(string) /* Absorb additional variables in reghdfe */
+	ADDabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
 	plot /* Produce plot */
 	*
@@ -41,7 +41,7 @@ program define xtevent, eclass
 	
 	nofe /* No fixed effects */
 	note /* No time effects */
-	kvars(string) /* Use previously generated dummies */
+	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
 		
 	*/

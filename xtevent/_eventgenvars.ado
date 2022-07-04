@@ -6,12 +6,12 @@ program define _eventgenvars, rclass
 	#d;
 
 	syntax [anything] [if] [in], 
-	panelvar(varname) /* Panel variable */	
-	timevar(varname) /* Time variable */
-	policyvar(varname) /* Policy variable */
+	Panelvar(varname) /* Panel variable */	
+	Timevar(varname) /* Time variable */
+	POLicyvar(varname) /* Policy variable */
 	[
-	lwindow(real 0)
-	rwindow(integer 0) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	LWindow(real 0)
+	RWindow(integer 0) /* Estimation window. Need to set a default, but it has to be based on the dataset */
 	/* since lwindow and rwindow are now optional, a default value must be provided*/
 	norm(numlist) /* Coefficients to normalize */
 	

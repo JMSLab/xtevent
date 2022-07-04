@@ -4,23 +4,23 @@ cap program drop _eventols
 program define _eventols, rclass
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Proxy for eta and covariates go in varlist. Can add fv ts later */
-	panelvar(varname) /* Panel variable */
-	timevar(varname) /* Time variable */
-	policyvar(varname) /* Policy variable */
-	lwindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	rwindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	Panelvar(varname) /* Panel variable */
+	Timevar(varname) /* Time variable */
+	POLicyvar(varname) /* Policy variable */
+	LWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	RWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
 	[
 	nofe /* No fixed effects */
 	note /* No time effects */
-	trend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
-	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
-	nogen /* Do not generate k variables */
+	TRend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
+	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
+	NOGen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */				
 	nodrop /* Do not drop _k variables */
 	norm(integer -1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
-	absorb(string) /* Absorb additional variables in reghdfe */ 
+	ABSorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
 	;

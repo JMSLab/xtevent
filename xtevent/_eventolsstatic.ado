@@ -5,9 +5,9 @@ program define _eventolsstatic, rclass
 
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Proxy for eta and covariates go in varlist. Can add fv ts later */
-	panelvar(varname) /* Panel variable */
-	timevar(varname) /* Time variable */
-	policyvar(varname) /* Policy variable */	
+	Panelvar(varname) /* Panel variable */
+	Timevar(varname) /* Time variable */
+	POLicyvar(varname) /* Policy variable */	
 	[
 	nofe /* No fixed effects */
 	note /* No time effects */	
