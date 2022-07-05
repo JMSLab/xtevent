@@ -205,6 +205,8 @@ xtevent y2 eta, policyvar(z) timevar(t) window(5) trend(-3, saveov)
 xteventplot, overlay(trend) trendplotopts(lcolor(red))
 xtevent y eta, policyvar(z) proxy(x) window(5)
 xteventplot, overlay(iv) scatterplotopts(mcolor(green red))
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) 
+xteventplot, textboxoption(color(blue) size(large))
 drop y2
 
 *------------------------ 2.2: Replicate 2b and test basic funcionality without controls ----------------------------------
