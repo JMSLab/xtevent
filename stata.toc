@@ -1,0 +1,12 @@
+v 3
+d
+d Simon Freyaldenhoven, Federal Reserve Bank of Philadelphia
+d Christian Hansen, University of Chicago
+d Jorge Pérez Pérez (maintainer), Banco de México (jorgepp@banxico.org.mx)
+d Jesse M. Shapiro, Harvard University
+
+d https://github.com/JMSLab/xtevent
+
+d 'xtevent': Estimation of Linear Panel Event-Study Models
+
+p xtevent
