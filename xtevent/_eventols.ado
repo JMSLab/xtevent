@@ -207,12 +207,12 @@ program define _eventols, rclass
 		di as text _n "DiD estimate:"
 		di `diff'[1,1] 
 		
-		di as text _n "DiD Estimate and SE from nlcom"
+		di as text _n "DiD estimate and standard error from nlcom:"
 		#d;
 		nlcom  ((_b[ _k_eq_p0] + _b[ _k_eq_p1] + _b[ _k_eq_p2] + _b[ _k_eq_p3] 
 			+ _b[ _k_eq_p4] + _b[ _k_eq_p5] + _b[ _k_eq_p6]) / (`rwindow' + 2)) 
 			- ((_b[_k_eq_m6] + _b[_k_eq_m5] + _b[_k_eq_m4] + _b[_k_eq_m3] + 
-			_b[_k_eq_m2]) / (`lwindow' + 1)), cformat(%9.4g)
+			_b[_k_eq_m2]) / (`lwindow' + 1)), cformat(%9.4g) nohead
 		;
 		#d cr
 	}
