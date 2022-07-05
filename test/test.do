@@ -159,7 +159,6 @@ xteventplot, overlay(trend) trendplotopts(lcolor(red))
 xtevent y eta, policyvar(z) proxy(x) window(5)
 xteventplot, overlay(iv) scatterplotopts(mcolor(green red))
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) 
-xteventplot, textboxoption(size(tiny))
 xteventplot, textboxoption(color(blue) size(large))
 drop y2
 

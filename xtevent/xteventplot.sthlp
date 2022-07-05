@@ -206,7 +206,6 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 {phang2}{cmd:. xteventplot, smpath(line, technique(nr 10 bfgs 10))}{p_end}
 
 {pstd}Adjust textbox options for the p-values of the pre-trend and leveling-off tests{p_end}
-{phang2}{cmd:. xteventplot, textboxoption(size(tiny))}{p_end}
 {phang2}{cmd:. xteventplot, textboxoption(color(blue) size(large))}{p_end}
 
 {hline}
