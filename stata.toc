@@ -3,7 +3,7 @@ d
 d Simon Freyaldenhoven, Federal Reserve Bank of Philadelphia
 d Christian Hansen, University of Chicago
 d Jorge Pérez Pérez (maintainer), Banco de México (jorgepp@banxico.org.mx)
-d Jesse M. Shapiro, Harvard University
+d Jesse M. Shapiro, Harvard University and NBER
 
 d https://github.com/JMSLab/xtevent
 
