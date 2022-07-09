@@ -15,7 +15,7 @@ program define _eventiv, rclass
 	nofe /* No fixed effects */
 	note /* No time effects */
 	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */	
-	NOGen /* Do not generate k variables */
+	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */		
 	norm(integer -1) /* Normalization */	
 	reghdfe /* Use reghdfe for estimation */	

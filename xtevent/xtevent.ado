@@ -32,7 +32,7 @@ program define xtevent, eclass
 	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
-	ADDABSorb(string) /* Absorb additional variables in reghdfe */
+	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
 	plot /* Produce plot */
 	*
