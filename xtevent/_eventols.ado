@@ -14,7 +14,7 @@ program define _eventols, rclass
 	note /* No time effects */
 	TRend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
 	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
-	NOGen /* Do not generate k variables */
+	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */				
 	nodrop /* Do not drop _k variables */
 	norm(integer -1) /* Coefficiente to normalize */
