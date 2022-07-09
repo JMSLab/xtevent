@@ -170,10 +170,10 @@ the unadopted-policy-state value, and the last-observed value must be the adopte
 or by the adopted-policy state. 
 
 {phang}
-{opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with {opt window}.
+{opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with {opt window} or {opt staticDD}.
 
 {phang}
-{opt staticDD} estimates a static difference-in-differences model via lincom and does not generate or plot event-time dummies. {opt staticDD} is allowed with {opt window}.
+{opt staticDD} estimates a static difference-in-differences model via lincom and does not generate or plot event-time dummies. {opt staticDD} is allowed with {opt window}. {opt staticDD} is not allowed with {opt static}.
 
 {phang}
 {opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
