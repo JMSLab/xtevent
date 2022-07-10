@@ -9,11 +9,11 @@ Authors:
        chansen1@chicagobooth.edu
     Jorge Pérez Pérez, Banco de México
        jorgepp@banxico.org.mx
-    Jesse Shapiro, Brown University
-       jesse_shapiro_1@brown.edu           
+    Jesse Shapiro, Harvard University and NBER
+       jesse.m.shapiro@gmail.com       
 
 
-Freyaldenhoven, S., Hansen, C., Pérez Pérez, J. and Shapiro, J. (2021) "Visualization, Identification, and Estimation in the Linear Panel Event-study Design". Working paper.
+Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. (2021) "Visualization, Identification, and Estimation in the Panel Event-Study Design." NBER Working Paper No. 29170.
 
 
 Changelog:
