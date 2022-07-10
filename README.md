@@ -6,7 +6,7 @@ Stata package `xtevent` estimates linear panel event-study models.
 -----------
 
 ### Description
-`xtevent` is a stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` for creation of event-study plots and; `xteventtest` for post-estimation hypothesis testing. 
+`xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
 - Last version: 2.0.0 (24jun2022)
@@ -16,10 +16,10 @@ Stata package `xtevent` estimates linear panel event-study models.
 ### Updates
 * **Version 2.0.0 (24jun2022)**:
     - Add `impute` option for imputing missing values in the policy variable according to several available rules. See the help file to know more about the available imputation rules. 
-    - The option `nonstaggered` has been depreciated and then in the default estimation there is no imputation of the endpoints. Instead, you can choose any of the imputation rules in the `impute` option.
+    - The option `nonstaggered` has been depreciated. The default option is now not to impute missing values or endpoints.   You should now choose any of the imputation rules in the `impute` option. To get results using imputation consistent with staggered adoption, as in version 1.0.0 you should use `impute(stag)`.
     - Now the option `trend` allows for trend adjustment by either OLS or GMM.
     - Fixed several bugs present in version 1.0.0
-    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.0.0)  for the whole list of updates.
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.0.0)  for the complete update list.
 -----------
 
 ### Installation
@@ -28,6 +28,12 @@ Stata package `xtevent` estimates linear panel event-study models.
 ```stata
 ssc install xtevent
 ```
+
+To update from an older version:
+```stata
+adoupdate xtevent, update
+```
+
 
 #### To install the last version in this repository, use the `github` command:
    First, install the `github` command:
