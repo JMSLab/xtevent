@@ -21,7 +21,7 @@ program define _eventols, rclass
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
 	absorb(string) /* Absorb additional variables in reghdfe */ 
-	staticDD /* Obtain regular DiD estimate implied by the model */
+	DIFFavg /* Obtain regular DiD estimate implied by the model */
 	*
 	]
 	;
@@ -198,7 +198,7 @@ program define _eventols, rclass
 	
 	loc lwindow = abs(`lwindow')
 	loc rwindow `rwindow'
-	if "`staticDD'"!=""{
+	if "`diffavg'"!=""{
 		di as text _n "DiD estimate and standard error from lincom:"
 		#d;
 		lincom  ((_b[ _k_eq_p0] + _b[ _k_eq_p1] + _b[ _k_eq_p2] + _b[ _k_eq_p3] 
