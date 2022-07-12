@@ -21,7 +21,7 @@ program define _eventiv, rclass
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
 	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
-	ABSorb(string) /* Absorb additional variables in reghdfe */ 
+	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
 	;
@@ -254,33 +254,33 @@ program define _eventiv, rclass
 	else {
 		loc noabsorb "" 
 		*absorb nothing
-		if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"=="" {
+		if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"=="" {
 			*loc noabsorb "noabsorb"
 			/*the only option ivreghdfe inherits from reghdfe is absorb, therefore it doesn't support noabsorb. In contrast with reghdfe, ivreghdfe doesn't require noabsorb when absorb is not specified*/ 
 			loc abs ""
 		}
 		*absorb only one
-		else if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"!="" {
+		else if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"!="" {
 			loc abs "absorb(`absorb')"
 		}
-		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i')"
 		}
 		*absorb two
-		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"!="" {						
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
 			loc abs "absorb(`t' `absorb')"
 		}
-		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"!="" {						
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"!="" {						
 			loc abs "absorb(`i' `absorb')"
 		}
-		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i' `t')"
 		}
 		*absorb three
-		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"!="" {						
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
 			loc abs "absorb(`i' `t' `absorb')"
 		}
 		*
