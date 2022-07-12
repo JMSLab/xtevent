@@ -20,7 +20,7 @@ program define _eventols, rclass
 	norm(integer -1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
-	ABSorb(string) /* Absorb additional variables in reghdfe */ 
+	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
 	;
@@ -148,32 +148,32 @@ program define _eventols, rclass
 		loc cmd "reghdfe"
 		loc noabsorb ""
 		*absorb nothing
-		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {
+		if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"=="" {
 			loc noabsorb "noabsorb"
 			loc abs ""
 		}
 		*absorb only one
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {
+		else if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"!="" {
 			loc abs "absorb(`absorb')"
 		}
-		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"=="" {						
+		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i')"
 		}
 		*absorb two
-		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"!="" {						
+		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
 			loc abs "absorb(`t' `absorb')"
 		}
-		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"!="" {						
+		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"!="" {						
 			loc abs "absorb(`i' `absorb')"
 		}
-		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i' `t')"
 		}
 		*absorb three
-		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"!="" {						
+		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
 			loc abs "absorb(`i' `t' `absorb')"
 		}
 		*
