@@ -78,7 +78,7 @@ program define _eventolsstatic, rclass
 		}
 		*absorb only one
 		else if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"!="" {
-			loc abs "absorb(`absorb')"
+			loc abs "absorb(`addabsorb')"
 		}
 		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`t')"
@@ -88,21 +88,21 @@ program define _eventolsstatic, rclass
 		}
 		*absorb two
 		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`t' `absorb')"
+			loc abs "absorb(`t' `addabsorb')"
 		}
 		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`i' `absorb')"
+			loc abs "absorb(`i' `addabsorb')"
 		}
 		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i' `t')"
 		}
 		*absorb three
 		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`i' `t' `absorb')"
+			loc abs "absorb(`i' `t' `addabsorb')"
 		}
 		*
 		else {
-			loc abs "absorb(`i' `t' `absorb')"	
+			loc abs "absorb(`i' `t' `addabsorb')"	
 		}
 		reghdfe `varlist' `z' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 	}
