@@ -194,14 +194,14 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' absorb(`addabsorb') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 
 			if _rc {
 				errpostest
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
-			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' absorb(`addabsorb') `options' 		
+			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 		
 			if _rc {
 				errpostest
 			}
@@ -214,7 +214,7 @@ program define xtevent, eclass
 		di as txt _n "Plotting options ignored"
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' absorb(`addabsorb') `options' `static'
+			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `options' `static'
 			if _rc {
 				errpostest
 			}
@@ -223,7 +223,7 @@ program define xtevent, eclass
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			
-			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' absorb(`addabsorb') `options' `static'
+			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `options' `static'
 			if _rc {
 				errpostest
 			}
