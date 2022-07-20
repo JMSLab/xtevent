@@ -196,16 +196,21 @@ program define _eventols, rclass
 	
 	* DiD estimate 
 	
-	loc lwindow = abs(`lwindow')
-	loc rwindow `rwindow'
 	if "`diffavg'"!=""{
-		di as text _n "DiD estimate and standard error from lincom:"
-		#d;
-		lincom  ((_b[ _k_eq_p0] + _b[ _k_eq_p1] + _b[ _k_eq_p2] + _b[ _k_eq_p3] 
-			+ _b[ _k_eq_p4] + _b[ _k_eq_p5] + _b[ _k_eq_p6]) / (`rwindow' + 2)) 
-			- ((_b[_k_eq_m6] + _b[_k_eq_m5] + _b[_k_eq_m4] + _b[_k_eq_m3] + 
-			_b[_k_eq_m2]) / (`lwindow' + 1)), cformat(%9.4g);
-		#d cr
+		unab pre : _k_eq_m*
+		unab post_p : _k_eq_p*
+		loc norma = abs(`norm')
+		loc pre : subinstr local pre "_k_eq_m`norma'" "", all
+		loc pre_plus : subinstr local pre " " " + ", all
+		loc reverse = ustrreverse("`pre_plus'")
+		loc reverse = subinstr("`reverse'", " + ", "", 1)
+		loc pre_plus = ustrreverse("`reverse'")
+		loc post_plus : subinstr local post_p " " " + ", all
+		loc lwindow = abs(`lwindow')
+		loc rwindow = `rwindow'
+		
+		di as text _n "Difference in pre and post-period averages from lincom:"
+		lincom ((`post_plus') / (`rwindow' + 2)) - ((`pre_plus') / (`lwindow' + 1)), cformat(%9.4g)
 	}
 	
 	* Trend adjustment by GMM
