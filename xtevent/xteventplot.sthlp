@@ -43,7 +43,6 @@
 {synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
 {synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
 {synopt:{opt smplot:opts(string)}} graphics options for the confidence region plot{p_end}
-{synopt:{opt staticovplot:opts(string)}} graphics options for smoothest path plot{p_end}
 {synopt:{opt trendplot:opts(string)}} graphics options for extrapolated trend plot{p_end}
 {synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
 {synopt:{opt staticcovplot:opts(string)}} {p_end}
