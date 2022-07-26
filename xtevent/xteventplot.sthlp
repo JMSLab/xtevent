@@ -42,10 +42,11 @@
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
 {synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
 {synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
-{synopt:{opt smplot:opts(string)}} graphics options for the confidence region plot{p_end}
+{synopt:{opt smplot:opts(string)}} graphics options for smoothest path plot{p_end}
 {synopt:{opt trendplot:opts(string)}} graphics options for extrapolated trend plot{p_end}
+{synopt:{opt staticovplot:opts(string)}} graphics options for the static effect overlay plot {p_end}
+{synopt:{opt textboxoption(string)}} textbox options for displaying the p-values of the pre-trend and leveling-off tests{p_end}
 {synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
-{synopt:{opt staticovplot:opts(string)}} graphics options for smoothest path plot{p_end}
 {synopt:{it: additional_options}} additional options to be passed to {cmd:twoway}{p_end}
 
 {synoptline}
@@ -143,11 +144,11 @@ default line with {opt nozeroline} and adding other lines with {opt yline}. See 
 event-time = -1.
 
 {phang}
-{opt noprepval} omits the display of the p-vale for a test for pre-trends. The test is a Wald test 
+{opt noprepval} omits the display of the p-value for a test for pre-trends. The test is a Wald test 
 for all the pre-event coefficients being equal to 0.
 
 {phang}
-{opt nopostpval} omits the display of the p-vale for a test for effects leveling off. The test is
+{opt nopostpval} omits the display of the p-value for a test for effects leveling off. The test is
 a Wald test for the last post-event coefficients being equal.
 
 {phang}
@@ -177,6 +178,9 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 {opt addplots} specifies additional plots to be overlaid to the event-study plot.
 
 {phang}
+{opt textboxoption} specifies options to be passed to the textbox of the pre-trend and leveling-off tests. These options are disabled if {opt noprepval} and {opt nopostval} are specified. See {help textbox_options}.
+
+{phang}
 {it: additional_options}: Additional options to be passed to {cmd:twoway}. See {help twoway}.
 
 {title:Examples}
@@ -201,6 +205,9 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 {pstd}Plot smoothest path in confidence region{p_end}
 {phang2}{cmd:. xteventplot, smpath(line)}{p_end}
 {phang2}{cmd:. xteventplot, smpath(line, technique(nr 10 bfgs 10))}{p_end}
+
+{pstd}Adjust textbox options for the p-values of the pre-trend and leveling-off tests{p_end}
+{phang2}{cmd:. xteventplot, textboxoption(color(blue) size(large))}{p_end}
 
 {hline}
 

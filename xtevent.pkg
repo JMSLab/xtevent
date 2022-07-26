@@ -1,0 +1,27 @@
+v 3
+d XTEVENT: Estimation of Panel Event Study
+d
+d Simon Freyaldenhoven, Federal Reserve Bank of Philadelphia
+d Christian Hansen, University of Chicago
+d Jorge Pérez Pérez, Banco de México 
+d Jesse M. Shapiro, Harvard University and NBER
+d
+d Support:
+d https://github.com/JMSLab/xtevent/issues
+d Jorge Pérez Pérez (jorgepp@banxico.org.mx)
+d
+d Distribution-Date: 20220624
+d License: MIT
+d 
+
+f ./xtevent/_eventgenvars.ado
+f ./xtevent/_eventiv.ado
+f ./xtevent/_eventivstatic.ado
+f ./xtevent/_eventols.ado
+f ./xtevent/_eventolsstatic.ado
+f ./xtevent/xtevent.ado
+f ./xtevent/xtevent.sthlp
+f ./xtevent/xteventplot.ado
+f ./xtevent/xteventplot.sthlp
+f ./xtevent/xteventtest.ado
+f ./xtevent/xteventtest.sthlp 
