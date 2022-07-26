@@ -200,15 +200,20 @@ program define _eventols, rclass
 		unab pre : _k_eq_m*
 		unab post_p : _k_eq_p*
 		loc norma = abs(`norm')
-		loc pre : subinstr local pre "_k_eq_m`norma'" "", all
-		loc pre_plus : subinstr local pre " " " + ", all
-		loc reverse = ustrreverse("`pre_plus'")
-		loc reverse = subinstr("`reverse'", " + ", "", 1)
-		loc pre_plus = ustrreverse("`reverse'")
+		if `norm' < 0{
+			loc pre : subinstr local pre "_k_eq_m`norma'" "", all
+			loc pre_plus : subinstr local pre " " " + ", all
+			loc reverse = ustrreverse("`pre_plus'")
+			loc reverse = subinstr("`reverse'", " + ", "", 1)
+			loc pre_plus = ustrreverse("`reverse'")
+		}
+		if `norm' >= 0{
+			loc post_p : subinstr local post_p "_k_eq_p`norma' " "", all
+			loc pre_plus : subinstr local pre " " " + ", all
+		}
 		loc post_plus : subinstr local post_p " " " + ", all
 		loc lwindow = abs(`lwindow')
 		loc rwindow = `rwindow'
-		
 		di as text _n "Difference in pre and post-period averages from lincom:"
 		lincom ((`post_plus') / (`rwindow' + 2)) - ((`pre_plus') / (`lwindow' + 1)), cformat(%9.4g)
 	}
