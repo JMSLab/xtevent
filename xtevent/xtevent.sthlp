@@ -45,7 +45,7 @@
 {synopt: {opt impute(type, [saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
 {synopt:{opt tr:end(#1, [subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
-{synopt:{opt savek(stub)}} save time-to-event, event-time and trend variables{p_end}
+{synopt:{opt sav:ek(stub)}} save time-to-event, event-time and trend variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}

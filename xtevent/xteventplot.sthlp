@@ -27,25 +27,26 @@
 {synopt:{opt overlay(string)}} generate overlay plots{p_end}
 {synopt:{opt y}} generate event study plot for dependent variable in IV setting{p_end}
 {synopt:{opt proxy}} generate event study plot for proxy variable in IV setting{p_end}
-{synopt:{opt l:evels(numlist)}} customize confidence levels for plot{p_end}
-{synopt:{opt smpath([type, subopt])}} smoothest path through confidence region{p_end}
+{synopt:{opt lev:els(numlist)}} customize confidence levels for plot{p_end}
+{synopt:{opt sm:path([type, subopt])}} smoothest path through confidence region{p_end}
 {synopt:{opt overidpre(integer)}} change pre-event coefficients to be tested{p_end}
 {synopt:{opt overidpost(integer)}} change post-event coefficients to be tested{p_end}
 
 {syntab:Appearance}
 {synopt: {opt noci}} omit all confidence intervals{p_end}
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
-{synopt:{opt nozeroline}} omit reference line at 0{p_end}
-{synopt:{opt nominus1label}} omit label for value of dependent variable at event-time = -2 {p_end}
-{synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
-{synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
-{synopt:{opt scatterplotopts(string)}} graphics options for coefficient scatter plot{p_end}
-{synopt:{opt ciplotopts(string)}} graphics options for confidence interval plot{p_end}
-{synopt:{opt suptciplotopts(string)}} graphics options for sup-t confidence interval plot{p_end}
-{synopt:{opt staticovplotopts(string)}} graphics options for smoothest path plot{p_end}
-{synopt:{opt trendplotopts(string)}} graphics options for extrapolated trend plot{p_end}
-{synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
+{synopt:{opt nozero:line}} omit reference line at 0{p_end}
+{synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -2 {p_end}
+{synopt:{opt noprepval}} omit p-vale for pre-trends test{p_end}
+{synopt:{opt nopostpval}} omit p-vale for leveling-off test{p_end}
+{synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
+{synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
+{synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
+{synopt:{opt smplot:opts(string)}} graphics options for smoothest path plot{p_end}
+{synopt:{opt trendplot:opts(string)}} graphics options for extrapolated trend plot{p_end}
+{synopt:{opt staticovplot:opts(string)}} graphics options for the static effect overlay plot {p_end}
 {synopt:{opt textboxoption(string)}} textbox options for displaying the p-values of the pre-trend and leveling-off tests{p_end}
+{synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
 {synopt:{it: additional_options}} additional options to be passed to {cmd:twoway}{p_end}
 
 {synoptline}

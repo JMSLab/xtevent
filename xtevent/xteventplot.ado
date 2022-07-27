@@ -9,24 +9,24 @@ program define xteventplot
 	[	
 	noci /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
-	nozeroline /* Supress line at 0 */
-	nominus1label /* Supress label for value of dependent variable at event time = -1 */
-	noprepval /* Supress p-vale for pre-trends test */
-	nopostpval /* Supress p-vale for leveling-off test */
+	NOZEROline /* Supress line at 0 */
+	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
+	noprepval /* Supress p-value for pre-trends test */
+	nopostpval /* Supress p-value for leveling-off test */
 	suptreps(integer 1000) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
 	proxy /* Plot for proxy variable in IV setting */	
-	levels(numlist min=1 max=5) /* Levels for multiple CIs */
-	smpath(string) /* Options for smoothest path through confidence region */
+	LEVels(numlist min=1 max=5) /* Levels for multiple CIs */
+	SMpath(string) /* Options for smoothest path through confidence region */
 	overidpre(numlist >0 integer min=1 max=1) /* Test the leftmost coefficients as overid restriction */
 	overidpost(numlist >1 integer min=1 max=1) /* Test the rightmost coefficients as overid restriction */
-	scatterplotopts(string)
-	ciplotopts(string)
-	suptciplotopts(string)
-	smplotopts(string)
-	trendplotopts(string)
-	staticovplotopts(string)
+	SCATTERPLOTopts(string)
+	CIPLOTopts(string)
+	SUPTCIPLOTopts(string)
+	SMPLOTopts(string)
+	TRENDPLOTopts(string)
+	STATICCOVPLOTopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	textboxoption(string) /* Option for adjusting text size of the test results */
 	*

@@ -4,24 +4,24 @@ cap program drop _eventiv
 program define _eventiv, rclass
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Covariates go in varlist. Can add fv ts later */
-	panelvar(varname) /* Panel variable */
-	timevar(varname) /* Time variable */
-	policyvar(varname) /* Policy variable */
-	lwindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	rwindow(integer)
+	Panelvar(varname) /* Panel variable */
+	Timevar(varname) /* Time variable */
+	POLicyvar(varname) /* Policy variable */
+	LWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	RWindow(integer)
 	proxy (varlist numeric) /* Proxy variable(s) */
 	[
 	proxyiv(string) /* Instruments. Either numlist with lags or varlist with names of instrumental variables */
 	nofe /* No fixed effects */
 	note /* No time effects */
-	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */	
+	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */	
 	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */		
 	norm(integer -1) /* Normalization */	
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
 	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
-	absorb(string) /* Absorb additional variables in reghdfe */ 
+	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	*
 	]
 	;
@@ -254,38 +254,38 @@ program define _eventiv, rclass
 	else {
 		loc noabsorb "" 
 		*absorb nothing
-		if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"=="" {
+		if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"=="" {
 			*loc noabsorb "noabsorb"
 			/*the only option ivreghdfe inherits from reghdfe is absorb, therefore it doesn't support noabsorb. In contrast with reghdfe, ivreghdfe doesn't require noabsorb when absorb is not specified*/ 
 			loc abs ""
 		}
 		*absorb only one
-		else if "`fe'" == "nofe" & "`tte'"=="" & "`absorb'"!="" {
-			loc abs "absorb(`absorb')"
+		else if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"!="" {
+			loc abs "absorb(`addabsorb')"
 		}
-		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i')"
 		}
 		*absorb two
-		else if "`fe'" == "nofe" & "`tte'"!="" & "`absorb'"!="" {						
-			loc abs "absorb(`t' `absorb')"
+		else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
+			loc abs "absorb(`t' `addabsorb')"
 		}
-		else if "`fe'" != "nofe" & "`tte'"=="" & "`absorb'"!="" {						
-			loc abs "absorb(`i' `absorb')"
+		else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"!="" {						
+			loc abs "absorb(`i' `addabsorb')"
 		}
-		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i' `t')"
 		}
 		*absorb three
-		else if "`fe'" != "nofe" & "`tte'"!="" & "`absorb'"!="" {						
-			loc abs "absorb(`i' `t' `absorb')"
+		else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
+			loc abs "absorb(`i' `t' `addabsorb')"
 		}
 		*
 		else {
-			loc abs "absorb(`i' `t' `absorb')"	
+			loc abs "absorb(`i' `t' `addabsorb')"	
 		}
 		
 		*analyze inclusion of vce in options
