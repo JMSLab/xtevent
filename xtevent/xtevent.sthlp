@@ -347,8 +347,8 @@ Compare the imputed and original values for a unit
 {synopt:{cmd:e(deltaov)}}coefficients for event study to be used in overlay plot{p_end}
 {synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of proxy event study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of event study coefficients for overlay plot{p_end}
-{synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot{p_end}
-{synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot{p_end}
+{synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
+{synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 
 
 {synoptset 20 tabbed}{...}
