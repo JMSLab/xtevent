@@ -4,24 +4,24 @@ cap program drop _eventols
 program define _eventols, rclass
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Proxy for eta and covariates go in varlist. Can add fv ts later */
-	panelvar(varname) /* Panel variable */
-	timevar(varname) /* Time variable */
-	policyvar(varname) /* Policy variable */
-	lwindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	rwindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	Panelvar(varname) /* Panel variable */
+	Timevar(varname) /* Time variable */
+	POLicyvar(varname) /* Policy variable */
+	LWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	RWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
 	[
 	nofe /* No fixed effects */
 	note /* No time effects */
-	trend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
-	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
+	TRend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
+	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */					
 	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */				
 	nodrop /* Do not drop _k variables */
 	norm(integer -1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
-	absorb(string) /* Absorb additional variables in reghdfe */ 
-	DIFFavg /* Obtain regular DiD estimate implied by the model */
+  addabsorb(string) /* Absorb additional variables in reghdfe */
+  DIFFavg /* Obtain regular DiD estimate implied by the model */
 	*
 	]
 	;
@@ -149,37 +149,37 @@ program define _eventols, rclass
 		loc cmd "reghdfe"
 		loc noabsorb ""
 		*absorb nothing
-		if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"=="" {
+		if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"=="" {
 			loc noabsorb "noabsorb"
 			loc abs ""
 		}
 		*absorb only one
-		else if "`fe'" == "nofe" & "`te'"=="" & "`absorb'"!="" {
-			loc abs "absorb(`absorb')"
+		else if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"!="" {
+			loc abs "absorb(`addabsorb')"
 		}
-		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"=="" {						
+		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`t')"
 		}
-		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i')"
 		}
 		*absorb two
-		else if "`fe'" == "nofe" & "`te'"!="" & "`absorb'"!="" {						
-			loc abs "absorb(`t' `absorb')"
+		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
+			loc abs "absorb(`t' `addabsorb')"
 		}
-		else if "`fe'" != "nofe" & "`te'"=="" & "`absorb'"!="" {						
-			loc abs "absorb(`i' `absorb')"
+		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"!="" {						
+			loc abs "absorb(`i' `addabsorb')"
 		}
-		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"=="" {						
+		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
 			loc abs "absorb(`i' `t')"
 		}
 		*absorb three
-		else if "`fe'" != "nofe" & "`te'"!="" & "`absorb'"!="" {						
-			loc abs "absorb(`i' `t' `absorb')"
+		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
+			loc abs "absorb(`i' `t' `addabsorb')"
 		}
 		*
 		else {
-			loc abs "absorb(`i' `t' `absorb')"	
+			loc abs "absorb(`i' `t' `addabsorb')"	
 		}
 		`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 	}

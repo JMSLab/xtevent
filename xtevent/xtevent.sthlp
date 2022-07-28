@@ -46,7 +46,7 @@
 {synopt:{opt st:atic}} estimate static model {p_end}
 {synopt:{opt diffavg}} estimate the difference in averages between the post and pre-periods {p_end}
 {synopt:{opt tr:end(#1, [subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
-{synopt:{opt savek(stub)}} save time-to-event, event-time and trend variables{p_end}
+{synopt:{opt sav:ek(stub)}} save time-to-event, event-time and trend variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
@@ -351,8 +351,8 @@ Compare the imputed and original values for a unit
 {synopt:{cmd:e(deltaov)}}coefficients for event study to be used in overlay plot{p_end}
 {synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of proxy event study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of event study coefficients for overlay plot{p_end}
-{synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot{p_end}
-{synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot{p_end}
+{synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
+{synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 
 
 {synoptset 20 tabbed}{...}

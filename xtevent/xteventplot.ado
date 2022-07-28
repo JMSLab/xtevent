@@ -9,26 +9,26 @@ program define xteventplot
 	[	
 	noci /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
-	nozeroline /* Supress line at 0 */
-	nominus1label /* Supress label for value of dependent variable at event time = -1 */
-	noprepval /* Supress p-vale for pre-trends test */
-	nopostpval /* Supress p-vale for leveling-off test */
+	NOZEROline /* Supress line at 0 */
+	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
+	noprepval /* Supress p-value for pre-trends test */
+	nopostpval /* Supress p-value for leveling-off test */
 	suptreps(integer 1000) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
 	proxy /* Plot for proxy variable in IV setting */	
-	levels(numlist min=1 max=5) /* Levels for multiple CIs */
-	smpath(string) /* Options for smoothest path through confidence region */
+	LEVels(numlist min=1 max=5) /* Levels for multiple CIs */
+	SMpath(string) /* Options for smoothest path through confidence region */
 	overidpre(numlist >0 integer min=1 max=1) /* Test the leftmost coefficients as overid restriction */
 	overidpost(numlist >1 integer min=1 max=1) /* Test the rightmost coefficients as overid restriction */
-	scatterplotopts(string)
-	ciplotopts(string)
-	suptciplotopts(string)
-	smplotopts(string)
-	trendplotopts(string)
-	staticovplotopts(string)
+	SCATTERPLOTopts(string)
+	CIPLOTopts(string)
+	SUPTCIPLOTopts(string)
+	SMPLOTopts(string)
+	TRENDPLOTopts(string)
+	STATICCOVPLOTopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
-	
+	textboxoption(string) /* Option for adjusting text size of the test results */
 	*
 	]	
 	;
@@ -234,6 +234,12 @@ program define xteventplot
 			else {
 				loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
 				loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
+				* Check id the user dropped or renamed the imputed policyvar
+				cap unab oldkvars : `policyvarp'_imputed
+				if _rc {
+					di as err _n "When running {bf:xtevent} you had created the variable {bf:`policyvarp'_imputed}, and then it was dropped or renamed. This variable is necessary to estimate the static model."
+					exit 110
+				}
 				`cmdstatic'		
 			}
 			*change to not to save the imputed policyvar for the prediction
@@ -486,6 +492,9 @@ program define xteventplot
 		loc smgraph ""
 	}
 	
+	* Textbox option
+	if "`textboxoption'"!="" loc textbox ", `textboxoption'"
+	
 	* P-value for pre-trends test and value of y in label
 	if "`overlay'"!="trend" {
 		if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
@@ -501,7 +510,6 @@ program define xteventplot
 					qui xteventtest, overidpost(`overidpost')
 					loc pvalpost : di %9.2f r(p)
 				}
-				
 			}
 			if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
 			else loc notepre ""
@@ -518,7 +526,7 @@ program define xteventplot
 			loc pval : di %9.2f r(p)
 			loc note "Constant effects p-value = `pval'"
 		}
-		loc note "note(`note')"
+		loc note "note(`note' `textbox')"
 	}
 	else loc note ""
 	
@@ -614,7 +622,7 @@ end
 
 cap program drop parsecmdline
 program define parsecmdline, rclass
-	syntax anything [aw fw pw] [if][in], samplevar(string) [window(numlist min=1 max=2 integer) savek(string) plot proxy(string) policyvar(string) impute(string) *]
+	syntax anything [aw fw pw] [if][in], samplevar(string) [Window(numlist min=1 max=2 integer) savek(string) plot proxy(string) POLicyvar(string) impute(string) *]
 	
 	if "`if'"=="" loc ifs "if `samplevar'"
 	else loc ifs "`if' & `samplevar'"
