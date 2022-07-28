@@ -141,7 +141,8 @@ be used as an instrument.
 {cmd:proxyiv(select)} is the default for the one proxy, one instrument case, and it is only available in this case. 
 
 {phang2}
-{cmd:proxyiv(# ...)} specifies a numlist with the leads of the differenced policy variable as instruments. For example, {cmd:proxyiv(1 2)} specifies that the two first leads of the difference of the policy variable will be used as instruments.
+{cmd:proxyiv(# ...)} specifies a numlist with the leads of the differenced policy variable as instruments. For example, 
+{cmd:proxyiv(1 2)} specifies that the two first leads of the difference of the policy variable will be used as instruments.
 
 {phang2}
 {cmd:proxyiv(varlist)} specifies a {it:varlist} with the additional variables to be used as instruments.
@@ -153,11 +154,13 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
+{opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
+{cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
 {it:policyvar_imputed}. The following imputation types ca be implemented:
 
 {phang2}
-{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
+{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
+for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
 {phang2}
@@ -173,7 +176,8 @@ or by the adopted-policy state.
 {opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with {opt window} or {opt diffavg}.
 
 {phang}
-{opt diffavg} estimates a simple difference in averages between the post and pre-treatment periods via lincom. {opt diffavg} is allowed with {opt window}. {opt diffavg} is not allowed with {opt static}.
+{opt diffavg} calculates the difference in averages between the post-event estimated coefficients and the pre-event estimated coefficients periods. It also
+calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
 {opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
