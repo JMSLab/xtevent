@@ -80,12 +80,29 @@ program define _eventols, rclass
 	loc z = "`policyvar'"
 	
 	if "`gen'" != "nogen" {
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute')
+		if "`impute'"!=""{
+			tempvar rr
+			qui gen double `rr'=.
+		}
+	
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr')
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
 		loc bin = r(bin)
 		if "`komittrend'"=="." loc komittrend = ""
+
+		*bring the imputed policyvar
+		loc impute=r(impute)
+		if "`impute'"=="." loc impute = ""
+		*if imputation succeeded:
+		if "`impute'"!="" {
+			tempvar zimp
+			qui gen double `zimp'=`rr'
+			loc z="`zimp'"
+		}
+		else loc z = "`policyvar'"
+		
 	}
 	else {
 		loc kvstub "`kvars'"		
@@ -300,7 +317,7 @@ program define _eventols, rclass
 	
 	tokenize `varlist'
 	loc depvar "`1'"
-	qui su `1' if f`absnorm'.d.`policyvar'!=0 & f`absnorm'.d.`policyvar'!=. & `esample', meanonly
+	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
 	loc y1 = r(mean)	
 	
 	
