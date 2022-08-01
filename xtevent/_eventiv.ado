@@ -391,7 +391,7 @@ program define _eventiv, rclass
 	
 	
 	tokenize `varlist'
-	qui su `1' if f`absnorm'.d.`policyvar'!=0 & f`absnorm'.d.`policyvar'!=. & `esample', meanonly
+	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
 	loc y1 = r(mean)
 	loc depvar "`1'"	
 	
