@@ -1,4 +1,4 @@
-xtevent 2.0.0 - June 24, 2022
+xtevent 2.1.0 - August 1, 2022
 
 
 Authors:
@@ -13,15 +13,15 @@ Authors:
        jesse.m.shapiro@gmail.com       
 
 
-Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. (2021) "Visualization, Identification, and Estimation in the Panel Event-Study Design." NBER Working Paper No. 29170.
+Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. (2021) 
+"Visualization, Identification, and Estimation in the Panel Event-Study Design." NBER Working Paper No. 29170.
 
 
 Changelog:
+Two options have been added:
+	diffavg obtains the difference between the average post-event and pre-event coefficient estimates.
+	textboxoption specifies options for displaying the p-values of the pre-trend and leveling-off tests.
+Fixed bugs present in xtevent 2.0.0.
 
-Option nostaggered has been deprecated. There are new options to handle imputation of the policy variable in scenarios where it may be missing for some units or time periods. In xtevent 1.0.0 the default was to impute the policy variable at missing values and at the beginning and end of each timeseries in a manner consistent with staggered adoption. This default behavior has changed to not imputing the policy variable. To obtain similar results to those using xtevent 1.0.0 please use the option impute(stag).
 
-Options for trend extrapolation when the variable is not binary
-
-Bug fixes
-
-For more information, see https://github.com/JMSLab/xtevent/releases/tag/v2.0.0.
+For more information, see https://github.com/JMSLab/xtevent/releases/tag/v2.1.0.
