@@ -312,11 +312,13 @@ program define _eventgenvars, rclass
 					la var _k_eq_`plus'`absk' "Event-time = - `absk'"
 					*this to impute zeros and complete the observed range
 					tempvar minp minp2 maxp maxp2
-					by `panelvar' (`timevar'): egen long `minp'=min(`timevar') if !missing(_k_eq_`plus'`absk')
-					by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
-					by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
-					by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
-					by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+					if "`impute'"!=""{
+						by `panelvar' (`timevar'): egen long `minp'=min(`timevar') if !missing(_k_eq_`plus'`absk')
+						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
+						by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
+						by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
+						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+					}
 				}
 			}		
 			else {
@@ -326,11 +328,13 @@ program define _eventgenvars, rclass
 					la var _k_eq_`plus'`absk' "Event-time = + `absk'"
 					*this to impute zeros and complete the observed range 
 					cap drop `minp' `minp2' `maxp' `maxp2' 
-					by `panelvar' (`timevar'): egen long `minp'=min(`timevar') if !missing(_k_eq_`plus'`absk')
-					by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
-					by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
-					by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
-					by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+					if "`impute'"!=""{
+						by `panelvar' (`timevar'): egen long `minp'=min(`timevar') if !missing(_k_eq_`plus'`absk')
+						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
+						by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
+						by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
+						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+					}
 				}
 			}
 			

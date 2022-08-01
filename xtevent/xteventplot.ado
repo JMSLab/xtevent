@@ -26,7 +26,7 @@ program define xteventplot
 	SUPTCIPLOTopts(string)
 	SMPLOTopts(string)
 	TRENDPLOTopts(string)
-	STATICCOVPLOTopts(string)
+	STATICOVPLOTopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	textboxoption(string) /* Option for adjusting text size of the test results */
 	*
