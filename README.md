@@ -9,17 +9,16 @@ Stata package `xtevent` estimates linear panel event-study models.
 `xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
-- Last version: 2.0.0 (24jun2022)
+- Last version: 2.1.0 (1aug2022)
 - Current SSC version: 2.0.0 (24jun2022)
 -----------
 
 ### Updates
-* **Version 2.0.0 (24jun2022)**:
-    - Add `impute` option for imputing missing values in the policy variable according to several available rules. See the help file to know more about the available imputation rules. 
-    - The option `nonstaggered` has been depreciated. The default option is now not to impute missing values or endpoints.   You should now choose any of the imputation rules in the `impute` option. To get results using imputation consistent with staggered adoption, as in version 1.0.0 you should use `impute(stag)`.
-    - Now the option `trend` allows for trend adjustment by either OLS or GMM.
-    - Fixed several bugs present in version 1.0.0
-    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.0.0)  for the complete update list.
+* **Version 2.1.0 (1aug2022)**:
+    - Adds `diffavg` option to `xtevent` to obtain the difference between the average post-event and pre-event coefficient estimates. 
+    - Adds `textboxoption` option to `xteventplot` to specify characteristics for displaying the p-values of the pre-trend and leveling-off tests.
+    - Fixed bugs present in version 2.0.0
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.1.0)  for the complete update list.
 -----------
 
 ### Installation
@@ -65,8 +64,9 @@ net install xtevent, from("https://raw.githubusercontent.com/JMSLab/xtevent/mast
 -----------
 
 ### To get started
-
-`help xtevent`
+```stata
+help xtevent
+```
 
 -----------
 
