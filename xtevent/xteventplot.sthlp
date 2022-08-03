@@ -236,5 +236,5 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 {pstd}For support and to report bugs please email Jorge Pérez Pérez, Banco de México.{break} 
        jorgepp@banxico.org.mx  
 
-{pstd}{bf:xtevent} can also be found on GitHub at https://github.com/JMSLab/xtevent.
+{pstd}{bf:xtevent} can also be found on {browse "https://github.com/JMSLab/xtevent":Github}.
 	   
