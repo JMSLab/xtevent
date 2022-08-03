@@ -257,7 +257,7 @@ program define xtevent, eclass
 		loc saveov = r(saveov)
 		if "`saveov'"=="." loc saveov ""
 		if "`saveov'"!="" {
-
+		
 			mat mattrendy = r(mattrendy)
 			mat mattrendx = r(mattrendx)
 			mat deltaov = r(deltaov)			
@@ -266,8 +266,9 @@ program define xtevent, eclass
 			ereturn matrix mattrendx = mattrendx
 			ereturn matrix deltaov = deltaov
 			ereturn matrix Vdeltaov = Vdeltaov
-			ereturn local trend = r(trend)
 		}
+		if "`trend'"!="" ereturn local trend = r(trend)
+		
 		ereturn scalar lwindow= `lwindow'
 		ereturn scalar rwindow=`rwindow'
 		if "`pre'"!="" {
