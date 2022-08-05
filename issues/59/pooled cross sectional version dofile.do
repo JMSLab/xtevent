@@ -1,14 +1,14 @@
 ************************* pooled-cross sectional version  ************
 
 * directory
-global dir "C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59"
+global dir "C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\5_august"
 
 
 *assign treatment randomly 
 
 clear
-*specify 63 states 
-set obs 63
+*specify 50 states 
+set obs 50
 gen state=_n
 set seed 1
 gen rand=runiform()
@@ -28,8 +28,11 @@ by i: egen tt2=max(tt)
 replace tt2=0 if missing(tt2)
 drop zd tt
 order i t tt2 z y, first
+*tt2 are cohorts based on treatment time
+*e.g. tt2=5 includes units that received treatment in time=5
 sort tt2 i t
 
+/*
 *assign a state based on the observation's treatment time 
 *never treated 
 gen state= runiformint(1,3) if tt2==0
@@ -42,7 +45,30 @@ di "(`j',`z') if `i'"
 replace state= runiformint(`j',`z') if tt2==`i'
 }
 .
-*but this way treatment is correlated with state 
+*/
+
+*assign a state based on the observation's treatment time 
+*never treated 
+gen state= runiformint(1,30) if tt2==0 //never treated states goes from 1 to 30
+order state, after(z)
+*treated 
+forvalues i=1/20{
+local j=`i'+30
+replace state= `j' if tt2==`i' //assign cohort `i' to state `j'
+}
+.
+/*note that from state 1 to 30 we re-assign at unit-time level, but from states 31 to 50, we are assigning a whole unit (and its 20 observations) to a single state. This way, there are more observations in each state-time cell.
+*/
+*average number of observations per state-time cell
+bysort state t: egen cellm=mean(_N)
+mean cellm //22
+drop cellm
+
+*what percentage of observations correspond to never-treated units?
+count if tt2==0
+di 13720/20000
+
+*notice that due to the way it was constructed, treatment is correlated with state 
 sort state t i
 order state t tt2 z i
 
@@ -65,4 +91,3 @@ lab var i "individual id"
 *reg y z i.t i.state
 
 save "$dir\repeated_cross_sectional_example31.dta", replace
-
