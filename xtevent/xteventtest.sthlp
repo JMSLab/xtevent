@@ -129,6 +129,6 @@ the event are equal. #1 must be greater than 0.
 {pstd}For support and to report bugs please email Jorge Perez Perez, Banco de México.{break} 
        jorgepp@banxico.org.mx   
 
-{pstd}{cmd:xtevent} can also be found on {browse:"https://github.com/JMSLab/xtevent":GitHub}.
+{pstd}{cmd:xtevent} can also be found on {browse "https://github.com/JMSLab/xtevent":GitHub}.
 
 
