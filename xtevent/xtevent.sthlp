@@ -1,3 +1,4 @@
+
 {smcl}
 {* *! version 2.0 Jun 24 2022}{...}
 {cmd:help xtevent}
@@ -378,6 +379,8 @@ Compare the imputed and original values for a unit
            
 {pstd}For support and to report bugs please email Jorge Pérez Pérez, Banco de México.{break} 
        jorgepp@banxico.org.mx   
+
+{pstd}{cmd:xtevent} can also be found on {browse "https://github.com/JMSLab/xtevent":GitHub}.
        
 {title:References}
 
