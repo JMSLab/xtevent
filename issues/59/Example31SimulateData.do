@@ -38,7 +38,8 @@ else {
 }	
 
 loc pr=0
-loc master "T:\pretrends"
+*loc master "T:\pretrends" //original directory
+loc master "C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/5_august"
 
 /*=========================================================================
                         1: Simulate data
@@ -49,7 +50,10 @@ clear all
 
 set seed 94564510
 
-glo N = 1000 // Number of cross-sectional units
+*original:
+*glo N = 1000 // Number of cross-sectional units
+*changed to:
+glo N = 30000 // Number of cross-sectional units
 glo T =  20 // Number of time periods
 
 * Coefficients
@@ -97,12 +101,11 @@ gen y = ${beta}*z + 0.25*eta + 0.2*t + alpha + e
                         2: Save dataset
 ===========================================================================*/
 cap mkdir "`master'/lib/test"
-save "`master'/lib/test/example31.dta", replace
+save "`master'/lib/test/example31_large.dta", replace
 
 /*=========================================================================
                         3: Project calls
 ===========================================================================*/
 
-if `pr' project, creates("`master'/lib/test/example31.dta")
-
+if `pr' project, creates("`master'/lib/test/example31_large.dta")
 
