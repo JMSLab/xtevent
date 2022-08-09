@@ -30,7 +30,7 @@ Stata package `xtevent` estimates linear panel event-study models.
 
 ### Installation
 
-#### To install version 2.0.0 from SSC:
+#### To install version 2.1.0 from SSC:
 ```stata
 ssc install xtevent
 ```
