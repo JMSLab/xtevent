@@ -53,7 +53,7 @@ set seed 94564510
 *original:
 *glo N = 1000 // Number of cross-sectional units
 *changed to:
-glo N = 30000 // Number of cross-sectional units
+glo N = 100000 // Number of cross-sectional units
 glo T =  20 // Number of time periods
 
 * Coefficients
