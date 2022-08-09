@@ -116,3 +116,58 @@ esttab baseline reg xtglsh xtglsiid re, keep(_k*) se nodepvars
 
 }
 .
+
+******************************** test performance: full estimator vs two step procedure
+
+*I cannot use z, eta, alpha, and e as covariates because a lineal combination of them creates y
+*create other covariates
+cap drop w p q r s v 
+set seed 1
+gen w=runiform()
+gen p=rnormal()
+gen q=rnormal()
+gen r=rnormal()
+gen s=rnormal()
+gen v=rnormal()
+
+timer clear 
+forval i=1/10{
+******* full estimator 
+*estimate equation 3) by OLS 
+
+timer on 1
+reg y w p q r s v _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 i.t i.state 
+*estimates store baseline 
+timer off 1
+
+cap drop samp 
+gen samp = e(sample)
+
+******* two-step procedure
+timer on 2
+*step 1
+reg y u i.state#i.t if samp 
+cap drop c_hat 
+predict c_hat 
+replace c_hat = c_hat - _b[u]*u - _b[_cons]
+
+*step 2 
+preserve
+keep if samp
+by state t: keep if _n==1
+xtset state t
+* xtdescribe
+* tab state
+*use the default spcification for xtgls (panels(iid) and corr(independent))
+xtgls c_hat _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 i.t i.state
+*est store xtglsiid
+restore
+timer off 2
+}
+.
+
+timer list 
+
+
+
+*esttab baseline xtglsiid, keep(_k*) se nodepvars  
