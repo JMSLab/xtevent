@@ -19,7 +19,7 @@ drop rand
 save "$dir\state_assign.dta", replace
 
 *load dataset
-use "https://github.com/JMSLab/xtevent/blob/main/test/example31.dta?raw=true", clear
+use "$dir/example31_large.dta", clear
 
 xtset i t
 by i (t): gen zd=z-L1.z
@@ -57,16 +57,17 @@ local j=`i'+30
 replace state= `j' if tt2==`i' //assign cohort `i' to state `j'
 }
 .
+tab state t 
 /*note that from state 1 to 30 we re-assign at unit-time level, but from states 31 to 50, we are assigning a whole unit (and its 20 observations) to a single state. This way, there are more observations in each state-time cell.
 */
 *average number of observations per state-time cell
 bysort state t: egen cellm=mean(_N)
-mean cellm //22
+mean cellm //2,184
 drop cellm
 
 *what percentage of observations correspond to never-treated units?
 count if tt2==0
-di 13720/20000
+di 1407760/2000000 //70.33%
 
 *notice that due to the way it was constructed, treatment is correlated with state 
 sort state t i
@@ -90,4 +91,4 @@ lab var i "individual id"
 
 *reg y z i.t i.state
 
-save "$dir\repeated_cross_sectional_example31.dta", replace
+save "$dir\large_repeated_cross_sectional_example31.dta", replace
