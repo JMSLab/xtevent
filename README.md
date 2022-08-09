@@ -10,7 +10,7 @@ Stata package `xtevent` estimates linear panel event-study models.
 
 
 - Last version: 2.1.0 (1aug2022)
-- Current SSC version: 2.0.0 (24jun2022)
+- Current SSC version: 2.1.0 (1aug2022)
 -----------
 
 ### Updates
