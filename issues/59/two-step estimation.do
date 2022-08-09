@@ -1,18 +1,33 @@
 ********************** two-step estimation (Hansen, 2007) ************
 
 * directory
-global dir "T:\pretrendstest"
+*global dir "T:\pretrendstest"
+global dir "C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\5_august"
 
 *load repeated_cross_sectional dataset
-use "$dir\repeated_cross_sectional_example31.dta", clear
+use "$dir\large_repeated_cross_sectional_example31.dta", clear
 
 * I'll keep the balanced subsample for now
-* tab state
-drop if inlist(state,2,11,34,45,49,54)
+tab state
+*drop if inlist(state,2,11,34,45,49,54)
+drop if inlist(state,24,25,33)
+
+
+*gen a random id. This will be used to run the models for different sample sizes
+set seed 1
+cap drop rid 
+gen rid_=runiform()
+sort rid
+gen rid=_n
+drop rid_
+sort state t i  
+
 
 *gen differenced policyvar
 preserve 
-collapse (min) z, by(state t)
+keep state t z 
+by state t: keep if _n==1
+*collapse (min) z, by(state t)
 xtset state t
 by state (t): gen zd=z-l1.z
 
@@ -41,24 +56,45 @@ qui merge m:1 state t using `cal', nogen
 sort state t i
 order zd _k_*, after(z)
 
-*estimate a baseline model 
-reg y u _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 i.t i.state
-estimates store baseline 
 
+*********** compare: directly estimating equation 3 vs two-step procedure 
+
+local values "100000 500000 1000000 2000000"
+foreach i of local values {
+di "subsample: `i'"
+cap drop subsample 
+gen subsample=1 if rid<=`i'
+
+*estimate a baseline model 
+*estimate equation 3) by OLS
+reg y u _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 i.t i.state if subsample==1
+
+*gen clusterid
+*cap drop double_cluster
+*egen double_cluster=group(state t)
+*reg y u _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 i.t i.state, cluster(double_cluster)
+
+estimates store baseline 
+cap drop samp 
 gen samp = e(sample)
 
-*estimate equation 3)
-*where:
-*w=u
-*C=X+Z= event-time dummies + time effects+state fixed effects = _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4  i.t i.state
-*X includes time effects and the event-time dummies 
-*Z incldues state effects 
+*average number of observations per cell
+preserve 
+keep if samp 
+cap drop nobs 
+by state t: gen nobs=_N 
+mean nobs 
+restore 
+
+*two-step estimation 
 *step 1
 * reghdfe y u if samp, absorb(c_hat=i.t#i.state) resid keepsingletons nocons
 reg y u i.state#i.t 
+cap drop c_hat 
 predict c_hat
 replace c_hat = c_hat - _b[u]*u - _b[_cons]
 
+*step 2 
 preserve
 keep if samp
 by state t: keep if _n==1
@@ -75,5 +111,8 @@ xtreg c_hat _k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq
 est store re
 restore
 
-esttab baseline reg xtglsh xtglsiid re, keep(_k*) se
+esttab baseline reg xtglsh xtglsiid re, keep(_k*) se nodepvars  
+*esttab baseline reg xtglsh xtglsiid re using "$dir\subsample_`i'.csv", keep(_k*) se nodepvars replace 
 
+}
+.
