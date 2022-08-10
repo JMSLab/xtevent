@@ -5,7 +5,7 @@ version 11.2
 cap program drop xteventplot
 program define xteventplot
 	#d;
-	syntax [anything], 
+	syntax [anything(name=eqlist)], /* Allow for inital models to be inputed */
 	[	
 	noci /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
@@ -50,6 +50,12 @@ program define xteventplot
 	
 	* Capture errors
 	
+	local eq_n: word count `eqlist'
+	if "`eq_n'" > 4 {
+		di as error "Xteventplot only supports combining up to 4 graphs"
+		error 198
+	}
+	
 	if "`=e(cmd2)'"!="xtevent" {
 		di as err "{cmd:xteventplot} only available after {cmd:xtevent}"
 		exit 301
@@ -75,11 +81,16 @@ program define xteventplot
 		di as err "option {bf:overlay(iv)} only allowed after {cmd:xtevent, proxy() proxyiv()}"
 		exit 301
 	}
+	
+	forvalues eq = 1/`eq_n' {
+		
+		
+	}
 			
 	* Get info from e
 	loc df = e(df)
 	tempname b V
-	if inlist("`overlay'","trend","iv")  {
+	if inlist("`overlay'","trend","iv") {
 		mat `b' = e(deltaov)
 		mat `V' = e(Vdeltaov)
 	}
