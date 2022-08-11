@@ -77,6 +77,98 @@ help xtevent
 
 -----------
 
+### Examples
+
+Using xtevent 2.1.0
+#### xtevent
+```stata
+*setup
+webuse nlswork
+xtset idcode year
+
+*Estimate a basic event study with clustered standard errors. 
+*Impute the policy variable without verifying staggered adoption.
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) cluster(idcode) impute(nuchange)
+            
+*Omit fixed effects
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) cluster(idcode) impute(nuchange) nofe note
+
+*Adjust the pre-trend by estimating a linear trend by GMM
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(2) cluster(idcode) impute(nuchange) trend(-2, ///
+            method(gmm))
+      
+*FHS estimator with proxy variables
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) vce(cluster idcode) impute(nuchange) ///
+            proxy(wks_work)
+
+*reghdfe and two-way clustering
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe ///
+            proxy(wks_work)
+
+
+```
+#### xteventplot
+```stata
+*setup
+webuse nlswork
+xtset idcode year
+
+*Add an extra effect if union equals 1
+gen ln_wage2=ln_wage
+replace ln_wage2=ln_wage2+0.5 if union==1
+
+*Basic event study with clustered standard errors. 
+*Impute policy variable without verifying staggered adoption.
+xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) cluster(idcode) impute(nuchange) 
+
+* Plot
+xteventplot
+
+*Plot smoothest path in confidence region
+xteventplot, smpath(line)
+
+*FHS estimator with proxy variables
+xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) vce(cluster idcode) impute(nuchange) ///
+            proxy(wks_work)
+
+*Dependent variable, proxy variable, and overlay plots
+xteventplot, y
+xteventplot, proxy
+xteventplot, overlay(iv)
+```
+#### xteventtest
+```stata
+*setup
+webuse nlswork
+xtset idcode year
+
+*Basic event study with clustered standard errors. 
+*Impute policy variable without verifying staggered adoption.
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) cluster(idcode) impute(nuchange) 
+
+*Test some coefficients to be equal to 0 jointly
+xteventtest, coefs(1 2)
+
+*Test that the sum of all pre-event coefficients is equal to 0
+xteventtest, allpre cumul
+
+*Test whether the coefficients before the event follow a linear trend
+xteventtest, linpretrend
+
+*Tests that the coefficients for the earliest 2 periods before the event are equal to 0
+xteventtest, overidpre(2)
+```
+
+-----------
+
 ### Citation
 
 Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. "Visualization, Identification, and Estimation in the Panel Event-Study Design." [NBER Working Paper No. 29170](https://www.nber.org/papers/w29170),
