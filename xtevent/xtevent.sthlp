@@ -386,6 +386,6 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 
 {title:Acknowledgements}
 {pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
-Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Matthias Weigand, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.
+Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Matthias Weigand, Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.
 
 
