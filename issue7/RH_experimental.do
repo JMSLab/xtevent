@@ -47,30 +47,3 @@ svmat X2
 tw (scatter ycoefs_var X1)  ///
 	(scatter yycoefs_var X2)
 
-	
-********************************************************************************
-****************************** DiD Imputation Test *****************************
-********************************************************************************
-
-xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) 
-event_plot e(delta)#e(V), stub_lag(_k_eq_m#) stub_lead(_k_eq_p#)
-
-	
-
-event_plot e(b_iw)#e(V_iw), default_look graph_opt(xtitle("Periods since the event") ytitle("Average causal effect") xlabel(-14(1)5) ///
-	title("Sun and Abraham (2020)")) stub_lag(L#event) stub_lead(F#event) together
-********************************************************************************
-*********************************** OFFSET *************************************
-********************************************************************************
-* First, set a max for how many graphs can be combined
-* By default, if offset is not speicfied the graphs will be offset. There will 
-*	no offset if offest(0) is specified.
-* Create syntax option = offset
-* eq_n = number of commands we want to plot
-
-if ("`offset'"=="") {
-	local offset 0
-	if (`eq_n'>1) forvalues eq=1/`eq_n' {
-		local offset `offset' `=0.2*`eq'/`eq_n''
-	}
-}
