@@ -151,7 +151,7 @@ xtset idcode year
 
 *Basic event study with clustered standard errors. 
 *Impute policy variable without verifying staggered adoption.
-xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange) 
 
 *Test some coefficients to be equal to 0 jointly
