@@ -86,7 +86,8 @@ Using xtevent 2.1.0
 webuse nlswork
 xtset idcode year
 
-*Basic event study with clustered standard errors. Impute policy variable without verifying staggered adoption.
+*Estimate a basic event study with clustered standard errors. 
+*Besides, impute the policy variable without verifying staggered adoption.
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange)
             
@@ -121,9 +122,10 @@ xtset idcode year
 gen ln_wage2=ln_wage
 replace ln_wage2=ln_wage2+0.5 if union==1
 
-*Basic event study with clustered standard errors. Impute policy variable without verifying staggered adoption.
+*Basic event study with clustered standard errors. 
+*Impute policy variable without verifying staggered adoption.
 xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) impute(nuchange) ///
+            pol(union) w(3) cluster(idcode) impute(nuchange) 
 
 * Plot
 xteventplot
@@ -132,8 +134,8 @@ xteventplot
 xteventplot, smpath(line)
 
 *FHS estimator with proxy variables
-xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure ,
-            pol(union) w(3) vce(cluster idcode) impute(nuchange)
+xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) vce(cluster idcode) impute(nuchange) ///
             proxy(wks_work)
 
 *Dependent variable, proxy variable, and overlay plots
@@ -146,6 +148,11 @@ xteventplot, overlay(iv)
 *setup
 webuse nlswork
 xtset idcode year
+
+*Basic event study with clustered standard errors. 
+*Impute policy variable without verifying staggered adoption.
+xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+            pol(union) w(3) cluster(idcode) impute(nuchange) 
 
 *Test some coefficients to be equal to 0 jointly
 xteventtest, coefs(1 2)
