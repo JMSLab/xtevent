@@ -51,8 +51,8 @@ program define xteventplot
 	* Capture errors
 	
 	local eq_n: word count `eqlist'
-	if "`eq_n'" > 4 {
-		di as error "Xteventplot only supports combining up to 4 graphs"
+	if "`eq_n'" > 5 {
+		di as error "Xteventplot supports combining up to 5 graphs"
 		error 198
 	}
 	
@@ -81,49 +81,7 @@ program define xteventplot
 		di as err "option {bf:overlay(iv)} only allowed after {cmd:xtevent, proxy() proxyiv()}"
 		exit 301
 	}
-	
-	forvalues eq = 1/`eq_n' {
-		* do all the steps from this line to around line 590
-		* then we call twoway and use the syntax tw (graph1) (graph2) (graph3), options
-		
-		*adapt offset code from event_plot.ado
-		if ("`offset'"=="") {
-			local offset 0
-			if (`eq_n'>1) forvalues eq=1/`eq_n' {
-				local offset `offset' `=0.2*`eq'/`eq_n''
-			}
-		}
-		
-	}
-			
-	* Get info from e
-	loc df = e(df)
-	tempname b V
-	if inlist("`overlay'","trend","iv") {
-		mat `b' = e(deltaov)
-		mat `V' = e(Vdeltaov)
-	}
-	else if "`y'" !="" {
-		if "`=e(method)'"!="iv" {
-			di as err "{cmd:xteventplot, y} only available after IV estimation with a proxy."
-			exit 301
-		}		
-		mat `b' = e(deltaov)
-		mat `V' = e(Vdeltaov)
-	}
-	else if "`proxy'"!="" {
-		if "`=e(method)'"!="iv" {
-			di as err "{cmd:xteventplot, y} only available after IV estimation with a proxy."
-			exit 301
-		}		
-		mat `b' = e(deltax)
-		mat `V' = e(Vdeltax)
-	}
-	else {
-		mat `b' = e(delta)
-		mat `V' = e(Vdelta)
-		loc komit = e(komit)	
-	}
+
 	
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
@@ -158,395 +116,435 @@ program define xteventplot
 		loc trendplotopts = ""
 	}
 	
-		
-	* Get standard errors, omitted variables
-		
-	tempvar coef se kxaxis ul ll smline	post omitted fid fidget	
-	
-	mata st_matrix("`se'",sqrt(diagonal(st_matrix("`V'")))')	
-	
-	if "`komit'"=="" loc komit = -1
-	loc komitcomma: subinstr local komit " " ",", all
-	
-	if "`kmiss'"!="" loc kmiss: subinstr local kmiss " " ",", all
-	else loc kmiss=.
-	
-	loc kgs : colnames `b'
-	loc kgso = "`kgs'"
-	loc kgs : subinstr local kgs "_k_eq_" "", all
-	loc kgs : subinstr local kgs "m" "-", all
-	loc kgs : subinstr local kgs "p" "", all
-	loc kgso : subinstr local kgs "o." "", all
-	if "`kgso'"!="`kgs'" {
-		di "Warning: Some event-time dummies were omitted in the regression. These coefficients will be shown as zero in the plot. Check the window and the instruments, if any."
-	}
-	loc kgs = "`kgso' `komit'"
-	
-	mata: kgs=st_local("kgs")
-	mata: kgs=strtoreal(tokens(kgs))
-	mata: kgs2=sort(kgs',1)'
-	mata: kgs=invtokens(strofreal(sort(kgs',1)'))
-	mata: st_local("kgs",kgs)
-	
-	loc kmin : word 1 of `kgs'
-	loc ksize : list sizeof kgs
-	loc kmax : word `ksize' of `kgs'
-
-	* Omit right and left endpoints if trend
-	
-	if "`=e(trend)'"!="." { 
-		if "`kmiss'"=="." loc kmiss "`kmax',`kmin'"
-		else loc kmiss "`kmiss',`kmax',`kmin'"
-	}
-	
-	
-	* Estimate static overlay
-	if "`overlay'"=="static" loc ovs = 1
-	else loc ovs = 0
-	if `ovs' {
-		di as text "Estimating static model..."		
-		tempname estimates bstatic Vstatic yhat samplevar
-		
-		gen byte `samplevar' = e(sample)
-		
-		loc cmdline = e(cmdline)
-		parsecmdline `cmdline' samplevar(`samplevar	')
-		loc cmdstatic = r(cmdstatic)
-		loc cmdpredict = r(cmdpredict)
-		loc depvar = e(depvar)
-		
-		*find name of policyvar 
-		loc policyvarp = r(policyvarp)
-		
-		*parse impute option 
-		loc impute = r(imputep)
-		if  "`impute'"=="." loc impute=""
-		parseimp `impute'
-		loc imptype = r(imptype)
-		if  "`imptype'"=="." loc imptype=""
-		loc saveimp = r(saveimpl)
-		if  "`saveimp'"=="." loc saveimp=""
-		
-		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
-		qui est store `estimates'
-		
-		*the user didn't specify impute option
-		if "`impute'"==""{
-			`cmdstatic'
+	* Offset subsequent models slightly if multiple models specified
+	if ("`offset'"=="") {
+		local offset 0
+		if (`eq_n'>1) forvalues eq=1/`eq_n' {
+			local offset `offset' `=0.2*`eq'/`eq_n''
 		}
-		*the user specified impute option 
-		else{
-			*the user indicated not to save the imputed policyvar
-			if "`saveimp'"=="" {
-				 
-				* Check for a variable named as the imputed policyvar
-				cap unab oldkvars : `policyvarp'_imputed
-				if !_rc {
-					di as err _n "{bf:xteventplot, overlay(static)} requieres to temporarily add the imputed policyvar to the database to estimate the static overlay, but you already have a variable named `policyvarp'_imputed."
-					di as err _n "Please drop or rename this variable before proceeding."
-					exit 110
-				}				
-				*change to save the imputed policyvar
-				loc cmdstatic="`cmdstatic' impute(`imptype', saveimp)"
+	}
+	
+	forvalues eq = 1/`eq_n' {
+		
+		* Get info from e
+		loc df = e(df)
+		tempname b V
+		if inlist("`overlay'","trend","iv") {
+			mat `b' = e(deltaov)
+			mat `V' = e(Vdeltaov)
+		}
+		else if "`y'" !="" {
+			if "`=e(method)'"!="iv" {
+				di as err "{cmd:xteventplot, y} only available after IV estimation with a proxy."
+				exit 301
+			}		
+			mat `b' = e(deltaov)
+			mat `V' = e(Vdeltaov)
+		}
+		else if "`proxy'"!="" {
+			if "`=e(method)'"!="iv" {
+				di as err "{cmd:xteventplot, y} only available after IV estimation with a proxy."
+				exit 301
+			}		
+			mat `b' = e(deltax)
+			mat `V' = e(Vdeltax)
+		}
+		else {
+			mat `b' = e(delta)
+			mat `V' = e(Vdelta)
+			loc komit = e(komit)	
+		}
+		
+			
+		* Get standard errors, omitted variables
+			
+		tempvar coef se kxaxis ul ll smline	post omitted fid fidget	
+		
+		mata st_matrix("`se'",sqrt(diagonal(st_matrix("`V'")))')	
+		
+		if "`komit'"=="" loc komit = -1
+		loc komitcomma: subinstr local komit " " ",", all
+		
+		if "`kmiss'"!="" loc kmiss: subinstr local kmiss " " ",", all
+		else loc kmiss=.
+		
+		loc kgs : colnames `b'
+		loc kgso = "`kgs'"
+		loc kgs : subinstr local kgs "_k_eq_" "", all
+		loc kgs : subinstr local kgs "m" "-", all
+		loc kgs : subinstr local kgs "p" "", all
+		loc kgso : subinstr local kgs "o." "", all
+		if "`kgso'"!="`kgs'" {
+			di "Warning: Some event-time dummies were omitted in the regression. These coefficients will be shown as zero in the plot. Check the window and the instruments, if any."
+		}
+		loc kgs = "`kgso' `komit'"
+		
+		mata: kgs=st_local("kgs")
+		mata: kgs=strtoreal(tokens(kgs))
+		mata: kgs2=sort(kgs',1)'
+		mata: kgs=invtokens(strofreal(sort(kgs',1)'))
+		mata: st_local("kgs",kgs)
+		
+		loc kmin : word 1 of `kgs'
+		loc ksize : list sizeof kgs
+		loc kmax : word `ksize' of `kgs'
+
+		* Omit right and left endpoints if trend
+		
+		if "`=e(trend)'"!="." { 
+			if "`kmiss'"=="." loc kmiss "`kmax',`kmin'"
+			else loc kmiss "`kmiss',`kmax',`kmin'"
+		}
+		
+		
+		* Estimate static overlay
+		if "`overlay'"=="static" loc ovs = 1
+		else loc ovs = 0
+		if `ovs' {
+			di as text "Estimating static model..."		
+			tempname estimates bstatic Vstatic yhat samplevar
+			
+			gen byte `samplevar' = e(sample)
+			
+			loc cmdline = e(cmdline)
+			parsecmdline `cmdline' samplevar(`samplevar	')
+			loc cmdstatic = r(cmdstatic)
+			loc cmdpredict = r(cmdpredict)
+			loc depvar = e(depvar)
+			
+			*find name of policyvar 
+			loc policyvarp = r(policyvarp)
+			
+			*parse impute option 
+			loc impute = r(imputep)
+			if  "`impute'"=="." loc impute=""
+			parseimp `impute'
+			loc imptype = r(imptype)
+			if  "`imptype'"=="." loc imptype=""
+			loc saveimp = r(saveimpl)
+			if  "`saveimp'"=="." loc saveimp=""
+			
+			loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
+			qui est store `estimates'
+			
+			*the user didn't specify impute option
+			if "`impute'"==""{
 				`cmdstatic'
 			}
-			*the user indicated to save the imputed policyvar 
-			else {
-				loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
-				loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
-				* Check id the user dropped or renamed the imputed policyvar
-				cap unab oldkvars : `policyvarp'_imputed
-				if _rc {
-					di as err _n "When running {bf:xtevent} you had created the variable {bf:`policyvarp'_imputed}, and then it was dropped or renamed. This variable is necessary to estimate the static model."
-					exit 110
+			*the user specified impute option 
+			else{
+				*the user indicated not to save the imputed policyvar
+				if "`saveimp'"=="" {
+					 
+					* Check for a variable named as the imputed policyvar
+					cap unab oldkvars : `policyvarp'_imputed
+					if !_rc {
+						di as err _n "{bf:xteventplot, overlay(static)} requieres to temporarily add the imputed policyvar to the database to estimate the static overlay, but you already have a variable named `policyvarp'_imputed."
+						di as err _n "Please drop or rename this variable before proceeding."
+						exit 110
+					}				
+					*change to save the imputed policyvar
+					loc cmdstatic="`cmdstatic' impute(`imptype', saveimp)"
+					`cmdstatic'
 				}
-				`cmdstatic'		
+				*the user indicated to save the imputed policyvar 
+				else {
+					loc cmdstatic=regexr("`cmdstatic'","policyvar\(*`policyvarp'*\)", "") 
+					loc cmdstatic="`cmdstatic'" + " policyvar(`policyvarp'_imputed)"
+					* Check id the user dropped or renamed the imputed policyvar
+					cap unab oldkvars : `policyvarp'_imputed
+					if _rc {
+						di as err _n "When running {bf:xtevent} you had created the variable {bf:`policyvarp'_imputed}, and then it was dropped or renamed. This variable is necessary to estimate the static model."
+						exit 110
+					}
+					`cmdstatic'		
+				}
+				*change to not to save the imputed policyvar for the prediction
+				loc cmdpredict="`cmdpredict' impute(`imptype')"
 			}
-			*change to not to save the imputed policyvar for the prediction
-			loc cmdpredict="`cmdpredict' impute(`imptype')"
-		}
-		
-		qui predict `yhat'
-		*had temporarily added the policyvar, drop it
-		if "`impute'"!="" & "`saveimp'"=="" drop `policyvarp'_imputed
-		qui `cmdpredict'
-		mat `bstatic' = e(delta)
-		mat `Vstatic' = e(Vdelta)		
-		qui est restore `estimates'
-		restoresample `samplevar'
-	}
-		
-		
-		
-	
 			
-	* Get Wald CIs and place overlays in coef2
-	
-	loc i=1
-	loc j=1	
-	loc p=1
-	qui {
-		gen double `coef' = .
-		gen int `post' = .
-		gen byte `omitted' = .
-		if "`overlay'"=="iv" loc oviv=1
-		else loc oviv=0		
-		if `oviv' | `ovs' {
-			tempvar coef2
-			gen double `coef2' = .
-			if `oviv' {
-				tempname ovcoef
-				mat `ovcoef' = e(deltaxsc)
-			}
+			qui predict `yhat'
+			*had temporarily added the policyvar, drop it
+			if "`impute'"!="" & "`saveimp'"=="" drop `policyvarp'_imputed
+			qui `cmdpredict'
+			mat `bstatic' = e(delta)
+			mat `Vstatic' = e(Vdelta)		
+			qui est restore `estimates'
+			restoresample `samplevar'
 		}
-		gen double `se' = .
-		gen int `kxaxis'=.
-		foreach k in `kgs' {
-			replace `kxaxis' = `k' in `i'			
-			if inlist(`k',`komitcomma') {
-				replace `coef' = 0 in `i'
-				replace `se' = 0 in `i'
-				replace `omitted' = 1 in `i'
-				if `oviv' | `ovs' {
-					replace `coef2' = 0 in `i'
-				}
-			}
-			else if inlist(`k',`kmiss') {
-				replace `coef' = . in `i'
-				if `oviv' | `ovs' {
-					replace `coef2' = . in `i'
-				}
-				replace `se' = . in `i'
-				loc j=`j'+1
-			}
-			else {
-				replace `coef' = `b'[1,`j'] in `i'
+			
+			
+		* Get Wald CIs and place overlays in coef2
+		
+		loc i=1
+		loc j=1	
+		loc p=1
+		qui {
+			gen double `coef' = .
+			gen int `post' = .
+			gen byte `omitted' = .
+			if "`overlay'"=="iv" loc oviv=1
+			else loc oviv=0		
+			if `oviv' | `ovs' {
+				tempvar coef2
+				gen double `coef2' = .
 				if `oviv' {
-					replace `coef2' = `ovcoef'[1,`j'] in `i'
+					tempname ovcoef
+					mat `ovcoef' = e(deltaxsc)
 				}
-				else if `ovs' {
-					replace `coef2' = `bstatic'[1,`j'] in `i'
+			}
+			gen double `se' = .
+			gen int `kxaxis'=.
+			foreach k in `kgs' {
+				replace `kxaxis' = `k' in `i'			
+				if inlist(`k',`komitcomma') {
+					replace `coef' = 0 in `i'
+					replace `se' = 0 in `i'
+					replace `omitted' = 1 in `i'
+					if `oviv' | `ovs' {
+						replace `coef2' = 0 in `i'
+					}
 				}
-				replace `se' = `se'[1,`j'] in `i'
-				loc j=`j'+1
-			}
-			if `k'>=0 {
-				replace `post' = `p' in `i'
-				loc ++ p
-			}
-			else {
-				replace `post' = 0 in `i'
-			}
-			loc i=`i'+1
-			
-		}		
-		
-		* Define x axis labels, with plus at endpoints
-		loc lbl ""				
-		forv k=`kmin'(1)`kmax' {
-			if (`k'==`kmin' | `k'==`kmax') loc lbl `"`lbl' `k' "`k'+""' /* " */			
-			else loc lbl `" `lbl' `k' "`k'""' /* " */
-		}
-		loc xaxis=subinstr(`"`plotopts'"',"xlab","",.) /* " */
-		if `"`xaxis'"' == `"`plotopts'"' loc xaxis "xlab(`lbl')" /* " */
-		else loc xaxis ""
-		
-		
-		* Confidence intervals
-		if "`ci'"!="noci" {
-			if `df'==. {
-				* This should not happen
-				di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
-				loc ta2 = 1.96
-				}
-			else loc ta2 = invttail(`df',0.5*(1-c(level)/100))
-			if "`levels'"=="" {	
-				loc mcolor ""
-				gen double `ul' = `coef' + `ta2'*`se'
-				gen double `ll' = `coef' - `ta2'*`se'				
-				loc cigraph "rcap `ul' `ll' `kxaxis', pstyle(ci)"
-			}
-			else if "`levels'"!="" {
-				loc cigraph = ""		
-				loc levels : list sort levels
-				loc tot: list sizeof levels
-				loc j=1
-				foreach l in `levels' {
-					loc ta2 = invttail(`df',0.5*(1-`l'/100))
-					tempvar ul`l' ll`l'
-					gen double `ul`l'' = `coef' + `ta2'*`se'
-					gen double `ll`l'' = `coef' - `ta2'*`se'
-					loc cigraph "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
-					if `j'!=`tot' loc cigraph "`cigraph' ||"
-					loc ++j
-				}				
-			}
-		}
-		else loc cigraph ""
-	}
-	
-	* Get sup-t CIs
-	qui {
-		if "`ci'"!="noci" {
-			if "`supt'"!="nosupt" {
-				if  "`levels'"!=""  {
-					di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
-				}
-				loc level=c(level)/100
-				mata: supt(`suptreps',"`se'",`level')
-				tempvar ulsupt llsupt
-				gen double `ulsupt' = `coef' + q*`se'
-				gen double `llsupt' = `coef' - q*`se'
-				loc cigraphsupt "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
-			}
-			else loc cigraphsupt ""
-		}		
-	}
-	
-	* Smoothest line through CI regions
-	
-	if `"`smpath'"'!="" {	
-		* "
-		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'"
-		parsesmpath `smpath'
-		loc postwindow = r(postwindow)	
-		loc maxorderinput=r(maxorder) 
-		loc plottype=r(plottype)		
-		cap _return drop smpathparse
-		_return hold smpathparse			
-		qui count if `post'!=0 & `post'!=.
-		if `=r(N)'<`postwindow' {
-			mata: mata drop kgs kgs2
-			di as err "Window for smoothest line must be smaller than window for the estimates. For a line on the entire window, omit the {bf:postwindow} option"
-			exit 301
-		}
-		*error if user chooses order greater than 10
-		if `maxorderinput'>10{
-			di as err "The maximum allowed order is 10"
-			exit 301
-		} 
-		
-		if "`plottype'"=="." loc plottype "line"
-				
-		if !inlist("`plottype'","line","scatter","poly") {			
-			di as err _n "Only scatter, line or poly allowed in  option {bf:linetype}"
-			exit 301
-		}
-		
-		tempname omitmat			
-		matrix `omitmat' = (`komitcomma')			
-		if `postwindow'!=0 | "`kmiss'"!="." {
-			* Coefs													
-			gen byte `fid' = !inlist(`kxaxis',`kmiss')
-			if `postwindow'>0 qui replace `fid' = 0 if `post'>`postwindow'	
-			qui replace `fid' = . if `kxaxis' ==.		
-			qui putmata dhat=  `coef' if `fid', omitmissing			
-			* Variance
-			* strip beginning if nodrawleft				
-			if `fid'[1]==0 {
-				matrix `omitmat' = `omitmat' - 1
-				mat `V' = `V'[2...,2...]
-			}	
-			* strip end if nodrawright
-			if `fid'[`=`i'-1'] == 0 {
-				loc Vr = rowsof(`V')-1
-				loc Vc = colsof(`V')-1
-				mat `V' = `V'[1..`Vr',1..`Vc']
-			}				
-			qui mata: Vhat = st_matrix("`V'")
-			qui mata: Vhat0=Vadd0(Vhat,kgs2[1..rows(dhat)],st_matrix("`omitmat'"))							
-		}
-		else {				
-			qui putmata dhat=  `coef', omitmissing					
-			qui mata: Vhat= st_matrix("`V'")				
-			qui mata: Vhat0=Vadd0(Vhat,kgs2,st_matrix("`omitmat'"))				
-		}			
-		
-		_return restore smpathparse			
-		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.)	
-	
-		mata: st_numscalar("maxedout",maxedout)		
-
-		if !maxedout {
-		
-			mata: p=param
-			if `postwindow'!=0 | "`kmiss'"!="." {
-				getsm `fidget' `coef' `smline' p `fid'
-				drop `fid'			
-			}
-			else getsm `fidget' `coef' `smline' p
-		
-			mata: st_numscalar("errorcodem",errorcodem)
-			mata: st_numscalar("errorcodep",errorcodep)
-			
-			if (errorcodem!=. & errorcodem !=0) | (errorcodep!=. & errorcodep !=0) {				
-				if (errorcodem == 8 | errorcodep ==8) {
-					* This one is common so separate warning
-					di "Warning: Smoothest path optimization found a flat region."
+				else if inlist(`k',`kmiss') {
+					replace `coef' = . in `i'
+					if `oviv' | `ovs' {
+						replace `coef2' = . in `i'
+					}
+					replace `se' = . in `i'
+					loc j=`j'+1
 				}
 				else {
-					loc errorcodem = errorcodem
-					loc errorcodep = errorcodep
-					di "Warning: Smoothest path optimization returned an error code. Results for the smoothest path are approximate. Try changing the optimization options"
-					di in smcl "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
-					di in smcl "Error code = `errorcodep'. See {help mf_optimize##r_error} to see what that means."
+					replace `coef' = `b'[1,`j'] in `i'
+					if `oviv' {
+						replace `coef2' = `ovcoef'[1,`j'] in `i'
+					}
+					else if `ovs' {
+						replace `coef2' = `bstatic'[1,`j'] in `i'
+					}
+					replace `se' = `se'[1,`j'] in `i'
+					loc j=`j'+1
+				}
+				if `k'>=0 {
+					replace `post' = `p' in `i'
+					loc ++ p
+				}
+				else {
+					replace `post' = 0 in `i'
+				}
+				loc i=`i'+1
+				
+			}		
+			
+			* Define x axis labels, with plus at endpoints
+			loc lbl ""				
+			forv k=`kmin'(1)`kmax' {
+				if (`k'==`kmin' | `k'==`kmax') loc lbl `"`lbl' `k' "`k'+""' /* " */			
+				else loc lbl `" `lbl' `k' "`k'""' /* " */
+			}
+			loc xaxis=subinstr(`"`plotopts'"',"xlab","",.) /* " */
+			if `"`xaxis'"' == `"`plotopts'"' loc xaxis "xlab(`lbl')" /* " */
+			else loc xaxis ""
+			
+			
+			* Confidence intervals
+			if "`ci'"!="noci" {
+				if `df'==. {
+					* This should not happen
+					di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
+					loc ta2 = 1.96
+					}
+				else loc ta2 = invttail(`df',0.5*(1-c(level)/100))
+				if "`levels'"=="" {	
+					loc mcolor ""
+					gen double `ul' = `coef' + `ta2'*`se'
+					gen double `ll' = `coef' - `ta2'*`se'				
+					loc cigraph "rcap `ul' `ll' `kxaxis', pstyle(ci)"
+				}
+				else if "`levels'"!="" {
+					loc cigraph = ""		
+					loc levels : list sort levels
+					loc tot: list sizeof levels
+					loc j=1
+					foreach l in `levels' {
+						loc ta2 = invttail(`df',0.5*(1-`l'/100))
+						tempvar ul`l' ll`l'
+						gen double `ul`l'' = `coef' + `ta2'*`se'
+						gen double `ll`l'' = `coef' - `ta2'*`se'
+						loc cigraph "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
+						if `j'!=`tot' loc cigraph "`cigraph' ||"
+						loc ++j
+					}				
 				}
 			}
-			mata: mata drop p `fidget'		
-				
-			if "`plottype'"=="scatter" {
-				loc smgraph "scatter `smline' `kxaxis', pstyle(p2)"
-			}
-			else if  "`plottype'"=="line" {
-				loc smgraph "line `smline' `kxaxis', pstyle(p1line)"
-			}			
+			else loc cigraph ""
 		}
-		else { 
-			di as txt _n "Could not find a polynomial with order<=maxorder through the Wald confidence region."
-			loc smgraph ""			
-		}		
+		
+		* Get sup-t CIs
+		qui {
+			if "`ci'"!="noci" {
+				if "`supt'"!="nosupt" {
+					if  "`levels'"!=""  {
+						di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
+					}
+					loc level=c(level)/100
+					mata: supt(`suptreps',"`se'",`level')
+					tempvar ulsupt llsupt
+					gen double `ulsupt' = `coef' + q*`se'
+					gen double `llsupt' = `coef' - q*`se'
+					loc cigraphsupt "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
+				}
+				else loc cigraphsupt ""
+			}		
+		}
+		
+		* Smoothest line through CI regions
+		
+		if `"`smpath'"'!="" {	
+			* "
+			di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'"
+			parsesmpath `smpath'
+			loc postwindow = r(postwindow)	
+			loc maxorderinput=r(maxorder) 
+			loc plottype=r(plottype)		
+			cap _return drop smpathparse
+			_return hold smpathparse			
+			qui count if `post'!=0 & `post'!=.
+			if `=r(N)'<`postwindow' {
+				mata: mata drop kgs kgs2
+				di as err "Window for smoothest line must be smaller than window for the estimates. For a line on the entire window, omit the {bf:postwindow} option"
+				exit 301
+			}
+			*error if user chooses order greater than 10
+			if `maxorderinput'>10{
+				di as err "The maximum allowed order is 10"
+				exit 301
+			} 
 			
-		mata: mata drop dhat Vhat Vhat0 convergedm convergedp errorcodem errorcodep param maxedout 	
-	}
-	else {
-		loc smgraph ""
+			if "`plottype'"=="." loc plottype "line"
+					
+			if !inlist("`plottype'","line","scatter","poly") {			
+				di as err _n "Only scatter, line or poly allowed in  option {bf:linetype}"
+				exit 301
+			}
+			
+			tempname omitmat			
+			matrix `omitmat' = (`komitcomma')			
+			if `postwindow'!=0 | "`kmiss'"!="." {
+				* Coefs													
+				gen byte `fid' = !inlist(`kxaxis',`kmiss')
+				if `postwindow'>0 qui replace `fid' = 0 if `post'>`postwindow'	
+				qui replace `fid' = . if `kxaxis' ==.		
+				qui putmata dhat=  `coef' if `fid', omitmissing			
+				* Variance
+				* strip beginning if nodrawleft				
+				if `fid'[1]==0 {
+					matrix `omitmat' = `omitmat' - 1
+					mat `V' = `V'[2...,2...]
+				}	
+				* strip end if nodrawright
+				if `fid'[`=`i'-1'] == 0 {
+					loc Vr = rowsof(`V')-1
+					loc Vc = colsof(`V')-1
+					mat `V' = `V'[1..`Vr',1..`Vc']
+				}				
+				qui mata: Vhat = st_matrix("`V'")
+				qui mata: Vhat0=Vadd0(Vhat,kgs2[1..rows(dhat)],st_matrix("`omitmat'"))							
+			}
+			else {				
+				qui putmata dhat=  `coef', omitmissing					
+				qui mata: Vhat= st_matrix("`V'")				
+				qui mata: Vhat0=Vadd0(Vhat,kgs2,st_matrix("`omitmat'"))				
+			}			
+			
+			_return restore smpathparse			
+			cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.)	
+		
+			mata: st_numscalar("maxedout",maxedout)		
+
+			if !maxedout {
+			
+				mata: p=param
+				if `postwindow'!=0 | "`kmiss'"!="." {
+					getsm `fidget' `coef' `smline' p `fid'
+					drop `fid'			
+				}
+				else getsm `fidget' `coef' `smline' p
+			
+				mata: st_numscalar("errorcodem",errorcodem)
+				mata: st_numscalar("errorcodep",errorcodep)
+				
+				if (errorcodem!=. & errorcodem !=0) | (errorcodep!=. & errorcodep !=0) {				
+					if (errorcodem == 8 | errorcodep ==8) {
+						* This one is common so separate warning
+						di "Warning: Smoothest path optimization found a flat region."
+					}
+					else {
+						loc errorcodem = errorcodem
+						loc errorcodep = errorcodep
+						di "Warning: Smoothest path optimization returned an error code. Results for the smoothest path are approximate. Try changing the optimization options"
+						di in smcl "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
+						di in smcl "Error code = `errorcodep'. See {help mf_optimize##r_error} to see what that means."
+					}
+				}
+				mata: mata drop p `fidget'		
+					
+				if "`plottype'"=="scatter" {
+					loc smgraph "scatter `smline' `kxaxis', pstyle(p2)"
+				}
+				else if  "`plottype'"=="line" {
+					loc smgraph "line `smline' `kxaxis', pstyle(p1line)"
+				}			
+			}
+			else { 
+				di as txt _n "Could not find a polynomial with order<=maxorder through the Wald confidence region."
+				loc smgraph ""			
+			}		
+				
+			mata: mata drop dhat Vhat Vhat0 convergedm convergedp errorcodem errorcodep param maxedout 	
+		}
+		else {
+			loc smgraph ""
+		}
 	}
 	
 	* Textbox option
 	if "`textboxoption'"!="" loc textbox ", `textboxoption'"
 	
 	* P-value for pre-trends test and value of y in label
-	if "`overlay'"!="trend" {
-		if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
-			if ("`prepval'"!="noprepval") | ("`postpval'"!="nopostpval") {
-				qui xteventtest, overid
-				loc pvalpre : di %9.2f r(pre_p)
-				loc pvalpost: di % 9.2f r(post_p)
-				if "`overidpre'"!="" {
-					qui xteventtest, overidpre(`overidpre')
-					loc pvalpre : di %9.2f r(p)
+	if "`eq_n'" < 2 {
+		di as txt _n "No p-value calcuated when multiple models are specified."
+		if "`overlay'"!="trend" {
+			if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
+				if ("`prepval'"!="noprepval") | ("`postpval'"!="nopostpval") {
+					qui xteventtest, overid
+					loc pvalpre : di %9.2f r(pre_p)
+					loc pvalpost: di % 9.2f r(post_p)
+					if "`overidpre'"!="" {
+						qui xteventtest, overidpre(`overidpre')
+						loc pvalpre : di %9.2f r(p)
+					}
+					if "`overidpost'"!="" {
+						qui xteventtest, overidpost(`overidpost')
+						loc pvalpost : di %9.2f r(p)
+					}
 				}
-				if "`overidpost'"!="" {
-					qui xteventtest, overidpost(`overidpost')
-					loc pvalpost : di %9.2f r(p)
+				if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
+				else loc notepre ""
+				if ("`postpval'"!="nopostpval") {
+					loc notepost "Leveling off p-value = `pvalpost'"
+					if "`notepre'"!="" loc notepost "-- `notepost'"
 				}
+				else loc notepost ""
+				loc note "`notepre' `notepost'"			
 			}
-			if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
-			else loc notepre ""
-			if ("`postpval'"!="nopostpval") {
-				loc notepost "Leveling off p-value = `pvalpost'"
-				if "`notepre'"!="" loc notepost "-- `notepost'"
+			* P-value for constant effects test if overlay static 
+			else if "`overlay'"=="static" {
+				qui xteventtest, constanteff
+				loc pval : di %9.2f r(p)
+				loc note "Constant effects p-value = `pval'"
 			}
-			else loc notepost ""
-			loc note "`notepre' `notepost'"			
+			loc note "note(`note' `textbox')"
 		}
-		* P-value for constant effects test if overlay static 
-		else if "`overlay'"=="static" {
-			qui xteventtest, constanteff
-			loc pval : di %9.2f r(p)
-			loc note "Constant effects p-value = `pval'"
-		}
-		loc note "note(`note' `textbox')"
 	}
 	else loc note ""
 	

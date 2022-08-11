@@ -133,9 +133,7 @@ program define xtevent, eclass
 		}
 	}
 	
-	
-		
-	
+				
 	
 	marksample touse
 	
