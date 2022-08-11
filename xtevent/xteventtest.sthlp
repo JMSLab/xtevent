@@ -107,7 +107,7 @@ Impute policy variable without verifying staggered adoption.{p_end}
 {pstd}Test that the sum of all pre-event coefficients is equal to 0 {p_end}
 {phang2}{cmd:. {stata xteventtest, allpre cumul}}{p_end}
 
-{pstd}Test wether the coefficients before the event follow a linear trend {p_end}
+{pstd}Test whether the coefficients before the event follow a linear trend {p_end}
 {phang2}{cmd:. {stata xteventtest, linpretrend}}{p_end}
 
 {pstd}Tests that the coefficients for the earliest 2 periods before the event are equal to 0{p_end}

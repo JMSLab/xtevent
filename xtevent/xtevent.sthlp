@@ -248,7 +248,7 @@ Impute policy variable without verifying staggered adoption. {p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) cluster(idcode) impute(nuchange) w(-3 1) norm(-2)}}
 {p_end}
 
-{pstd}Adjust by estimating a linear trend with gmm method {p_end}
+{pstd}Adjust the pre-trend by estimating a linear trend by GMM {p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(2) cluster(idcode) impute(nuchange) trend(-2, method(gmm))}}
 {p_end}
 
