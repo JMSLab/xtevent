@@ -87,7 +87,7 @@ webuse nlswork
 xtset idcode year
 
 *Estimate a basic event study with clustered standard errors. 
-*Besides, impute the policy variable without verifying staggered adoption.
+*Impute the policy variable without verifying staggered adoption.
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange)
             
@@ -95,7 +95,7 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange) nofe note
 
-*Adjust by estimating a linear trend with gmm method
+*Adjust the pre-trend by estimating a linear trend by GMM
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(2) cluster(idcode) impute(nuchange) trend(-2, ///
             method(gmm))
@@ -113,7 +113,7 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 
 ```
 #### xteventplot
-```
+```stata
 *setup
 webuse nlswork
 xtset idcode year
@@ -144,7 +144,7 @@ xteventplot, proxy
 xteventplot, overlay(iv)
 ```
 #### xteventtest
-```
+```stata
 *setup
 webuse nlswork
 xtset idcode year
