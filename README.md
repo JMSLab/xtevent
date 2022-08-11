@@ -169,6 +169,12 @@ xteventtest, overidpre(2)
 
 -----------
 
+### Video tutorial:
+
+Our YouTube channel, [Linear Panel Event-Study Design](https://www.youtube.com/watch?v=hOIB3PwntYg), contains a video series discussing `xtevent` and the accompanying paper, Visualization, Identification, and Estimation in the Panel Event-Study Design.
+
+-----------
+
 ### Citation
 
 Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. "Visualization, Identification, and Estimation in the Panel Event-Study Design." [NBER Working Paper No. 29170](https://www.nber.org/papers/w29170),
