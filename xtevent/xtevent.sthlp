@@ -1,6 +1,6 @@
 
 {smcl}
-{* *! version 2.0 Jun 24 2022}{...}
+{* *! version 2.1.1 Aug 11 2022}{...}
 {cmd:help xtevent}
 {hline}
 
@@ -386,7 +386,6 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 
 {title:Acknowledgements}
 {pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
-Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, and Matthias Weigand  for testing early versions of this 
-command.
+Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Matthias Weigand, Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.
 
 
