@@ -49,17 +49,6 @@ program define _eventiv, rclass
 	if "`noestimate'"=="." loc noestimate ""
 	return loc noestimate = "`noestimate'"
 	
-	*error messages for incorrect specification of noestimate 
-	/*
-	if "`noestimate'"!="" & "`diffavg'"!="" {
-		di as err _n "{bf:noestimate} and {bf: diffavg} not allowed simultaneously"
-		exit 301
-	}
-	if "`noestimate'"!="" & "`trend'"!="" {
-		di as err _n "{bf:noestimate} and {bf:trend} not allowed simultaneously"
-		exit 301
-	}
-	*/
 	*if impute is specified, bring the imputed policyvar calling the part of _eventgenvars that imputes
 	if "`impute'"!=""{
 		*tempvar to be imputed
