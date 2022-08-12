@@ -47,3 +47,58 @@ svmat X2
 tw (scatter ycoefs_var X1)  ///
 	(scatter yycoefs_var X2)
 
+********************************************************************************
+**************************** xteventplot pseudocode ****************************
+********************************************************************************
+
+program define xteventplot
+	syntax [anything(name=eqlist)], [options]
+		- add offset options for custom offsets
+	
+	local eq_n : word count `eqlist'
+
+	capture errors 
+	- add additional errors here if necessary, e.g. check if num models > limit
+	- or if options not allowed with multiple models are not specified
+	
+	display information about option selection
+	- e.g. if "`ci'"=="noci" di as txt _n...
+	
+	prepare offset values
+	
+	forvalue in 1/`eq_n'{
+		get stored estimates e.g. e(df), e(delta), e(Vdelta), etc
+		
+		proceed as we did prior:
+			- e.g. calculate CIs
+			
+		if `eq_n' > 1{
+			offset
+		}
+		
+		* Note: certain options will not work w/ multiple plots (like p-values)
+		* Q: what other options are we going to reserve for single model plots?
+			
+		store info for plotting in a local
+		
+	}
+	
+if eq_n>1 { 
+	overlay plots w/ multiple models
+}
+else{
+	overlay plots the old way
+}
+
+end 
+
+
+
+
+
+
+
+
+
+
+
