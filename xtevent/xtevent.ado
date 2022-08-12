@@ -230,6 +230,11 @@ program define xtevent, eclass
 		}
 	}
 	
+	*skip the rest of the program if the user indicated not to estimate  
+	loc noestimate=r(noestimate)
+	if "`noestimate'"=="." loc noestimate ""
+	if "`noestimate'"!="" exit 
+			
 	if `=r(flagerr)'!=1  {
 		mat delta=r(delta)
 		mat Vdelta=r(Vdelta)

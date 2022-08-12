@@ -41,6 +41,25 @@ program define _eventiv, rclass
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
 	
+	*parse savek 
+	if "`savek'"!="" parsesavek `savek'
+	loc savek = r(savekl)
+	if "`savek'"=="." loc savek ""
+	loc noestimate = r(noestimatel)
+	if "`noestimate'"=="." loc noestimate ""
+	return loc noestimate = "`noestimate'"
+	
+	*error messages for incorrect specification of noestimate 
+	/*
+	if "`noestimate'"!="" & "`diffavg'"!="" {
+		di as err _n "{bf:noestimate} and {bf: diffavg} not allowed simultaneously"
+		exit 301
+	}
+	if "`noestimate'"!="" & "`trend'"!="" {
+		di as err _n "{bf:noestimate} and {bf:trend} not allowed simultaneously"
+		exit 301
+	}
+	*/
 	*if impute is specified, bring the imputed policyvar calling the part of _eventgenvars that imputes
 	if "`impute'"!=""{
 		*tempvar to be imputed
@@ -237,209 +256,210 @@ program define _eventiv, rclass
 	if "`te'" == "note" loc tte ""
 	else loc tte "i.`t'"
 	
-	* Main regression
-	if "`reghdfe'"=="" {
-		
-		if "`fe'" == "nofe" {
-			loc cmd "ivregress 2sls"
-			loc ffe ""
-			loc small "small"
-		}
-		else {
-			loc cmd "xtivreg"
-			loc ffe "fe"
-		}
-		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
-	}
-	else {
-		loc noabsorb "" 
-		*absorb nothing
-		if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"=="" {
-			*loc noabsorb "noabsorb"
-			/*the only option ivreghdfe inherits from reghdfe is absorb, therefore it doesn't support noabsorb. In contrast with reghdfe, ivreghdfe doesn't require noabsorb when absorb is not specified*/ 
-			loc abs ""
-		}
-		*absorb only one
-		else if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"!="" {
-			loc abs "absorb(`addabsorb')"
-		}
-		else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
-			loc abs "absorb(`t')"
-		}
-		else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"=="" {						
-			loc abs "absorb(`i')"
-		}
-		*absorb two
-		else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`t' `addabsorb')"
-		}
-		else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`i' `addabsorb')"
-		}
-		else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
-			loc abs "absorb(`i' `t')"
-		}
-		*absorb three
-		else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`i' `t' `addabsorb')"
-		}
-		*
-		else {
-			loc abs "absorb(`i' `t' `addabsorb')"	
-		}
-		
-		*analyze inclusion of vce in options
-		loc vce_y= strmatch("`options'","*vce(*)*")
-		
-		*if user did not specify vce option 
-		if "`vce_y'"=="0" { 
-		ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-		}
-		*if user did specify vce option
-		else {  
-			*find start and end of vce text 
-			loc vces=strpos("`options'","vce(")
-			loc vcef=0
-			loc ocopy="`options'"
-			while `vcef'<`vces' {
-				loc vcef=strpos("`ocopy'", ")")
-				loc ocopy=subinstr("`ocopy'",")", " ",1)
+	**** Main regression
+	
+	if "`noestimate'"==""{
+		if "`reghdfe'"=="" {
+			
+			if "`fe'" == "nofe" {
+				loc cmd "ivregress 2sls"
+				loc ffe ""
+				loc small "small"
 			}
-			*substrac vce words
-			loc svce_or=substr("`options'",`vces',`vcef')
-			loc vce_len=strlen("`svce_or'")
-			loc svce=substr("`svce_or'",5,`vce_len'-5)
-			loc svce=strltrim("`svce'")
-			loc svce=strrtrim("`svce'")
-			*inspect whether vce contains bootstrap or jackknife
-			loc vce_bt= strmatch("`svce'","*boot*")
-			loc vce_jk= strmatch("`svce'","*jack*")
-			if `vce_bt'==1 | `vce_jk'==1 {
-				di as err "Options {bf:bootstrap} and {bf:jackknife} are not allowed"
-				exit 301
+			else {
+				loc cmd "xtivreg"
+				loc ffe "fe"
+			}
+			`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+		}
+		else {
+			loc noabsorb "" 
+			*absorb nothing
+			if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"=="" {
+				*loc noabsorb "noabsorb"
+				/*the only option ivreghdfe inherits from reghdfe is absorb, therefore it doesn't support noabsorb. In contrast with reghdfe, ivreghdfe doesn't require noabsorb when absorb is not specified*/ 
+				loc abs ""
+			}
+			*absorb only one
+			else if "`fe'" == "nofe" & "`tte'"=="" & "`addabsorb'"!="" {
+				loc abs "absorb(`addabsorb')"
+			}
+			else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
+				loc abs "absorb(`t')"
+			}
+			else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"=="" {						
+				loc abs "absorb(`i')"
+			}
+			*absorb two
+			else if "`fe'" == "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
+				loc abs "absorb(`t' `addabsorb')"
+			}
+			else if "`fe'" != "nofe" & "`tte'"=="" & "`addabsorb'"!="" {						
+				loc abs "absorb(`i' `addabsorb')"
+			}
+			else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"=="" {						
+				loc abs "absorb(`i' `t')"
+			}
+			*absorb three
+			else if "`fe'" != "nofe" & "`tte'"!="" & "`addabsorb'"!="" {						
+				loc abs "absorb(`i' `t' `addabsorb')"
+			}
+			*
+			else {
+				loc abs "absorb(`i' `t' `addabsorb')"	
 			}
 			
-			*if vce contains valid options, parse those options
-			*erase vce from original options
-			loc options_wcve=subinstr("`options'","`svce_or'"," ",1)
-			*** parse vce(*) ****
-			loc vce_wc=wordcount("`svce'")
-			tokenize `svce'
-			*extract vce arguments 
-			*robust 
-			loc vce_r= strmatch("`svce'","*robust*")
-			loc vce_r2=0
-			forv i=1/`vce_wc'{
-				loc zz= strmatch("``i''","r")
-				loc vce_r2=`vce_r2'+`zz'
+			*analyze inclusion of vce in options
+			loc vce_y= strmatch("`options'","*vce(*)*")
+			
+			*if user did not specify vce option 
+			if "`vce_y'"=="0" { 
+			ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 			}
-			if `vce_r'==1 | `vce_r2'==1 {
-				loc vceop_r="robust"
-			}
-			*cluster
-			loc vce_c= strmatch("`svce'","*cluster*")
-			loc vce_c2= strmatch("`svce'","*cl*")
-			if `vce_c'==1 | `vce_c2'==1 {
-				forv i=1/`vce_wc'{
-					loc vce_r2= strmatch("``i''","*cl*")
-					if `vce_r2'==1 {
-						loc j=`i'+1
-						}
+			*if user did specify vce option
+			else {  
+				*find start and end of vce text 
+				loc vces=strpos("`options'","vce(")
+				loc vcef=0
+				loc ocopy="`options'"
+				while `vcef'<`vces' {
+					loc vcef=strpos("`ocopy'", ")")
+					loc ocopy=subinstr("`ocopy'",")", " ",1)
 				}
-				loc vceop_c="cluster(``j'')"
+				*substrac vce words
+				loc svce_or=substr("`options'",`vces',`vcef')
+				loc vce_len=strlen("`svce_or'")
+				loc svce=substr("`svce_or'",5,`vce_len'-5)
+				loc svce=strltrim("`svce'")
+				loc svce=strrtrim("`svce'")
+				*inspect whether vce contains bootstrap or jackknife
+				loc vce_bt= strmatch("`svce'","*boot*")
+				loc vce_jk= strmatch("`svce'","*jack*")
+				if `vce_bt'==1 | `vce_jk'==1 {
+					di as err "Options {bf:bootstrap} and {bf:jackknife} are not allowed"
+					exit 301
+				}
+				
+				*if vce contains valid options, parse those options
+				*erase vce from original options
+				loc options_wcve=subinstr("`options'","`svce_or'"," ",1)
+				*** parse vce(*) ****
+				loc vce_wc=wordcount("`svce'")
+				tokenize `svce'
+				*extract vce arguments 
+				*robust 
+				loc vce_r= strmatch("`svce'","*robust*")
+				loc vce_r2=0
+				forv i=1/`vce_wc'{
+					loc zz= strmatch("``i''","r")
+					loc vce_r2=`vce_r2'+`zz'
+				}
+				if `vce_r'==1 | `vce_r2'==1 {
+					loc vceop_r="robust"
+				}
+				*cluster
+				loc vce_c= strmatch("`svce'","*cluster*")
+				loc vce_c2= strmatch("`svce'","*cl*")
+				if `vce_c'==1 | `vce_c2'==1 {
+					forv i=1/`vce_wc'{
+						loc vce_r2= strmatch("``i''","*cl*")
+						if `vce_r2'==1 {
+							loc j=`i'+1
+							}
+					}
+					loc vceop_c="cluster(``j'')"
+				}
+				
+				ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options_wcve' `vceop_r' `vceop_c'
 			}
-			
-			ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options_wcve' `vceop_r' `vceop_c'
-		}
 
-	}
-	
-	* Return coefficients and variance matrix of the delta k estimates separately
-	mat `bb'=e(b)
-	mat `VV'=e(V)
-	
-	mat `delta' = `bb'[1,`names']
-	mat `Vdelta' = `VV'[`names',`names']
+		}
 		
-	if "`reghdfe'"=="" {
-		if "`fe'" == "nofe" {
-			loc df=e(df_r)
+		* Return coefficients and variance matrix of the delta k estimates separately
+		mat `bb'=e(b)
+		mat `VV'=e(V)
+		
+		mat `delta' = `bb'[1,`names']
+		mat `Vdelta' = `VV'[`names',`names']
+			
+		if "`reghdfe'"=="" {
+			if "`fe'" == "nofe" {
+				loc df=e(df_r)
+			}
+			else {
+				loc df=e(df_rz)
+			}
 		}
 		else {
-			loc df=e(df_rz)
+			loc df=e(df_r)
+			if `df'==. loc df=e(Fdf2)
 		}
-	}
-	else {
-		loc df=e(df_r)
-		if `df'==. loc df=e(Fdf2)
-	}
-	
-	
-	loc kmax=`=`rwindow'+1'
-	loc kmin=`=`lwindow'-1'
-	
-	tempvar esample
-	gen byte `esample' = e(sample)
-	
-	
-	* Plots	
-	
-	* Calculate mean before change in policy for 2nd axis in plot
-	* This needs to be relative to normalization
-	loc absnorm=abs(`norm0')
-	
-	
-	
-	tokenize `varlist'
-	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
-	loc y1 = r(mean)
-	loc depvar "`1'"	
-	
-	*  Calculate mean proxy before change in policy for 2nd axis in plot
-	if "`proxy'"!="" {
-		loc nproxy: word count `proxy'
-		if `nproxy' ==1 {
-			qui su `proxy' if f`absnorm'.d.`policyvar'!=0 & f`absnorm'.d.`policyvar'!=. & `esample', meanonly
-			loc x1 = r(mean)
-		}
-		else loc x1 = .
-	}
-	
-	
-	* Variables for overlay plots
-	
-	* Need the ols estimates for y and x
-	* Do not exclude vars other than m1
-	*loc toexc = "_k_eq_m1"
-	*unab included2: _k_eq_*
-	*loc included2 : list included2 - toexc
-	
-	_estimates hold main
-	
-	qui _eventols `varlist' [`weight'`exp'] if `touse' , panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0')
-	mat `deltaov' = r(delta)
-	mat `Vdeltaov' = r(Vdelta)
-	*mat `deltay' = `bby'[1,${names}]
-	*mat `Vdeltay' = `VVy'[${names},${names}]
-	qui _eventols `proxy' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0')
-	mat `deltax' = r(delta)
-	mat `Vdeltax' = r(Vdelta)		
-	*mat `deltax' = `bb'[1,${names}]
-	* mat `Vdeltax' = `VV'[${names},${names}]
-	* Scaling factor
-	loc ivnormcomma = strtrim("`ivnorm'")
-	loc ivnorms : list sizeof ivnormcomma
-	loc ivnormcomma : subinstr local ivnormcomma " " ",", all
-	if `ivnorms'>1 loc scfactlead = -max(`ivnormcomma')
-	else loc scfactlead = -`ivnormcomma'
-	mat Mfn = `deltaov'[1,"_k_eq_m`scfactlead'"]	
-	mat Mfd = `deltax'[1,"_k_eq_m`scfactlead'"]
-	loc fn = Mfn[1,1]
-	loc fd = Mfd[1,1]
-	loc factor = `fn'/`fd'
-	* Scale x estimates by factor
-	mat `deltaxsc' = `factor'*`deltax'	
 		
+		
+		loc kmax=`=`rwindow'+1'
+		loc kmin=`=`lwindow'-1'
+		
+		tempvar esample
+		gen byte `esample' = e(sample)
+		
+		
+		* Plots	
+		
+		* Calculate mean before change in policy for 2nd axis in plot
+		* This needs to be relative to normalization
+		loc absnorm=abs(`norm0')
+		
+		tokenize `varlist'
+		qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
+		loc y1 = r(mean)
+		loc depvar "`1'"	
+		
+		*  Calculate mean proxy before change in policy for 2nd axis in plot
+		if "`proxy'"!="" {
+			loc nproxy: word count `proxy'
+			if `nproxy' ==1 {
+				qui su `proxy' if f`absnorm'.d.`policyvar'!=0 & f`absnorm'.d.`policyvar'!=. & `esample', meanonly
+				loc x1 = r(mean)
+			}
+			else loc x1 = .
+		}
+		
+		
+		* Variables for overlay plots
+		
+		* Need the ols estimates for y and x
+		* Do not exclude vars other than m1
+		*loc toexc = "_k_eq_m1"
+		*unab included2: _k_eq_*
+		*loc included2 : list included2 - toexc
+		
+		_estimates hold main
+		
+		qui _eventols `varlist' [`weight'`exp'] if `touse' , panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0')
+		mat `deltaov' = r(delta)
+		mat `Vdeltaov' = r(Vdelta)
+		*mat `deltay' = `bby'[1,${names}]
+		*mat `Vdeltay' = `VVy'[${names},${names}]
+		qui _eventols `proxy' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0')
+		mat `deltax' = r(delta)
+		mat `Vdeltax' = r(Vdelta)		
+		*mat `deltax' = `bb'[1,${names}]
+		* mat `Vdeltax' = `VV'[${names},${names}]
+		* Scaling factor
+		loc ivnormcomma = strtrim("`ivnorm'")
+		loc ivnorms : list sizeof ivnormcomma
+		loc ivnormcomma : subinstr local ivnormcomma " " ",", all
+		if `ivnorms'>1 loc scfactlead = -max(`ivnormcomma')
+		else loc scfactlead = -`ivnormcomma'
+		mat Mfn = `deltaov'[1,"_k_eq_m`scfactlead'"]	
+		mat Mfd = `deltax'[1,"_k_eq_m`scfactlead'"]
+		loc fn = Mfn[1,1]
+		loc fd = Mfd[1,1]
+		loc factor = `fn'/`fd'
+		* Scale x estimates by factor
+		mat `deltaxsc' = `factor'*`deltax'	
+	}
+	
 	* Drop variables
 	if "`savek'" == "" {
 		cap confirm var _k_eq_p0
@@ -459,7 +479,8 @@ program define _eventiv, rclass
 		}
 	}
 	
-	
+	*skip the rest of the program if the user indicated not to estimate
+	if "`noestimate'"!="" exit 
 	
 	* Returns
 	
@@ -488,3 +509,13 @@ program define _eventiv, rclass
 	return local method = "iv"
 	
 end
+
+*program to parse savek
+program define parsesavek, rclass
+
+	syntax [anything] , [NOEstimate]
+		
+	return local savekl "`anything'"
+	return local noestimatel "`noestimate'"
+end	
+
