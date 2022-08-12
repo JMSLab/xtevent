@@ -58,9 +58,14 @@ forvalues k = 0/6{
 	gen g`k' = rt == `k'
 }
 
-
 * Use IW estimator to estimate dynamic effect on log wage w/ each relative time:
 eventstudyinteract y g_* g0-g6 ,cohort(first_treatment) control_cohort(never_treated) absorb(i.i i.t) vce(cluster i)
+* Sun's suggested event study plot
+matrix C = e(b_iw)
+mata st_matrix("A",sqrt(st_matrix("e(V_iw)")))
+matrix C = C \ A
+matrix list C
+coefplot matrix(C[1]), se(C[2])
 
 * Compare to
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5)
