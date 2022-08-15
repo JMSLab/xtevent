@@ -243,8 +243,8 @@ Impute policy variable without verifying staggered adoption. {p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) nofe note}}
 {p_end}
 
-{pstd}Save event-time dummies{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) savek(a)}}
+{pstd}Save event-time dummies without estimating the model{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) savek(a, noe)}}
 {p_end}
 
 {pstd}Change normalization, asymmetric window{p_end}
@@ -260,19 +260,19 @@ Impute policy variable without verifying staggered adoption. {p_end}
 First, generate a policy variable that follows staggered-adoption.
 {p_end}
 {phang2}
-{cmd:. by idcode (year): egen maxval= max(union)}
+{cmd:. {stata "by idcode (year): egen maxval= max(union)"}}
 {p_end}
 {phang2}
-{cmd:. by idcode (year): gen union2=sum(union) if !missing(union)}
+{cmd:. {stata "by idcode (year): gen union2=sum(union) if !missing(union)"}}
 {p_end}
 {phang2}
 {cmd:. {stata replace union2=1 if union2>1 & !missing(union2)}}
 {p_end}
 {phang2}
-{cmd:. by idcode (year): egen pmean=mean(union2)}
+{cmd:. {stata "by idcode (year): egen pmean=mean(union2)"}}
 {p_end}
 {phang2}
-{cmd:. by idcode (year): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)}
+{cmd:. {stata "by idcode (year): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)"}}
 {p_end}
 {pstd}
 Impute the policy variable that follows staggered-adoption and 
@@ -286,7 +286,6 @@ Compare the imputed and original values for a unit
 {phang2}
 {cmd:. {stata list idcode year union2 union2_imputed if idcode==6}}
 {p_end}
-
 
 {hline}
 
