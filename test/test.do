@@ -90,6 +90,12 @@ des a_eq*, s
 des a_evtime, s
 drop a*
 
+* Test savek with suboption noestimate
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(a, noe)
+des a_eq*, s
+des a_evtime, s
+drop a*
+
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b)
 
 * Test factor variables in varlist
