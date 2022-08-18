@@ -157,7 +157,7 @@ be used as an instrument.
 {phang}
 {opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
-{it:policyvar_imputed}. The following imputation types ca be implemented:
+{it:policyvar_imputed}. The following imputation types can be implemented:
 
 {phang2}
 {cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
@@ -182,7 +182,7 @@ calculates its standard error with {help lincom}. {opt diffavg} is not allowed w
 
 {phang}
 {opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
-effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following can be passed as suboptions:
+effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following suboptions can be specified:
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
@@ -192,12 +192,12 @@ trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
-{opt savek(stub, [subopt])} saves variables for event-time dummies, event-time and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
+{opt savek(stub, [subopt])} saves variables for event-time dummies, event-time, and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
 variable # periods before the policy change, and {it:stub}_p# for the dummy variable # periods after the policy change. The dummy variable for
-the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The following ca be passed as a suboption:
+the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The following suboption can be specified:
 
 {phang2}
-{opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This can be useful if the users want to customize their regressions and plots.
+{opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the users want to customize their regressions and plots.
 
 {phang}
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
