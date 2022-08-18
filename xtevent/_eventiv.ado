@@ -40,11 +40,12 @@ program define _eventiv, rclass
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
-	
+
 	*parse savek 
 	if "`savek'"!="" parsesavek `savek'
 	loc savek = r(savekl)
 	if "`savek'"=="." loc savek ""
+	return loc savek = "`savek'"
 	loc noestimate = r(noestimatel)
 	if "`noestimate'"=="." loc noestimate ""
 	return loc noestimate = "`noestimate'"
