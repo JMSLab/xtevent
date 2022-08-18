@@ -43,11 +43,11 @@
 {synopt:{opt proxyiv(string)}} instruments for the proxy variable{p_end}
 {synopt:{opt nofe}} omit panel fixed effects {p_end}
 {synopt:{opt note}} omit time fixed effects {p_end}
-{synopt: {opt impute(type, [subopt])}} impute missing values in policyvar{p_end}
+{synopt: {opt impute(type [, saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
 {synopt:{opt diffavg}} estimate the difference in averages between the post and pre-periods {p_end}
-{synopt:{opt tr:end(#1, [subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
-{synopt:{opt sav:ek(stub, [subopt])}} save time-to-event, event-time and trend variables{p_end}
+{synopt:{opt tr:end(#1 [, subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
+{synopt:{opt sav:ek(stub [, noestimate])}} save time-to-event, event-time and trend variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
@@ -155,7 +155,7 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
+{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
 {it:policyvar_imputed}. The following imputation types can be implemented:
 
@@ -181,7 +181,7 @@ or by the adopted-policy state.
 calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
-{opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
+{opt tr:end(#1 [, subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
 effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following suboptions can be specified:
 
 {phang2}
@@ -192,7 +192,7 @@ trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
-{opt savek(stub, [subopt])} saves variables for event-time dummies, event-time, and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
+{opt savek(stub [, noestimate])} saves variables for event-time dummies, event-time, and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
 variable # periods before the policy change, and {it:stub}_p# for the dummy variable # periods after the policy change. The dummy variable for
 the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The following suboption can be specified:
 
