@@ -34,8 +34,27 @@ program define _eventols, rclass
 	* bb - regression coefficients
 	tempvar esample
 	
-	**** parse trend
-	*parse 
+	**** parsers
+	*parse savek 
+	if "`savek'"!="" parsesavek `savek'
+	loc savek = r(savekl)
+	if "`savek'"=="." loc savek ""
+	return loc savek = "`savek'"
+	loc noestimate = r(noestimatel)
+	if "`noestimate'"=="." loc noestimate ""
+	return loc noestimate = "`noestimate'"
+	
+	*error messages for incorrect specification of noestimate 
+	if "`noestimate'"!="" & "`diffavg'"!="" {
+		di as err _n "{bf:noestimate} and {bf: diffavg} not allowed simultaneously"
+		exit 301
+	}
+	if "`noestimate'"!="" & "`trend'"!="" {
+		di as err _n "{bf:noestimate} and {bf:trend} not allowed simultaneously"
+		exit 301
+	}
+	
+	*parse trend
 	if "`trend'"!="" parsetrend `trend'
 	loc trcoef = r(trcoef)
 	loc methodt = r(methodt)
@@ -141,75 +160,78 @@ program define _eventols, rclass
 	}
 	else loc indepvars ""
 	
-	* Main regression
+	***** Main regression
 	
 	
-	if "`te'" == "note" loc te ""
-	else loc te "i.`t'"
-	
-	* If gmm trend run regression before adjustment quietly
-	if "`methodt'"=="gmm" loc q "quietly" 
-	else loc q ""
+	if "`noestimate'"==""{ 
 		
-	if "`reghdfe'"=="" {
-		if "`fe'" == "nofe" {
-			loc abs ""
-			loc cmd "regress"
+		if "`te'" == "note" loc te ""
+		else loc te "i.`t'"
+		
+		* If gmm trend run regression before adjustment quietly
+		if "`methodt'"=="gmm" loc q "quietly" 
+		else loc q ""
+			
+		if "`reghdfe'"=="" {
+			if "`fe'" == "nofe" {
+				loc abs ""
+				loc cmd "regress"
+			}
+			else {
+				loc abs "absorb(`i')"
+				loc cmd "areg"
+			}
+			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
 		}
 		else {
-			loc abs "absorb(`i')"
-			loc cmd "areg"
+			loc cmd "reghdfe"
+			loc noabsorb ""
+			*absorb nothing
+			if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"=="" {
+				loc noabsorb "noabsorb"
+				loc abs ""
+			}
+			*absorb only one
+			else if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"!="" {
+				loc abs "absorb(`addabsorb')"
+			}
+			else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
+				loc abs "absorb(`t')"
+			}
+			else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"=="" {						
+				loc abs "absorb(`i')"
+			}
+			*absorb two
+			else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
+				loc abs "absorb(`t' `addabsorb')"
+			}
+			else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"!="" {						
+				loc abs "absorb(`i' `addabsorb')"
+			}
+			else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
+				loc abs "absorb(`i' `t')"
+			}
+			*absorb three
+			else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
+				loc abs "absorb(`i' `t' `addabsorb')"
+			}
+			*
+			else {
+				loc abs "absorb(`i' `t' `addabsorb')"	
+			}
+			`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 		}
-		`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
+		
+		* Return coefficients and variance matrix of the delta k estimates separately
+		mat `bb'=e(b)
+		mat `VV'=e(V)
+		mat `delta' = `bb'[1,`names']
+		mat `Vdelta' = `VV'[`names',`names']
+		
+		loc df = e(df_r)
+		
+		gen byte `esample' = e(sample)
 	}
-	else {
-		loc cmd "reghdfe"
-		loc noabsorb ""
-		*absorb nothing
-		if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"=="" {
-			loc noabsorb "noabsorb"
-			loc abs ""
-		}
-		*absorb only one
-		else if "`fe'" == "nofe" & "`te'"=="" & "`addabsorb'"!="" {
-			loc abs "absorb(`addabsorb')"
-		}
-		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
-			loc abs "absorb(`t')"
-		}
-		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"=="" {						
-			loc abs "absorb(`i')"
-		}
-		*absorb two
-		else if "`fe'" == "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`t' `addabsorb')"
-		}
-		else if "`fe'" != "nofe" & "`te'"=="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`i' `addabsorb')"
-		}
-		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"=="" {						
-			loc abs "absorb(`i' `t')"
-		}
-		*absorb three
-		else if "`fe'" != "nofe" & "`te'"!="" & "`addabsorb'"!="" {						
-			loc abs "absorb(`i' `t' `addabsorb')"
-		}
-		*
-		else {
-			loc abs "absorb(`i' `t' `addabsorb')"	
-		}
-		`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-	}
-	
-	* Return coefficients and variance matrix of the delta k estimates separately
-	mat `bb'=e(b)
-	mat `VV'=e(V)
-	mat `delta' = `bb'[1,`names']
-	mat `Vdelta' = `VV'[`names',`names']
-	
-	loc df = e(df_r)
-	
-	gen byte `esample' = e(sample)
 	
 	* DiD estimate 
 	
@@ -310,17 +332,6 @@ program define _eventols, rclass
 		
 	}
 	
-	
-	* Calculate mean before change in policy for 2nd axis in plot
-	* This needs to be relative to normalization
-	loc absnorm=abs(`norm')
-	
-	tokenize `varlist'
-	loc depvar "`1'"
-	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
-	loc y1 = r(mean)	
-	
-	
 	* Variables for overlay plot if trend
 	
 	if "`saveov'"!="" {
@@ -371,7 +382,6 @@ program define _eventols, rclass
 		_estimates unhold mainols 
 	}
 	
-	
 	* Drop variables
 	if "`savek'" == "" & "`drop'"!="nodrop" {
 		cap confirm var _k_eq_p0
@@ -384,7 +394,19 @@ program define _eventols, rclass
 		ren __k `savek'_evtime
 		ren _k_eq* `savek'_eq*
 		if "`methodt'"=="ols" ren _ttrend `savek'_trend	
-	}	
+	}
+	
+	*skip the rest of the program if the user indicated not to estimate
+	if "`noestimate'"!="" exit 
+	
+	* Calculate mean before change in policy for 2nd axis in plot
+	* This needs to be relative to normalization
+	loc absnorm=abs(`norm')
+	
+	tokenize `varlist'
+	loc depvar "`1'"
+	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
+	loc y1 = r(mean)
 
 	* Returns
 	return matrix b = `bb'
@@ -512,6 +534,15 @@ program define parsetrend, rclass
 	if "`method'"=="" loc method "gmm"
 	return local methodt "`method'"
 	return local saveoverlay "`saveoverlay'"
+end	
+
+*program to parse savek
+program define parsesavek, rclass
+
+	syntax [anything] , [NOEstimate]
+		
+	return local savekl "`anything'"
+	return local noestimatel "`noestimate'"
 end	
 
 
