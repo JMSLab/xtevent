@@ -51,8 +51,8 @@ program define xteventplot
 	* Capture errors
 	
 	local eq_n: word count `eqlist'
-	if "`eq_n'" > 5 {
-		di as error "Xteventplot supports combining up to 5 graphs"
+	if `eq_n' > 5 {
+		di as error "xteventplot supports combining up to 5 graphs"
 		error 198
 	}
 	
