@@ -93,6 +93,28 @@ else{
 end 
 
 
+********************************************************************************
+**************************** xteventplot testing *******************************
+********************************************************************************
+set scheme sj
+clear all
+if "`c(username)'" == "rayhuang" {
+	cd "/Users/rayhuang/Documents/JMSLab/xtevent-git/test"
+	}
+set more off
+use example31.dta, clear
+
+set seed 42
+set obs 20000
+g yy = rnormal(1.8, 3)
+
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) 
+estimates store ycoefs
+xtevent yy eta , panelvar(i) timevar(t) policyvar(z) window(5) 
+estimates store yycoefs
+
+
+xteventplot ycoefs yycoefs
 
 
 
