@@ -106,15 +106,15 @@ use example31.dta, clear
 
 set seed 42
 set obs 20000
-g yy = rnormal(1.8, 3)
+g y2 = rnormal(1.8, 3)
 
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) 
-estimates store ycoefs
-xtevent yy eta , panelvar(i) timevar(t) policyvar(z) window(5) 
-estimates store yycoefs
+estimates store model1
+xtevent y2 eta , panelvar(i) timevar(t) policyvar(z) window(5) 
+estimates store model2
 
 
-xteventplot ycoefs yycoefs
+xteventplot model1 model2, smpath
 
 
 
