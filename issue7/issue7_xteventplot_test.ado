@@ -52,8 +52,7 @@ program define xteventplot
 	* Capture errors
 	
 	local eq_n: word count `eqlist'
-	di `eq_n'
-	if `eq_n' > 5 {
+	if `eq_n' > 6 {
 		di as error "xteventplot supports combining up to 5 graphs"
 		error 198
 	}
@@ -117,7 +116,6 @@ program define xteventplot
 		}
 		
 		loc kmiss = e(kmiss)
-		
 		loc y1 = e(y1)
 		
 		if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
@@ -266,11 +264,8 @@ program define xteventplot
 			qui est restore `estimates'
 			restoresample `samplevar'
 		}
-			
-			
-			
-		
-				
+
+
 		* Get Wald CIs and place overlays in coef2
 		
 		loc i=1
@@ -621,7 +616,18 @@ program define xteventplot
 			di as txt _n "error: specified option {bf:overid} is disabled. option {bf:overid} is ignored."
 			loc overid = ""
 		}
-		*ADD MORE OPTIONS HERE 
+		if "`overidpost'"!=""{
+			di as txt _n "error: specified option {bf:overidpost} is disabled. option {bf:overidpost} is ignored."
+			loc overidpost = ""
+		}
+		if "`y'"!=""{
+			di as txt _n "error: specified option {bf:y} is disabled. option {bf:y} is ignored."
+			loc y = ""
+		}
+		if "`proxy'"!=""{
+			di as txt _n "error: specified option {bf:proxy} is disabled. option {bf:proxy} is ignored."
+			loc proxy = ""
+		}
 		*FOR NOW, WE OMIT ALL OTHER ERROR MESSAGES.
 		
 		
@@ -630,7 +636,7 @@ program define xteventplot
 			tokenize `eqlist'
 			
 			* Restore estimates
-			estimates restore ``eq''
+			qui estimates restore ``eq''
 			
 			* Get info from e
 			loc df = e(df)
@@ -714,7 +720,7 @@ program define xteventplot
 			loc j=1	
 			loc p=1
 			qui {
-				gen double `coef' = .
+				gen double `coef' = . 
 				gen int `post' = .
 				gen byte `omitted' = .
 				if "`overlay'"=="iv" loc oviv=1
@@ -794,10 +800,10 @@ program define xteventplot
 						loc mcolor ""
 						gen double `ul' = `coef' + `ta2'*`se'
 						gen double `ll' = `coef' - `ta2'*`se'				
-						loc cigraph "rcap `ul' `ll' `kxaxis', pstyle(ci)"
+						loc cigraph`eq' "rcap `ul' `ll' `kxaxis', pstyle(ci)"
 					}
 					else if "`levels'"!="" {
-						loc cigraph = ""		
+						loc cigraph`eq' = ""		
 						loc levels : list sort levels
 						loc tot: list sizeof levels
 						loc j=1
@@ -806,13 +812,13 @@ program define xteventplot
 							tempvar ul`l' ll`l'
 							gen double `ul`l'' = `coef' + `ta2'*`se'
 							gen double `ll`l'' = `coef' - `ta2'*`se'
-							loc cigraph "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
-							if `j'!=`tot' loc cigraph "`cigraph' ||"
+							loc cigraph`eq' "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
+							if `j'!=`tot' loc cigraph`eq' "`cigraph`eq'' ||"
 							loc ++j
-						}				
+						}
 					}
 				}
-				else loc cigraph ""
+				else loc cigraph`eq' ""
 			}
 			
 			* Get sup-t CIs
@@ -827,9 +833,9 @@ program define xteventplot
 						tempvar ulsupt llsupt
 						gen double `ulsupt' = `coef' + q*`se'
 						gen double `llsupt' = `coef' - q*`se'
-						loc cigraphsupt "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
+						loc cigraphsupt`eq' "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
 					}
-					else loc cigraphsupt ""
+					else loc cigraphsupt`eq' ""
 				}		
 			}
 			
@@ -857,10 +863,21 @@ program define xteventplot
 			* Overlay static plots lines, other overlays plot scatter
 			if "`overlay'"=="static" loc cmdov`eq' "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
 			else loc cmdov`eq' "scatter `coef' `coef2' `kxaxis'"
-			di "tests"
 		}
 	
 	* Plot
+	tokenize `eqlist'
+	qui estimates restore `1'
+	if "`proxy'"!="" {
+		loc y1plot : di %9.4g `=e(x1)'
+		loc y1plot=strtrim("`y1plot'")
+		loc y1plot `""0 (`y1plot')" "'
+	}
+	else {
+		loc y1plot : di %9.4g `=e(y1)'
+		loc y1plot=strtrim("`y1plot'")
+		loc y1plot `""0 (`y1plot')" "'
+	}
 	
 	* Line at zero by default, unless supressed
 	if "`zeroline'"=="nozeroline" loc zeroline ""
@@ -872,7 +889,7 @@ program define xteventplot
 	
 	loc graph ""
 	forvalues eq = 1/`eq_n'{
-		loc graph `graph' (`smgraph' `smplotopts') (`cigraph' `ciplotopts') (`cigraphsupt' `suptciplotopts') (`cmdov`eq'' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts') (`addplots') (`trendplot' `trendplotopts') (,`zeroline' `options' `legend')
+		loc graph `graph' (`smgraph' `smplotopts') (`cigraph`eq'' `ciplotopts') (`cigraphsupt`eq'' `suptciplotopts') (`cmdov`eq'' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts') (`addplots') (`trendplot' `trendplotopts') (,`zeroline' `options' `legend')
 	}
 	twoway `graph'
 	
@@ -880,6 +897,7 @@ program define xteventplot
 	}
 	
 end
+
 
 
 
