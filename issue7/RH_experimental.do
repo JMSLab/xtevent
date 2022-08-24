@@ -114,7 +114,7 @@ xtevent y2 eta , panelvar(i) timevar(t) policyvar(z) window(5)
 estimates store model2
 
 
-xteventplot model1 model2, smpath
+xteventplot model1 model2
 
 
 

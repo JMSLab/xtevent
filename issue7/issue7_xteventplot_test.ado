@@ -707,6 +707,8 @@ program define xteventplot
 			*OMIT OVERLAY
 			
 			* Get Wald CIs and place overlays in coef2
+			if "`overlay'"=="static" loc ovs = 1
+			else loc ovs = 0
 			
 			loc i=1
 			loc j=1	
@@ -717,6 +719,7 @@ program define xteventplot
 				gen byte `omitted' = .
 				if "`overlay'"=="iv" loc oviv=1
 				else loc oviv=0		
+				di "hi"
 				if `oviv' | `ovs' {
 					tempvar coef2
 					gen double `coef2' = .
@@ -725,6 +728,7 @@ program define xteventplot
 						mat `ovcoef' = e(deltaxsc)
 					}
 				}
+				di "hi2"
 				gen double `se' = .
 				gen int `kxaxis'=.
 				foreach k in `kgs' {
