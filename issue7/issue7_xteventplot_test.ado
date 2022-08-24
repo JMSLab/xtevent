@@ -604,7 +604,7 @@ program define xteventplot
 	*/
 	if `eq_n' > 1{
 
-		* SET UP PERTURB HERE
+		* SET UP OFFSET HERE
 		
 		di as txt _n "Multiple models have been specified. P-values will not be displayed. Options {bf:overlay} {bf:smpath}, {bf:overid}, {bf:overidpost}, {bf:y}, {bf:proxy}, {bf:smplotopts}, {bf:staticovplotopts}, {bf:trendplotopts}, {bf:addplotopts}, and {bf:textboxopts} are disabled."
 		
@@ -855,8 +855,9 @@ program define xteventplot
 			else loc legend ""
 
 			* Overlay static plots lines, other overlays plot scatter
-			if "`overlay'"=="static" loc cmdov "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
+			if "`overlay'"=="static" loc cmdov`eq' "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
 			else loc cmdov`eq' "scatter `coef' `coef2' `kxaxis'"
+			di "tests"
 		}
 	
 	* Plot
@@ -871,11 +872,11 @@ program define xteventplot
 	
 	loc graph ""
 	forvalues eq = 1/`eq_n'{
-		loc graph `graph' (`smgraph' `smplotopts') (`cigraph' `ciplotopts') (`cigraphsupt' `suptciplotopts') (`cmdov'`eq' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts') (`addplots') (`trendplot' `trendplotopts') (,`zeroline' `options' `legend')
+		loc graph `graph' (`smgraph' `smplotopts') (`cigraph' `ciplotopts') (`cigraphsupt' `suptciplotopts') (`cmdov`eq'' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts') (`addplots') (`trendplot' `trendplotopts') (,`zeroline' `options' `legend')
 	}
 	twoway `graph'
-	cap qui mata: mata drop kgs
 	
+	cap qui mata: mata drop kgs
 	}
 	
 end
