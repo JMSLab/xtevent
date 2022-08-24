@@ -83,8 +83,104 @@ program define xteventplot
 		exit 301
 	}
 	
-	* Plotting a single model
-	if `eq_n'==0 | `eq_n'==1{
+	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
+	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
+	if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
+	if "`minus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
+	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
+	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
+	
+	
+	* If user asks for plot options but the corresponding plot does not exist, ignore plot options
+	if "`smplotopts'"!="" & `"`smpath'"'=="" {
+		di as txt _n "option {bf:smplotopts} specified but option {bf:smpath} is missing. option {bf:smplotopts} ignored"
+		loc smplotopts = ""
+	}
+	if "`ciplotopts'"!="" & "`ci'"=="noci" {
+		di as txt _n "option {bf:ciplotopts} specified but option {bf:noci} is active. option {bf:ciplotopts} ignored"
+		loc ciplotopts = ""
+	}
+	if "`suptciplotopts'"!="" & ("`supt'"=="nosupt" |  "`ci'"=="noci" ) {
+		di as txt _n "option {bf:suptciplotopts} specified but options {bf:nosupt} or {bf:noci} are active. option {bf:suptciplotopts} ignored"
+		loc suptciplotopts = ""
+	}
+	if "`staticovplotopts'"!="" & "`overlay'"!="static" {
+		di as txt _n "option {bf:staticovplotopts} specified but option {bf:overlay} is not static. option {bf:staticovplotopts} ignored"
+		loc staticovplotopts = ""
+	}
+	if "`trendplotopts'"!="" & "`overlay'"!="trend" {
+		di as txt _n "option {bf:staticovplotopts} specified but option {bf:overlay} is not trend. option {bf:trendplotopts} ignored"
+		loc trendplotopts = ""
+	}
+	
+	* Multiple plot specific error messages
+	if `eq_n' > 1{
+		di as txt _n "Multiple models have been specified. P-values will not be displayed. Options {bf:overlay} {bf:smpath}, {bf:overid}, {bf:overidpost}, {bf:y}, {bf:proxy}, {bf:smplotopts}, {bf:staticovplotopts}, {bf:trendplotopts}, {bf:addplotopts}, and {bf:textboxopts} are disabled."
+		
+		* If user asks for plot options not allowed with multiple models
+		if "`overlay'"!=""{
+			di as txt _n "error: specified option {bf:overlay} is disabled with multiple models. option {bf:overlay} is ignored."
+			loc overlay = ""
+		}
+		if "`smpath'"!=""{
+			di as txt _n "error: specified option {bf:smpath} is disabled with multiple models. option {bf:smpath} is ignored."
+			loc smpath = ""
+		}
+		if "`overid'"!=""{
+			di as txt _n "error: specified option {bf:overid} is disabled with multiple models. option {bf:overid} is ignored."
+			loc overid = ""
+		}
+		if "`overidpost'"!=""{
+			di as txt _n "error: specified option {bf:overidpost} is disabled with multiple models. option {bf:overidpost} is ignored."
+			loc overidpost = ""
+		}
+		if "`y'"!=""{
+			di as txt _n "error: specified option {bf:y} is disabled with multiple models. option {bf:y} is ignored."
+			loc y = ""
+		}
+		if "`proxy'"!=""{
+			di as txt _n "error: specified option {bf:proxy} is disabled with multiple models. option {bf:proxy} is ignored."
+			loc proxy = ""
+		}
+		if "`smplotopts'"!=""{
+			di as txt _n "error: specified option {bf:smplotopts} is disabled with multiple models. option {bf:smplotopts} is ignored."
+			loc smplotopts = ""
+		}
+		if "`staticovplotopts'"!=""{
+			di as txt _n "error: specified option {bf:staticovplotopts} is disabled with multiple models. option {bf:staticovplotopts} is ignored."
+			loc staticovplotopts = ""
+		}
+		if "`trendplotopts'"!=""{
+			di as txt _n "error: specified option {bf:trendplotopts} is disabled with multiple models. option {bf:trendplotopts} is ignored."
+			loc trendplotopts = ""
+		}
+		if "`addplotopts'"!=""{
+			di as txt _n "error: specified option {bf:addplotopts} is disabled with multiple models. option {bf:addplotopts} is ignored."
+			loc addplotopts = ""
+		}
+		if "`textboxopts'"!=""{
+			di as txt _n "error: specified option {bf:textboxopts} is disabled with multiple models. option {bf:textboxopts} is ignored."
+			loc textboxopts = ""
+		}
+	}
+	
+	/*
+	if ("`offset'"=="") {
+	    local offset 0
+		if (`eq_n'>1) forvalues eq=1/`eq_n' {
+			local offset `offset' `=0.2*`eq'/`eq_n''
+		}
+	}
+	*/
+
+	* SET UP OFFSET HERE
+	
+	forvalues eq = 1/`eq_n'{
+		
+		tokenize `eqlist'
+		
+		* Restore estimates
+		qui estimates restore ``eq''
 		
 		* Get info from e
 		loc df = e(df)
@@ -112,44 +208,14 @@ program define xteventplot
 		else {
 			mat `b' = e(delta)
 			mat `V' = e(Vdelta)
-			loc komit = e(komit)	
+			loc komit = e(komit)
 		}
 		
 		loc kmiss = e(kmiss)
 		loc y1 = e(y1)
 		
-		if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
-		if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
-		if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
-		if "`minus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
-		if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
-		if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
-		
-		* If user asks for plot options but the corresponding plot does not exist, ignore plot options
-		if "`smplotopts'"!="" & `"`smpath'"'=="" {
-			di as txt _n "option {bf:smplotopts} specified but option {bf:smpath} is missing. option {bf:smplotopts} ignored"
-			loc smplotopts = ""
-		}
-		if "`ciplotopts'"!="" & "`ci'"=="noci" {
-			di as txt _n "option {bf:ciplotopts} specified but option {bf:noci} is active. option {bf:ciplotopts} ignored"
-			loc ciplotopts = ""
-		}
-		if "`suptciplotopts'"!="" & ("`supt'"=="nosupt" |  "`ci'"=="noci" ) {
-			di as txt _n "option {bf:suptciplotopts} specified but options {bf:nosupt} or {bf:noci} are active. option {bf:suptciplotopts} ignored"
-			loc suptciplotopts = ""
-		}
-		if "`staticovplotopts'"!="" & "`overlay'"!="static" {
-			di as txt _n "option {bf:staticovplotopts} specified but option {bf:overlay} is not static. option {bf:staticovplotopts} ignored"
-			loc staticovplotopts = ""
-		}
-		if "`trendplotopts'"!="" & "`overlay'"!="trend" {
-			di as txt _n "option {bf:staticovplotopts} specified but option {bf:overlay} is not trend. option {bf:trendplotopts} ignored"
-			loc trendplotopts = ""
-		}
-		
-			
 		* Get standard errors, omitted variables
-			
+		
 		tempvar coef se kxaxis ul ll smline	post omitted fid fidget	
 		
 		mata st_matrix("`se'",sqrt(diagonal(st_matrix("`V'")))')	
@@ -187,7 +253,6 @@ program define xteventplot
 			if "`kmiss'"=="." loc kmiss "`kmax',`kmin'"
 			else loc kmiss "`kmiss',`kmax',`kmin'"
 		}
-		
 		
 		* Estimate static overlay
 		if "`overlay'"=="static" loc ovs = 1
@@ -264,19 +329,18 @@ program define xteventplot
 			qui est restore `estimates'
 			restoresample `samplevar'
 		}
-
-
-		* Get Wald CIs and place overlays in coef2
 		
+		* Get Wald CIs and place overlays in coef2
 		loc i=1
 		loc j=1	
 		loc p=1
 		qui {
-			gen double `coef' = .
+			gen double `coef' = . 
 			gen int `post' = .
 			gen byte `omitted' = .
 			if "`overlay'"=="iv" loc oviv=1
 			else loc oviv=0		
+			di "hi"
 			if `oviv' | `ovs' {
 				tempvar coef2
 				gen double `coef2' = .
@@ -285,6 +349,7 @@ program define xteventplot
 					mat `ovcoef' = e(deltaxsc)
 				}
 			}
+			di "hi2"
 			gen double `se' = .
 			gen int `kxaxis'=.
 			foreach k in `kgs' {
@@ -325,7 +390,7 @@ program define xteventplot
 				}
 				loc i=`i'+1
 				
-			}		
+			}
 			
 			* Define x axis labels, with plus at endpoints
 			loc lbl ""				
@@ -350,10 +415,10 @@ program define xteventplot
 					loc mcolor ""
 					gen double `ul' = `coef' + `ta2'*`se'
 					gen double `ll' = `coef' - `ta2'*`se'				
-					loc cigraph "rcap `ul' `ll' `kxaxis', pstyle(ci)"
+					loc cigraph`eq' "rcap `ul' `ll' `kxaxis', pstyle(ci)"
 				}
 				else if "`levels'"!="" {
-					loc cigraph = ""		
+					loc cigraph`eq' = ""		
 					loc levels : list sort levels
 					loc tot: list sizeof levels
 					loc j=1
@@ -362,13 +427,13 @@ program define xteventplot
 						tempvar ul`l' ll`l'
 						gen double `ul`l'' = `coef' + `ta2'*`se'
 						gen double `ll`l'' = `coef' - `ta2'*`se'
-						loc cigraph "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
-						if `j'!=`tot' loc cigraph "`cigraph' ||"
+						loc cigraph`eq' "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
+						if `j'!=`tot' loc cigraph`eq' "`cigraph`eq'' ||"
 						loc ++j
-					}				
+					}
 				}
 			}
-			else loc cigraph ""
+			else loc cigraph`eq' ""
 		}
 		
 		* Get sup-t CIs
@@ -383,14 +448,14 @@ program define xteventplot
 					tempvar ulsupt llsupt
 					gen double `ulsupt' = `coef' + q*`se'
 					gen double `llsupt' = `coef' - q*`se'
-					loc cigraphsupt "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
+					loc cigraphsupt`eq' "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
 				}
-				else loc cigraphsupt ""
+				else loc cigraphsupt`eq' ""
 			}		
 		}
 		
-		* Smoothest line through CI regions
 		
+		* Smoothest line through CI regions
 		if `"`smpath'"'!="" {	
 			* "
 			di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'"
@@ -536,19 +601,6 @@ program define xteventplot
 		}
 		else loc note ""
 		
-		if "`proxy'"!="" {
-			loc y1plot : di %9.4g `=e(x1)'
-			loc y1plot=strtrim("`y1plot'")
-			loc y1plot `""0 (`y1plot')" "'
-		}
-		else {
-			loc y1plot : di %9.4g `=e(y1)'
-			loc y1plot=strtrim("`y1plot'")
-			loc y1plot `""0 (`y1plot')" "'
-		}
-		
-		* Overlay plot for trend
-		
 		if "`=e(trend)'"=="trend" & "`overlay'"=="trend" { 
 			mat mattrendy = e(mattrendy) 
 			mat mattrendx = e(mattrendx)
@@ -557,313 +609,22 @@ program define xteventplot
 			svmat mattrendy, names(`trendy')
 			svmat mattrendx, names(`trendx')
 			loc trendplot "lfit `trendy'1 `trendx'1, range(`=`kmin'+1' `=`kmax'-1')"
-			
 		}
-			
-		* Plot
+		
+		
 		* coef2 is for overlay plots
 		cap confirm var `coef2'
 		if _rc loc coef2 ""	
-		
+
 		* Do not display legend unless user requires it
 		loc haslegend : subinstr local options "legend" "", all
 		if `"`options'"'==`"`haslegend'"' loc legend "legend(off)" /* " */
 		else loc legend ""
-		
+
 		* Overlay static plots lines, other overlays plot scatter
-		if "`overlay'"=="static" loc cmdov "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
-		else loc cmdov "scatter `coef' `coef2' `kxaxis'"
-		
-		* Line at zero by default, unless supressed
-		
-		if "`zeroline'"=="nozeroline" loc zeroline ""
-		else loc zeroline "yline(0, lpattern(dash) lstyle(refline))"
-
-		* Label for value of y at -1 by default, unless supressed
-		if "`minus1label'"=="nominus1label" loc ylab ""
-		else loc ylab "ylab(#5 0 `y1plot')"	
-
-		tw  `smgraph' `smplotopts' || `cigraph' `ciplotopts' || `cigraphsupt' `suptciplotopts' || `cmdov' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts' || `addplots'	|| `trendplot' `trendplotopts' ||,`zeroline' `options' `legend'
-		cap qui mata: mata drop kgs
+		if "`overlay'"=="static" loc cmdov`eq' "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
+		else loc cmdov`eq' "scatter `coef' `coef2' `kxaxis'"
 	}
-	
-	
-	* Plotting multiple models
-	/*
-	if ("`offset'"=="") {
-	    local offset 0
-		if (`eq_n'>1) forvalues eq=1/`eq_n' {
-			local offset `offset' `=0.2*`eq'/`eq_n''
-		}
-	}
-	*/
-	if `eq_n' > 1{
-
-		* SET UP OFFSET HERE
-		
-		di as txt _n "Multiple models have been specified. P-values will not be displayed. Options {bf:overlay} {bf:smpath}, {bf:overid}, {bf:overidpost}, {bf:y}, {bf:proxy}, {bf:smplotopts}, {bf:staticovplotopts}, {bf:trendplotopts}, {bf:addplotopts}, and {bf:textboxopts} are disabled."
-		
-		* If user asks for plot options not allowed with multiple models
-		if "`overlay'"!=""{
-			di as txt _n "error: specified option {bf:overlay} is disabled. option {bf:overlay} is ignored."
-			loc overlay = ""
-		}
-		if "`smpath'"!=""{
-			di as txt _n "error: specified option {bf:smpath} is disabled. option {bf:smpath} is ignored."
-			loc smpath = ""
-		}
-		if "`overid'"!=""{
-			di as txt _n "error: specified option {bf:overid} is disabled. option {bf:overid} is ignored."
-			loc overid = ""
-		}
-		if "`overidpost'"!=""{
-			di as txt _n "error: specified option {bf:overidpost} is disabled. option {bf:overidpost} is ignored."
-			loc overidpost = ""
-		}
-		if "`y'"!=""{
-			di as txt _n "error: specified option {bf:y} is disabled. option {bf:y} is ignored."
-			loc y = ""
-		}
-		if "`proxy'"!=""{
-			di as txt _n "error: specified option {bf:proxy} is disabled. option {bf:proxy} is ignored."
-			loc proxy = ""
-		}
-		*FOR NOW, WE OMIT ALL OTHER ERROR MESSAGES.
-		
-		
-		forvalues eq = 1/`eq_n'{
-			
-			tokenize `eqlist'
-			
-			* Restore estimates
-			qui estimates restore ``eq''
-			
-			* Get info from e
-			loc df = e(df)
-			tempname b V
-			if inlist("`overlay'","trend","iv")  {
-				mat `b' = e(deltaov)
-				mat `V' = e(Vdeltaov)
-			}
-			else if "`y'" !="" {
-				if "`=e(method)'"!="iv" {
-					di as err "{cmd:xteventplot, y} only available after IV estimation with a proxy."
-					exit 301
-				}		
-				mat `b' = e(deltaov)
-				mat `V' = e(Vdeltaov)
-			}
-			else if "`proxy'"!="" {
-				if "`=e(method)'"!="iv" {
-					di as err "{cmd:xteventplot, y} only available after IV estimation with a proxy."
-					exit 301
-				}		
-				mat `b' = e(deltax)
-				mat `V' = e(Vdeltax)
-			}
-			else {
-				mat `b' = e(delta)
-				mat `V' = e(Vdelta)
-				loc komit = e(komit)
-			}
-			
-			loc kmiss = e(kmiss)
-			loc y1 = e(y1)
-			
-			* Get standard errors, omitted variables
-			
-			tempvar coef se kxaxis ul ll smline	post omitted fid fidget	
-			
-			mata st_matrix("`se'",sqrt(diagonal(st_matrix("`V'")))')	
-			
-			if "`komit'"=="" loc komit = -1
-			loc komitcomma: subinstr local komit " " ",", all
-			
-			if "`kmiss'"!="" loc kmiss: subinstr local kmiss " " ",", all
-			else loc kmiss=.
-			
-			loc kgs : colnames `b'
-			loc kgso = "`kgs'"
-			loc kgs : subinstr local kgs "_k_eq_" "", all
-			loc kgs : subinstr local kgs "m" "-", all
-			loc kgs : subinstr local kgs "p" "", all
-			loc kgso : subinstr local kgs "o." "", all
-			if "`kgso'"!="`kgs'" {
-				di "Warning: Some event-time dummies were omitted in the regression. These coefficients will be shown as zero in the plot. Check the window and the instruments, if any."
-			}
-			loc kgs = "`kgso' `komit'"
-			
-			mata: kgs=st_local("kgs")
-			mata: kgs=strtoreal(tokens(kgs))
-			mata: kgs2=sort(kgs',1)'
-			mata: kgs=invtokens(strofreal(sort(kgs',1)'))
-			mata: st_local("kgs",kgs)
-			
-			loc kmin : word 1 of `kgs'
-			loc ksize : list sizeof kgs
-			loc kmax : word `ksize' of `kgs'
-
-			* Omit right and left endpoints if trend
-			
-			if "`=e(trend)'"!="." { 
-				if "`kmiss'"=="." loc kmiss "`kmax',`kmin'"
-				else loc kmiss "`kmiss',`kmax',`kmin'"
-			}
-			
-			*OMIT OVERLAY
-			
-			* Get Wald CIs and place overlays in coef2
-			if "`overlay'"=="static" loc ovs = 1
-			else loc ovs = 0
-			
-			loc i=1
-			loc j=1	
-			loc p=1
-			qui {
-				gen double `coef' = . 
-				gen int `post' = .
-				gen byte `omitted' = .
-				if "`overlay'"=="iv" loc oviv=1
-				else loc oviv=0		
-				di "hi"
-				if `oviv' | `ovs' {
-					tempvar coef2
-					gen double `coef2' = .
-					if `oviv' {
-						tempname ovcoef
-						mat `ovcoef' = e(deltaxsc)
-					}
-				}
-				di "hi2"
-				gen double `se' = .
-				gen int `kxaxis'=.
-				foreach k in `kgs' {
-					replace `kxaxis' = `k' in `i'			
-					if inlist(`k',`komitcomma') {
-						replace `coef' = 0 in `i'
-						replace `se' = 0 in `i'
-						replace `omitted' = 1 in `i'
-						if `oviv' | `ovs' {
-							replace `coef2' = 0 in `i'
-						}
-					}
-					else if inlist(`k',`kmiss') {
-						replace `coef' = . in `i'
-						if `oviv' | `ovs' {
-							replace `coef2' = . in `i'
-						}
-						replace `se' = . in `i'
-						loc j=`j'+1
-					}
-					else {
-						replace `coef' = `b'[1,`j'] in `i'
-						if `oviv' {
-							replace `coef2' = `ovcoef'[1,`j'] in `i'
-						}
-						else if `ovs' {
-							replace `coef2' = `bstatic'[1,`j'] in `i'
-						}
-						replace `se' = `se'[1,`j'] in `i'
-						loc j=`j'+1
-					}
-					if `k'>=0 {
-						replace `post' = `p' in `i'
-						loc ++ p
-					}
-					else {
-						replace `post' = 0 in `i'
-					}
-					loc i=`i'+1
-					
-				}
-				
-				* Define x axis labels, with plus at endpoints
-				loc lbl ""				
-				forv k=`kmin'(1)`kmax' {
-					if (`k'==`kmin' | `k'==`kmax') loc lbl `"`lbl' `k' "`k'+""' /* " */			
-					else loc lbl `" `lbl' `k' "`k'""' /* " */
-				}
-				loc xaxis=subinstr(`"`plotopts'"',"xlab","",.) /* " */
-				if `"`xaxis'"' == `"`plotopts'"' loc xaxis "xlab(`lbl')" /* " */
-				else loc xaxis ""
-				
-				
-				* Confidence intervals
-				if "`ci'"!="noci" {
-					if `df'==. {
-						* This should not happen
-						di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
-						loc ta2 = 1.96
-						}
-					else loc ta2 = invttail(`df',0.5*(1-c(level)/100))
-					if "`levels'"=="" {	
-						loc mcolor ""
-						gen double `ul' = `coef' + `ta2'*`se'
-						gen double `ll' = `coef' - `ta2'*`se'				
-						loc cigraph`eq' "rcap `ul' `ll' `kxaxis', pstyle(ci)"
-					}
-					else if "`levels'"!="" {
-						loc cigraph`eq' = ""		
-						loc levels : list sort levels
-						loc tot: list sizeof levels
-						loc j=1
-						foreach l in `levels' {
-							loc ta2 = invttail(`df',0.5*(1-`l'/100))
-							tempvar ul`l' ll`l'
-							gen double `ul`l'' = `coef' + `ta2'*`se'
-							gen double `ll`l'' = `coef' - `ta2'*`se'
-							loc cigraph`eq' "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
-							if `j'!=`tot' loc cigraph`eq' "`cigraph`eq'' ||"
-							loc ++j
-						}
-					}
-				}
-				else loc cigraph`eq' ""
-			}
-			
-			* Get sup-t CIs
-			qui {
-				if "`ci'"!="noci" {
-					if "`supt'"!="nosupt" {
-						if  "`levels'"!=""  {
-							di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
-						}
-						loc level=c(level)/100
-						mata: supt(`suptreps',"`se'",`level')
-						tempvar ulsupt llsupt
-						gen double `ulsupt' = `coef' + q*`se'
-						gen double `llsupt' = `coef' - q*`se'
-						loc cigraphsupt`eq' "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
-					}
-					else loc cigraphsupt`eq' ""
-				}		
-			}
-			
-			
-			* OMIT SMPATH
-			
-			* OMIT TEXTBOXOPTS
-			
-			* OMIT P-VALUES
-			
-			* OMIT PROXY
-			
-			* OMIT OVERLAPY PLOT FOR TREND
-			
-			
-			* coef2 is for overlay plots
-			cap confirm var `coef2'
-			if _rc loc coef2 ""	
-
-			* Do not display legend unless user requires it
-			loc haslegend : subinstr local options "legend" "", all
-			if `"`options'"'==`"`haslegend'"' loc legend "legend(off)" /* " */
-			else loc legend ""
-
-			* Overlay static plots lines, other overlays plot scatter
-			if "`overlay'"=="static" loc cmdov`eq' "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
-			else loc cmdov`eq' "scatter `coef' `coef2' `kxaxis'"
-		}
 	
 	* Plot
 	tokenize `eqlist'
@@ -894,11 +655,8 @@ program define xteventplot
 	twoway `graph'
 	
 	cap qui mata: mata drop kgs
-	}
 	
 end
-
-
 
 
 
