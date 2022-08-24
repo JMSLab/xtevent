@@ -29,6 +29,7 @@ program define xteventplot
 	STATICOVPLOTopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	textboxoption(string) /* Option for adjusting text size of the test results */
+	offset(numlist) /* Option for spacing between models when plotting multiple models */
 	*
 	]	
 	;
@@ -593,6 +594,14 @@ program define xteventplot
 	
 	
 	* Plotting multiple models
+	/*
+	if ("`offset'"=="") {
+	    local offset 0
+		if (`eq_n'>1) forvalues eq=1/`eq_n' {
+			local offset `offset' `=0.2*`eq'/`eq_n''
+		}
+	}
+	*/
 	if `eq_n' > 1{
 
 		* SET UP PERTURB HERE
@@ -649,7 +658,7 @@ program define xteventplot
 			else {
 				mat `b' = e(delta)
 				mat `V' = e(Vdelta)
-				loc komit = e(komit)	
+				loc komit = e(komit)
 			}
 			
 			loc kmiss = e(kmiss)
