@@ -185,6 +185,7 @@ program define xteventplot
 			
 			* Restore estimates
 			qui estimates restore ``eq''
+			cap macro drop 1 2 3 4 5 6 7 8
 		}
 		
 		* Get info from e
@@ -345,7 +346,6 @@ program define xteventplot
 			gen byte `omitted' = .
 			if "`overlay'"=="iv" loc oviv=1
 			else loc oviv=0		
-			di "hi"
 			if `oviv' | `ovs' {
 				tempvar coef2
 				gen double `coef2' = .
@@ -354,7 +354,6 @@ program define xteventplot
 					mat `ovcoef' = e(deltaxsc)
 				}
 			}
-			di "hi2"
 			gen double `se' = .
 			gen int `kxaxis'=.
 			foreach k in `kgs' {
@@ -409,11 +408,15 @@ program define xteventplot
 			
 			
 			* Confidence intervals
-			/*
+			
 			if `eq_n' > 1{
 				parsemodels `ci'
-			} */
-			if "`ci'"!="noci" {
+				di "``eq''"
+			} 
+			if "`ci'"=="noci" | "``eq''"=="noci"{
+				loc cigraph`eq' ""
+			}
+			else {
 				if `df'==. {
 					* This should not happen
 					di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
@@ -442,7 +445,6 @@ program define xteventplot
 					}
 				}
 			}
-			else loc cigraph`eq' ""
 		}
 		
 		* Get sup-t CIs
@@ -576,38 +578,40 @@ program define xteventplot
 		if "`textboxoption'"!="" loc textbox ", `textboxoption'"
 		
 		* P-value for pre-trends test and value of y in label
-		if "`overlay'"!="trend" {
-			if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
-				if ("`prepval'"!="noprepval") | ("`postpval'"!="nopostpval") {
-					qui xteventtest, overid
-					loc pvalpre : di %9.2f r(pre_p)
-					loc pvalpost: di % 9.2f r(post_p)
-					if "`overidpre'"!="" {
-						qui xteventtest, overidpre(`overidpre')
-						loc pvalpre : di %9.2f r(p)
+		if `eq_n' == 1{
+			if "`overlay'"!="trend" {
+				if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
+					if ("`prepval'"!="noprepval") | ("`postpval'"!="nopostpval") {
+						qui xteventtest, overid
+						loc pvalpre : di %9.2f r(pre_p)
+						loc pvalpost: di % 9.2f r(post_p)
+						if "`overidpre'"!="" {
+							qui xteventtest, overidpre(`overidpre')
+							loc pvalpre : di %9.2f r(p)
+						}
+						if "`overidpost'"!="" {
+							qui xteventtest, overidpost(`overidpost')
+							loc pvalpost : di %9.2f r(p)
+						}
 					}
-					if "`overidpost'"!="" {
-						qui xteventtest, overidpost(`overidpost')
-						loc pvalpost : di %9.2f r(p)
+					if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
+					else loc notepre ""
+					if ("`postpval'"!="nopostpval") {
+						loc notepost "Leveling off p-value = `pvalpost'"
+						if "`notepre'"!="" loc notepost "-- `notepost'"
 					}
+					else loc notepost ""
+					loc note "`notepre' `notepost'"			
 				}
-				if ("`prepval'"!="noprepval") loc notepre "Pretrends p-value = `pvalpre'"
-				else loc notepre ""
-				if ("`postpval'"!="nopostpval") {
-					loc notepost "Leveling off p-value = `pvalpost'"
-					if "`notepre'"!="" loc notepost "-- `notepost'"
+				* P-value for constant effects test if overlay static 
+				else if "`overlay'"=="static" {
+					qui xteventtest, constanteff
+					loc pval : di %9.2f r(p)
+					loc note "Constant effects p-value = `pval'"
 				}
-				else loc notepost ""
-				loc note "`notepre' `notepost'"			
+				loc note "note(`note' `textbox')"
 			}
-			* P-value for constant effects test if overlay static 
-			else if "`overlay'"=="static" {
-				qui xteventtest, constanteff
-				loc pval : di %9.2f r(p)
-				loc note "Constant effects p-value = `pval'"
 			}
-			loc note "note(`note' `textbox')"
-		}
 		else loc note ""
 		
 		if "`=e(trend)'"=="trend" & "`overlay'"=="trend" { 
@@ -669,21 +673,19 @@ program define xteventplot
 end
 
 
-
 * Program to parse multiple model options
 cap program drop parsemodels
-program define parsemodels, rclass
+program define parsemodels
 
 	syntax [anything]
 
 	loc first_paren = strpos("`anything'", "(")
 	loc last_paren = strpos("`anything'", ")")
 	loc length = strlen("`anything'")
-	loc substring = substr("`anything'", `first_paren', .)
-	return tokenize `substring'
-
+	loc substring = substr("`anything'", `first_paren' + 1, `length' - `first_paren'- 1)
+	tokenize `substring'
+	
 end
-
 * Program to parse smpath options
 cap program drop parsesmpath
 program define parsesmpath, rclass
