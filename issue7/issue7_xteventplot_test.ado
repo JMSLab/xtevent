@@ -7,7 +7,7 @@ program define xteventplot
 	#d;
 	syntax [anything(name=eqlist)], 
 	[	
-	noci /* Supress confidence intervals */
+	noci(string) /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
 	NOZEROline /* Supress line at 0 */
 	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
@@ -36,7 +36,7 @@ program define xteventplot
 	#d cr
 	* Other options can be passed to graph
 	
-	*Add nodrawleftend and nodrawrightend
+	* Add nodrawleftend and nodrawrightend
 	
 	* from eventols
 	
@@ -51,7 +51,11 @@ program define xteventplot
 	
 	* Capture errors
 	
-	local eq_n: word count `eqlist'
+	loc eq_n: word count `eqlist'
+	if `eq_n'==0{
+		loc eq_n = 1
+	}
+
 	if `eq_n' > 6 {
 		di as error "xteventplot supports combining up to 5 graphs"
 		error 198
@@ -113,8 +117,10 @@ program define xteventplot
 		loc trendplotopts = ""
 	}
 	
+	
 	* Multiple plot specific error messages
 	if `eq_n' > 1{
+		
 		di as txt _n "Multiple models have been specified. P-values will not be displayed. Options {bf:overlay} {bf:smpath}, {bf:overid}, {bf:overidpost}, {bf:y}, {bf:proxy}, {bf:smplotopts}, {bf:staticovplotopts}, {bf:trendplotopts}, {bf:addplotopts}, and {bf:textboxopts} are disabled."
 		
 		* If user asks for plot options not allowed with multiple models
@@ -164,23 +170,22 @@ program define xteventplot
 		}
 	}
 	
-	/*
+	* Set up offset
 	if ("`offset'"=="") {
 	    local offset 0
 		if (`eq_n'>1) forvalues eq=1/`eq_n' {
 			local offset `offset' `=0.2*`eq'/`eq_n''
 		}
 	}
-	*/
-
-	* SET UP OFFSET HERE
 	
 	forvalues eq = 1/`eq_n'{
 		
-		tokenize `eqlist'
-		
-		* Restore estimates
-		qui estimates restore ``eq''
+		if `eq_n' > 1{
+			tokenize `eqlist'
+			
+			* Restore estimates
+			qui estimates restore ``eq''
+		}
 		
 		* Get info from e
 		loc df = e(df)
@@ -404,6 +409,10 @@ program define xteventplot
 			
 			
 			* Confidence intervals
+			/*
+			if `eq_n' > 1{
+				parsemodels `ci'
+			} */
 			if "`ci'"!="noci" {
 				if `df'==. {
 					* This should not happen
@@ -626,6 +635,7 @@ program define xteventplot
 		else loc cmdov`eq' "scatter `coef' `coef2' `kxaxis'"
 	}
 	
+	
 	* Plot
 	tokenize `eqlist'
 	qui estimates restore `1'
@@ -660,10 +670,9 @@ end
 
 
 
-
 * Program to parse multiple model options
 cap program drop parsemodels
-program define parsemodels
+program define parsemodels, rclass
 
 	syntax [anything]
 
@@ -671,7 +680,7 @@ program define parsemodels
 	loc last_paren = strpos("`anything'", ")")
 	loc length = strlen("`anything'")
 	loc substring = substr("`anything'", `first_paren', .)
-	tokenize `substring'
+	return tokenize `substring'
 
 end
 

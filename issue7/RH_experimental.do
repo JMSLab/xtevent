@@ -118,9 +118,3 @@ xteventplot model1 model2
 
 
 
-
-
-
-
-
-
