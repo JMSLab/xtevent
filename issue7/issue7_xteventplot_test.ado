@@ -661,7 +661,19 @@ end
 
 
 
+* Program to parse multiple model options
+cap program drop parsemodels
+program define parsemodels
 
+	syntax [anything]
+
+	loc first_paren = strpos("`anything'", "(")
+	loc last_paren = strpos("`anything'", ")")
+	loc length = strlen("`anything'")
+	loc substring = substr("`anything'", `first_paren', .)
+	tokenize `substring'
+
+end
 
 * Program to parse smpath options
 cap program drop parsesmpath
