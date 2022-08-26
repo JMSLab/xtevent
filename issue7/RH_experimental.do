@@ -107,14 +107,20 @@ use example31.dta, clear
 set seed 42
 set obs 20000
 g y2 = rnormal(1.8, 3)
+g y3 = rnormal(2, 4)
 
-xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) 
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) 
+xteventplot
 estimates store model1
-xtevent y2 eta , panelvar(i) timevar(t) policyvar(z) window(5) 
+xtevent y2 eta, panelvar(i) timevar(t) policyvar(z) window(5) 
 estimates store model2
-
+xtevent y3 eta, panelvar(i) timevar(t) policyvar(z) window(5) 
+estimates store model3
 
 xteventplot model1 model2
+xteventplot model1 model2 model3
+xteventplot model1 model2, noci(noci noci)
+
 
 
 

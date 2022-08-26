@@ -340,6 +340,9 @@ program define xteventplot
 		loc i=1
 		loc j=1	
 		loc p=1
+		local offset_now : word `eq' of `offset'
+		if ("`offset_now'"=="") local offset_now = 0
+		*gen `pos`eq''=`H`eq''+`perturb_now'-`shift`eq''
 		qui {
 			gen double `coef' = . 
 			gen int `post' = .
@@ -357,7 +360,7 @@ program define xteventplot
 			gen double `se' = .
 			gen int `kxaxis'=.
 			foreach k in `kgs' {
-				replace `kxaxis' = `k' in `i'			
+				replace `kxaxis' = `k' + `offset_now' in `i'			
 				if inlist(`k',`komitcomma') {
 					replace `coef' = 0 in `i'
 					replace `se' = 0 in `i'
@@ -671,6 +674,7 @@ program define xteventplot
 	cap qui mata: mata drop kgs
 	
 end
+
 
 
 * Program to parse multiple model options
