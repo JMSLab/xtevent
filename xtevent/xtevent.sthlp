@@ -45,7 +45,7 @@
 {synopt:{opt note}} omit time fixed effects {p_end}
 {synopt: {opt impute(type [, saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
-{synopt:{opt diffavg}} estimate the difference in averages between the post and pre-periods {p_end}
+{synopt:{opt diff:avg}} estimate the difference in averages between the post and pre-periods {p_end}
 {synopt:{opt tr:end(#1 [, subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
 {synopt:{opt sav:ek(stub [, noestimate])}} save time-to-event, event-time and trend variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
