@@ -37,8 +37,8 @@
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
 {synopt:{opt nozero:line}} omit reference line at 0{p_end}
 {synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -2 {p_end}
-{synopt:{opt noprepval}} omit p-vale for pre-trends test{p_end}
-{synopt:{opt nopostpval}} omit p-vale for leveling-off test{p_end}
+{synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
+{synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
 {synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
 {synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
