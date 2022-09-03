@@ -342,7 +342,6 @@ program define xteventplot
 		loc p=1
 		local offset_now : word `eq' of `offset'
 		if ("`offset_now'"=="") local offset_now = 0
-		*gen `pos`eq''=`H`eq''+`perturb_now'-`shift`eq''
 		qui {
 			gen double `coef' = . 
 			gen int `post' = .
@@ -413,8 +412,7 @@ program define xteventplot
 			* Confidence intervals
 			
 			if `eq_n' > 1{
-				parsemodels `ci'
-				di "``eq''"
+				*tokenize `noci'
 			} 
 			if "`ci'"=="noci" | "``eq''"=="noci"{
 				loc cigraph`eq' ""
@@ -675,21 +673,6 @@ program define xteventplot
 	
 end
 
-
-
-* Program to parse multiple model options
-cap program drop parsemodels
-program define parsemodels
-
-	syntax [anything]
-
-	loc first_paren = strpos("`anything'", "(")
-	loc last_paren = strpos("`anything'", ")")
-	loc length = strlen("`anything'")
-	loc substring = substr("`anything'", `first_paren' + 1, `length' - `first_paren'- 1)
-	tokenize `substring'
-	
-end
 * Program to parse smpath options
 cap program drop parsesmpath
 program define parsesmpath, rclass
