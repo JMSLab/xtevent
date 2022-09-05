@@ -411,75 +411,45 @@ program define xteventplot
 			
 			* Confidence intervals
 			
-			if `eq_n'==1{
-				if "`ci'"!="noci"{
-					if `df'==. {
-						* This should not happen
-						di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
-						loc ta2 = 1.96
-						}
-					else loc ta2 = invttail(`df',0.5*(1-c(level)/100))
-					if "`levels'"=="" {	
-						loc mcolor ""
-						gen double `ul' = `coef' + `ta2'*`se'
-						gen double `ll' = `coef' - `ta2'*`se'				
-						loc cigraph`eq' "rcap `ul' `ll' `kxaxis', pstyle(ci)"
+			
+			tokenize `noci'
+			if "``eq''"=="noci"{
+				loc cigraph`eq' ""
+			}
+			else {
+				if `df'==. {
+					* This should not happen
+					di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
+					loc ta2 = 1.96
 					}
-					else if "`levels'"!="" {
-						loc cigraph`eq' = ""		
-						loc levels : list sort levels
-						loc tot: list sizeof levels
-						loc j=1
-						foreach l in `levels' {
-							loc ta2 = invttail(`df',0.5*(1-`l'/100))
-							tempvar ul`l' ll`l'
-							gen double `ul`l'' = `coef' + `ta2'*`se'
-							gen double `ll`l'' = `coef' - `ta2'*`se'
-							loc cigraph`eq' "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
-							if `j'!=`tot' loc cigraph`eq' "`cigraph`eq'' ||"
-							loc ++j
-						}
+				else loc ta2 = invttail(`df',0.5*(1-c(level)/100))
+				if "`levels'"=="" {	
+					loc mcolor ""
+					gen double `ul' = `coef' + `ta2'*`se'
+					gen double `ll' = `coef' - `ta2'*`se'				
+					loc cigraph`eq' "rcap `ul' `ll' `kxaxis', pstyle(ci)"
+				}
+				else if "`levels'"!="" {
+					loc cigraph`eq' = ""		
+					loc levels : list sort levels
+					loc tot: list sizeof levels
+					loc j=1
+					foreach l in `levels' {
+						loc ta2 = invttail(`df',0.5*(1-`l'/100))
+						tempvar ul`l' ll`l'
+						gen double `ul`l'' = `coef' + `ta2'*`se'
+						gen double `ll`l'' = `coef' - `ta2'*`se'
+						loc cigraph`eq' "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
+						if `j'!=`tot' loc cigraph`eq' "`cigraph`eq'' ||"
+						loc ++j
 					}
 				}
 			}
-			if `eq_n' > 1{
-				tokenize `noci'
-				if "``eq''"!="noci"{
-					if `df'==. {
-						* This should not happen
-						di as err _n "Missing model degrees of freedom. Using t - value for large sample and 95% confidence to plot confidence intervals."
-						loc ta2 = 1.96
-						}
-					else loc ta2 = invttail(`df',0.5*(1-c(level)/100))
-					if "`levels'"=="" {	
-						loc mcolor ""
-						gen double `ul' = `coef' + `ta2'*`se'
-						gen double `ll' = `coef' - `ta2'*`se'				
-						loc cigraph`eq' "rcap `ul' `ll' `kxaxis', pstyle(ci)"
-					}
-					else if "`levels'"!="" {
-						loc cigraph`eq' = ""		
-						loc levels : list sort levels
-						loc tot: list sizeof levels
-						loc j=1
-						foreach l in `levels' {
-							loc ta2 = invttail(`df',0.5*(1-`l'/100))
-							tempvar ul`l' ll`l'
-							gen double `ul`l'' = `coef' + `ta2'*`se'
-							gen double `ll`l'' = `coef' - `ta2'*`se'
-							loc cigraph`eq' "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
-							if `j'!=`tot' loc cigraph`eq' "`cigraph`eq'' ||"
-							loc ++j
-						}
-					}
-				}
-			}
-			else loc cigraph`eq' = ""
 		}
 		
 		* Get sup-t CIs
 		qui {
-			if "`ci'"!="noci" {
+			if "``eq''"!="noci" {
 				if "`supt'"!="nosupt" {
 					if  "`levels'"!=""  {
 						di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
@@ -671,6 +641,8 @@ program define xteventplot
 	
 	
 	* Plot
+	if "`options'"=="noci" loc options ""
+	
 	tokenize `eqlist'
 	qui estimates restore `1'
 	if "`proxy'"!="" {
