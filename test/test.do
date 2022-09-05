@@ -480,3 +480,57 @@ xteventtest, overidpost(3)
 xteventtest, overid
 
 cap log close
+
+*------------------------ 2.7: Multiple model tests  ---------------------------
+
+set seed 42
+set obs 20000
+g y2 = rnormal(1.8, 3)
+g y3 = rnormal(2, 4)
+
+* Single model
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5)
+xteventplot, nozeroline
+xteventplot, nosupt(nosupt)
+xteventplot, noci(noci)
+
+* Store results
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5)
+estimates store model1
+xtevent y2 eta, panelvar(i) timevar(t) policyvar(z) window(5) 
+estimates store model2
+xtevent y3 eta, panelvar(i) timevar(t) policyvar(z) window(5) 
+estimates store model3
+
+* Plot basic multiple models
+xteventplot model1 model2
+xteventplot model1 model2 model3
+
+* Test noci
+xteventplot model1 model2, noci(ci noci)
+xteventplot model1 model2 model3, noci(ci ci noci)
+
+* Test nosupt
+xteventplot model1 model2, nosupt(supt nosupt)
+xteventplot model1 model2 model3, nosupt(nosupt nosupt nosupt)
+
+* Test offset
+xteventplot model1 model2, offset(0.5)
+xteventplot model1 model2 model3, offset(0.3)
+
+* Test levels
+xteventplot model1 model2, levels(70)
+xteventplot model1 model2, levels(95)
+
+* Test nozeroline
+xteventplot model1 model2
+xteventplot model1 model2, nozeroline
+
+*Test disabled options
+
+
+
+
+
+
+
