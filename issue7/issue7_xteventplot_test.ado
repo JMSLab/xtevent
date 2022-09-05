@@ -8,7 +8,7 @@ program define xteventplot
 	syntax [anything(name=eqlist)], 
 	[	
 	noci(string) /* Supress confidence intervals */
-	nosupt /* Omit sup-t CI */
+	nosupt(string) /* Omit sup-t CI */
 	NOZEROline /* Supress line at 0 */
 	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
 	noprepval /* Supress p-value for pre-trends test */
@@ -448,9 +448,10 @@ program define xteventplot
 		}
 		
 		* Get sup-t CIs
-		qui {
+		*qui {
 			if "``eq''"!="noci" {
-				if "`supt'"!="nosupt" {
+				tokenize `nosupt'
+				if "``eq''"!="nosupt" {
 					if  "`levels'"!=""  {
 						di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
 					}
@@ -463,7 +464,7 @@ program define xteventplot
 				}
 				else loc cigraphsupt`eq' ""
 			}		
-		}
+		*}
 		
 		
 		* Smoothest line through CI regions
@@ -642,6 +643,7 @@ program define xteventplot
 	
 	* Plot
 	if "`options'"=="noci" loc options ""
+	if "`options'"=="nosupt" loc options ""
 	
 	tokenize `eqlist'
 	qui estimates restore `1'
