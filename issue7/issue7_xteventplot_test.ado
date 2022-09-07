@@ -448,7 +448,7 @@ program define xteventplot
 		}
 		
 		* Get sup-t CIs
-		*qui {
+		qui {
 			if "``eq''"!="noci" {
 				tokenize `nosupt'
 				if "``eq''"!="nosupt" {
@@ -464,7 +464,7 @@ program define xteventplot
 				}
 				else loc cigraphsupt`eq' ""
 			}		
-		*}
+		}
 		
 		
 		* Smoothest line through CI regions
