@@ -23,7 +23,7 @@ program define _eventgenvars, rclass
 	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
 	trcoef(real 0) /*inferior limit to start the trend*/
 	methodt(string) /* method for the trend computation*/
-	
+	REPeatedcs(string) /*method to handle repeated cross-sectional datasets*/
 
 	
 	]	
@@ -115,7 +115,30 @@ program define _eventgenvars, rclass
 			exit 110
 		}
 	}
-
+	
+	*** repeated cross section databases
+	if "`repeatedcs'"!=""{
+		parserepeatedcs `repeatedcs'
+		loc rcsmethod = r(rcsmethod)
+	}
+	
+	*checks:
+	*-same value of z in a (state, t) group
+	*-missing values 
+	
+	if "`rcsmethod'"=="onestep"{
+		*proceed with generation of event-time dummies  
+		preserve 
+		qui keep `panelvar' `timevar' `policyvar' `touse' `rr'
+		bysort state t: keep if _n==1 //altervative: collapse (min) z, by(state t)
+		qui xtset `panelvar' `timevar'
+	}
+	else {
+		qui xtset `panelvar' `timevar'
+	}
+	
+	
+	
 	********************* find first and last observed values *********************
 
 	*find minimum valid time (time where there is a no-missing observation)
@@ -446,7 +469,6 @@ program define _eventgenvars, rclass
 			}
 		}	
 		
-			
 		* Set omitted variable.
 		unab included : _k*
 		loc toexc ""
@@ -531,6 +553,29 @@ program define _eventgenvars, rclass
 	return local saveimp= "`saveimp'"
 	*temporary variable equal to imputed policyvar (for _eventiv.ado)
 	if "`rr'"!="" qui replace `rr'=`zn2'
+	
+	*close de process for the repeated cross-sectional dataset
+	if "`rcsmethod'"=="onestep"{
+		*check if trend and imputed policyvar should be merged to the individual-level dataset
+		loc _ttrend_include ""
+		cap confirm var _ttrend
+		if !_rc loc _ttrend_include "_ttrend"
+		loc imputed_include ""
+		cap confirm var `policyvar'_imputed
+		if !_rc loc imputed_include "`policyvar'_imputed"
+
+		keep `panelvar' `timevar' _k* __k `_ttrend_include' `imputed_include' `rr'
+		tempfile state_level
+		qui save `state_level'
+		*close the process with the state level dataset 
+		restore
+		
+		*merge back to the individual level dataset 
+		qui merge m:1 `panelvar' `timevar' using `state_level', update nogen
+		sort `panelvar' `timevar'
+		order `imputed_include' _k* __k `_ttrend_include', after(`policyvar')
+		xtset, clear //otherwise error: repeated time variable 
+	}
 end
 
 
@@ -545,6 +590,13 @@ program define parseimpute, rclass
 	return local saveimp "`saveimp'"
 end	
 
+* Program to parse repeatedcs 
+cap program drop parserepeatedcs
+program define parserepeatedcs, rclass
 
+	syntax [anything] , [saveimp]
+		
+	return local rcsmethod "`anything'"
+end	
 	
 	
