@@ -43,7 +43,7 @@ program define xtevent, eclass
 	note /* No time effects */
 	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
-	REPeatedcs /*method to handle repeated cross-sectional datasets*/
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 		
 	*/
 	]

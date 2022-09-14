@@ -23,7 +23,7 @@ program define _eventgenvars, rclass
 	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
 	trcoef(real 0) /*inferior limit to start the trend*/
 	methodt(string) /* method for the trend computation*/
-	REPeatedcs(string) /*method to handle repeated cross-sectional datasets*/
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional datasets*/
 
 	
 	]	
@@ -118,27 +118,34 @@ program define _eventgenvars, rclass
 	
 	*** repeated cross section databases
 	if "`repeatedcs'"!=""{
-		parserepeatedcs `repeatedcs'
-		loc rcsmethod = r(rcsmethod)
-	}
+		*parserepeatedcs `repeatedcs'
+		*loc rcsmethod = r(rcsmethod)
+		
+		*checks:
+		*same value of policyvar in a (policyvar, time) cell
+		tempvar maxpol minpol 
+		qui bysort `panelvar' `timevar': egen `maxpol'=max(`policyvar') if `touse' //it ignores missing values
+		qui by `panelvar' `timevar': egen `minpol'=min(`policyvar') if `touse'
+		cap assert `maxpol'==`minpol'
+		if _rc {
+			di as err _n "{bf:Policyvar} is not constant within some (`panelvar', `timevar') cells."
+			exit 110
+		}
+		
+		*missing values 
+		cap assert !missing(`policyvar') if `touse'
+		if _rc {
+			di "{bf:Policyvar} has missing values within some (`panelvar', `timevar') cells. These observations will be ignored."
+		}
 	
-	*checks:
-	*-same value of z in a (state, t) group
-	*-missing values 
-	
-	if "`rcsmethod'"=="onestep"{
-		*proceed with generation of event-time dummies  
+		*proceed with generation of event-time dummies in the repeated cs setting
 		preserve 
 		qui keep `panelvar' `timevar' `policyvar' `touse' `rr'
-		bysort state t: keep if _n==1 //altervative: collapse (min) z, by(state t)
-		qui xtset `panelvar' `timevar'
+		*sorting by policyvar guarantees not choosing a missing value 
+		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z, by(state t)
 	}
-	else {
-		qui xtset `panelvar' `timevar'
-	}
-	
-	
-	
+	qui xtset `panelvar' `timevar'
+
 	********************* find first and last observed values *********************
 
 	*find minimum valid time (time where there is a no-missing observation)
@@ -555,7 +562,7 @@ program define _eventgenvars, rclass
 	if "`rr'"!="" qui replace `rr'=`zn2'
 	
 	*close de process for the repeated cross-sectional dataset
-	if "`rcsmethod'"=="onestep"{
+	if "`repeatedcs'"!=""{
 		*check if trend and imputed policyvar should be merged to the individual-level dataset
 		loc _ttrend_include ""
 		cap confirm var _ttrend
@@ -564,17 +571,18 @@ program define _eventgenvars, rclass
 		cap confirm var `policyvar'_imputed
 		if !_rc loc imputed_include "`policyvar'_imputed"
 
-		keep `panelvar' `timevar' _k* __k `_ttrend_include' `imputed_include' `rr'
+		keep `panelvar' `timevar' `policyvar' _k* __k `_ttrend_include' `imputed_include' `rr'
 		tempfile state_level
 		qui save `state_level'
 		*close the process with the state level dataset 
 		restore
 		
 		*merge back to the individual level dataset 
-		qui merge m:1 `panelvar' `timevar' using `state_level', update nogen
-		sort `panelvar' `timevar'
+		*merge also on the policyvar, so missing values in policyvar within a cell, will not get event-time dummy values 
+		qui merge m:1 `panelvar' `timevar' `policyvar' using `state_level', update nogen
+		*sort `panelvar' `timevar'
 		order `imputed_include' _k* __k `_ttrend_include', after(`policyvar')
-		xtset, clear //otherwise error: repeated time variable 
+		xtset, clear //otherwise next time you run it: error, repeated time variable 
 	}
 end
 
@@ -589,14 +597,3 @@ program define parseimpute, rclass
 	return local impute "`anything'"
 	return local saveimp "`saveimp'"
 end	
-
-* Program to parse repeatedcs 
-cap program drop parserepeatedcs
-program define parserepeatedcs, rclass
-
-	syntax [anything] , [saveimp]
-		
-	return local rcsmethod "`anything'"
-end	
-	
-	

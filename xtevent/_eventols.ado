@@ -22,7 +22,7 @@ program define _eventols, rclass
 	impute(string) /*imputation on policyvar*/
   addabsorb(string) /* Absorb additional variables in reghdfe */
   DIFFavg /* Obtain regular DiD estimate implied by the model */
-  REPeatedcs(string) /*method to handle repeated cross-sectional datasets*/
+  REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 	*
 	]
 	;
@@ -33,30 +33,7 @@ program define _eventols, rclass
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
 	* bb - regression coefficients
-	tempvar esample
-	
-	*get_unit_time_effects
-	* firs step for two-step estimation with repeated cross-sectional datasets 
-	if "`repeatedcs'"=="get_unit_time_effects"{
-		*separate independent variables
-		loc nvars: word count(`varlist')
-		tokenize `varlist'
-		loc depenvar `1'
-		if `nvars'>1 {
-			forval k=2(1)`nvars'{
-				loc indepvars "`indepvars' ``k''"
-			}
-		}
-		else loc indepvars ""
-	
-		* regress dependent variable on controls and unit time effects
-		tempvar c_hat
-		reg `varlist' i.`panelvar'#i.`timevar' 
-		predict `c_hat'
-		
-	}
-	
-	
+	tempvar esample	
 	
 	**** parsers
 	*parse savek 
@@ -128,7 +105,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') repeatedcs(`repeatedcs')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
@@ -409,7 +386,7 @@ program define _eventols, rclass
 	*save a temporary copy of the event-time dummy corresponding to the normalized period before dropping that dummy variable
 	tempvar temp_k
 	loc absnorm=abs(`norm')
-	gen `temp_k'=_k_eq_m`absnorm' 
+	qui gen `temp_k'=_k_eq_m`absnorm' 
 	
 	* Drop variables
 	if "`savek'" == "" & "`drop'"!="nodrop" {
