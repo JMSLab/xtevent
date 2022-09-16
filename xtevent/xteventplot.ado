@@ -49,7 +49,6 @@ program define xteventplot
 	*/
 	
 	* Capture errors
-	
 	if "`=e(cmd2)'"!="xtevent" {
 		di as err "{cmd:xteventplot} only available after {cmd:xtevent}"
 		exit 301
@@ -107,8 +106,8 @@ program define xteventplot
 	
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
-	if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
-	if "`minus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
+	if "`nozeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
+	if "`nominus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
 	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
 	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
 	
@@ -570,11 +569,11 @@ program define xteventplot
 	
 	* Line at zero by default, unless supressed
 	
-	if "`zeroline'"=="nozeroline" loc zeroline ""
+	if "`nozeroline'"=="nozeroline" loc zeroline ""
 	else loc zeroline "yline(0, lpattern(dash) lstyle(refline))"
 
 	* Label for value of y at -1 by default, unless supressed
-	if "`minus1label'"=="nominus1label" loc ylab ""
+	if "`nominus1label'"=="nominus1label" loc ylab ""
 	else loc ylab "ylab(#5 0 `y1plot')"	
 
 	tw  `smgraph' `smplotopts' || `cigraph' `ciplotopts' || `cigraphsupt' `suptciplotopts' || `cmdov' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts' || `addplots'	|| `trendplot' `trendplotopts' ||,`zeroline' `options' `legend'
