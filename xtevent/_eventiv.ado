@@ -260,7 +260,42 @@ program define _eventiv, rclass
 				loc cmd "xtivreg"
 				loc ffe "fe"
 			}
-			`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+			*translate standar error specification:
+			*analyze inclusion of cluster or robust in options
+			loc cl_orig ""
+			loc rob_orig ""
+			loc cl_m= regexm("`options'","(cluster\(*[ a-zA-Z]*\))|(cl\(*[ a-zA-Z]*\))")
+			if `cl_m' loc cl_orig = regexs(0)
+			loc rob_m= regexm(" "+"`options'"+" ","(robust)|( r )")
+			if `rob_m' loc rob_orig = regexs(0)
+			*if it doesn't contain cluster and robust:
+			if `cl_m'==0 & `rob_m'==0  {
+				`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+			}
+			*if it contains either cluster or robust:
+			else{
+				*if the user already specified vce, then we cannot spepcify a second vce 
+				loc vce_orig=strmatch("`options'","*vce(*)*")
+				if `vce_orig'==1 {
+					*execute as defined by the user and expect some error 
+					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+				}
+				else{
+					loc vce_opt ""
+					loc options_wvce ""
+					*parse cluster
+					if `cl_m'==1{
+						loc cl_tr=regexr(regexr("`cl_orig'","(\()"," "),"(\))"," ")
+						loc vce_opt = "vce(`cl_tr')" //if robust is also specified, no need to add it
+					}
+					else {
+						loc vce_opt = "vce(robust)"
+					}
+					*remove cluster and/or robust from options
+					loc options_wvce=subinstr(subinstr(" "+"`options'"+" ","`cl_orig'","",1),"`rob_orig'","",1)
+					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `vce_opt' `options_wvce'
+				}
+			}
 		}
 		else {
 			loc noabsorb "" 
