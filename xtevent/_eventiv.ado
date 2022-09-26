@@ -262,38 +262,37 @@ program define _eventiv, rclass
 			}
 			*translate standar error specification:
 			*analyze inclusion of cluster or robust in options
-			loc cl_orig ""
-			loc rob_orig ""
-			loc cl_m= regexm("`options'","(cluster\(*[ a-zA-Z]*\))|(cl\(*[ a-zA-Z]*\))")
-			if `cl_m' loc cl_orig = regexs(0)
-			loc rob_m= regexm(" "+"`options'"+" ","(robust)|( r )")
-			if `rob_m' loc rob_orig = regexs(0)
+			parse_es ,`options'
+			loc cl_orig = r(cl_orig)
+			if "`cl_orig'"=="." loc cl_orig ""
+			loc rob_orig = r(rob_orig)
+			if "`rob_orig'"=="." loc rob_orig ""
+			loc vce_orig = r(vce_orig)
+			if "`vce_orig'"=="." loc vce_orig ""
+			loc other_opts = r(other_opts)
+			if "`other_opts'"=="." loc other_opts ""
+			
 			*if it doesn't contain cluster and robust:
-			if `cl_m'==0 & `rob_m'==0  {
+			if "`cl_orig'"=="" & "`rob_orig'"=="" {
 				`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
 			}
 			*if it contains either cluster or robust:
 			else{
-				*if the user already specified vce, then we cannot spepcify a second vce 
-				loc vce_orig=strmatch("`options'","*vce(*)*")
-				if `vce_orig'==1 {
+				*if the user already specified vce, then we cannot specify a second vce 
+				if "`vce_orig'"!="" {
 					*execute as defined by the user and expect some error 
 					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
 				}
 				else{
 					loc vce_opt ""
-					loc options_wvce ""
 					*parse cluster
-					if `cl_m'==1{
-						loc cl_tr=regexr(regexr("`cl_orig'","(\()"," "),"(\))"," ")
-						loc vce_opt = "vce(`cl_tr')" //if robust is also specified, no need to add it
+					if "`cl_orig'"!=""{
+						loc vce_opt = "vce(cluster `cl_orig')" //if robust is also specified, no need to add it
 					}
 					else {
 						loc vce_opt = "vce(robust)"
 					}
-					*remove cluster and/or robust from options
-					loc options_wvce=subinstr(subinstr(" "+"`options'"+" ","`cl_orig'","",1),"`rob_orig'","",1)
-					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `vce_opt' `options_wvce'
+					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `vce_opt' `other_opts'
 				}
 			}
 		}
@@ -542,5 +541,23 @@ program define parsesavek, rclass
 		
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
+end	
+
+*program to parse standar error specification 
+program define parse_es, rclass
+	#d;
+	syntax [anything], 
+	[
+	CLuster(varname) 
+	Robust
+	vce(string)
+	*
+	]
+	;
+	#d cr
+	return local cl_orig "`cluster'"
+	return local rob_orig "`robust'"
+	return local vce_orig "`vce'"
+	return local other_opts "`options'"
 end	
 
