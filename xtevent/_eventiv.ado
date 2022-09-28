@@ -264,8 +264,8 @@ program define _eventiv, rclass
 			*analyze inclusion of cluster or robust in options
 			parse_es ,`options'
 			foreach orig in cl_orig rob_orig vce_orig other_opts{
-			loc `orig' = r(`orig')
-			if "``orig''"=="." loc `orig' ""
+				loc `orig' = r(`orig')
+				if "``orig''"=="." loc `orig' ""
 			}
 			
 			*if it doesn't contain cluster and robust:
