@@ -260,7 +260,37 @@ program define _eventiv, rclass
 				loc cmd "xtivreg"
 				loc ffe "fe"
 			}
-			`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+			*translate standar error specification:
+			*analyze inclusion of cluster or robust in options
+			parse_es ,`options'
+			foreach orig in cl_orig rob_orig vce_orig other_opts{
+				loc `orig' = r(`orig')
+				if "``orig''"=="." loc `orig' ""
+			}
+			
+			*if it doesn't contain cluster and robust:
+			if "`cl_orig'"=="" & "`rob_orig'"=="" {
+				`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+			}
+			*if it contains either cluster or robust:
+			else{
+				*if the user already specified vce, then we cannot specify a second vce 
+				if "`vce_orig'"!="" {
+					*execute as defined by the user and expect some error 
+					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
+				}
+				else{
+					loc vce_opt ""
+					*parse cluster
+					if "`cl_orig'"!=""{
+						loc vce_opt = "vce(cluster `cl_orig')" //if robust is also specified, no need to add it
+					}
+					else {
+						loc vce_opt = "vce(robust)"
+					}
+					`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `vce_opt' `other_opts'
+				}
+			}
 		}
 		else {
 			loc noabsorb "" 
@@ -507,5 +537,23 @@ program define parsesavek, rclass
 		
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
+end	
+
+*program to parse standar error specification 
+program define parse_es, rclass
+	#d;
+	syntax [anything], 
+	[
+	CLuster(varname) 
+	Robust
+	vce(string)
+	*
+	]
+	;
+	#d cr
+	return local cl_orig "`cluster'"
+	return local rob_orig "`robust'"
+	return local vce_orig "`vce'"
+	return local other_opts "`options'"
 end	
 
