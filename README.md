@@ -15,7 +15,7 @@ Stata package `xtevent` estimates linear panel event-study models.
 
 ### Updates
 
-* **Version 2.2.0 (12aug2022)**:
+* **Version 2.2.0 (29sep2022)**:
     - Adds `noestimate` option to generate event-time dummies without estimating the regression.
     - Fixed bugs present in xtevent 2.1.1.    
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.2.0)  for the complete update list.
