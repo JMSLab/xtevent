@@ -263,14 +263,10 @@ program define _eventiv, rclass
 			*translate standar error specification:
 			*analyze inclusion of cluster or robust in options
 			parse_es ,`options'
-			loc cl_orig = r(cl_orig)
-			if "`cl_orig'"=="." loc cl_orig ""
-			loc rob_orig = r(rob_orig)
-			if "`rob_orig'"=="." loc rob_orig ""
-			loc vce_orig = r(vce_orig)
-			if "`vce_orig'"=="." loc vce_orig ""
-			loc other_opts = r(other_opts)
-			if "`other_opts'"=="." loc other_opts ""
+			foreach orig in cl_orig rob_orig vce_orig other_opts{
+			loc `orig' = r(`orig')
+			if "``orig''"=="." loc `orig' ""
+			}
 			
 			*if it doesn't contain cluster and robust:
 			if "`cl_orig'"=="" & "`rob_orig'"=="" {
