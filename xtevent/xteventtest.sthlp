@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2.1.1 Aug 12 2022}{...}
+{* *! version 2.2.0 Sep 29 2022}{...}
 {cmd:help xteventtest}
 {hline}
 
