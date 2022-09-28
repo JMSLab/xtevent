@@ -9,11 +9,17 @@ Stata package `xtevent` estimates linear panel event-study models.
 `xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
-- Last version: 2.1.1 (12aug2022)
+- Last version: 2.2.0 (29sep2022)
 - Current SSC version: 2.1.0 (1aug2022)
 -----------
 
 ### Updates
+
+* **Version 2.2.0 (12aug2022)**:
+    - Adds `noestimate` option to generate event-time dummies without estimating the regression.
+    - Fixed bugs present in xtevent 2.1.1.    
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.2.0)  for the complete update list.
+
 * **Version 2.1.1 (12aug2022)**:
     - Fixed bugs present in xtevent 2.1.0.
     - Updates in the help files and other documentation.
@@ -84,7 +90,7 @@ help xtevent
 
 ### Examples
 
-Using xtevent 2.1.1
+Using xtevent 2.2.0
 #### xtevent
 ```stata
 *setup
