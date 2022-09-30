@@ -236,11 +236,13 @@ program define _eventiv, rclass
 	* Check that the iv normalization works
 
 	foreach v in `leadivs' `varivs' {
-		qui _regress `v' `included' [`weight'`exp'] if `touse', absorb(`i')
-		if e(r2)==1 {
+		qui _rmcoll `v' `included' if `touse'
+		loc tocheckcoll=r(varlist)
+		loc iscoll =strmatch("`tocheckcoll'","*o.*")
+		if `iscoll'==1 {
 			di as err "Instrument is collinear with the included event-time dummies. You may have generated leads of the policy variable and included them in the proxyiv option instead of specifying the lead numbers."
 			exit 301
-		}	
+		}
 	}
 	
 	if "`te'" == "note" loc tte ""
