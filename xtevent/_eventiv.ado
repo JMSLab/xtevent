@@ -234,14 +234,16 @@ program define _eventiv, rclass
 	loc komit: list uniq komit	
 	
 	* Check that the iv normalization works
-
+	
 	foreach v in `leadivs' `varivs' {
-		qui _rmcoll `v' `included' if `touse'
-		loc tocheckcoll=r(varlist)
-		loc iscoll =strmatch("`tocheckcoll'","*o.*")
-		if `iscoll'==1 {
-			di as err "Instrument is collinear with the included event-time dummies. You may have generated leads of the policy variable and included them in the proxyiv option instead of specifying the lead numbers."
-			exit 301
+		foreach evtd in `included'{
+			qui _rmcoll `v' `evtd' if `touse'
+			loc tocheckcoll=r(varlist)
+			loc iscoll =strmatch("`tocheckcoll'","*o.*")
+			if `iscoll'==1 {
+				di as err "Instrument {bf:`v'} is collinear with the included event-time dummy {bf:`evtd'}. You may have generated leads of the policy variable and included them in the proxyiv option instead of specifying the lead numbers."
+				exit 301
+			}
 		}
 	}
 	
