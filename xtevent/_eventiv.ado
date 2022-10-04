@@ -234,13 +234,13 @@ program define _eventiv, rclass
 	loc komit: list uniq komit	
 	
 	* Check that the iv normalization works
-
+	
 	foreach v in `leadivs' `varivs' {
-		qui _regress `v' `included' [`weight'`exp'] if `touse', absorb(`i')
-		if e(r2)==1 {
-			di as err "Instrument is collinear with the included event-time dummies. You may have generated leads of the policy variable and included them in the proxyiv option instead of specifying the lead numbers."
+		cap _rmdcoll `v' `included' if `touse'
+		if _rc {
+			di as err "Instrument {bf:`v'} is collinear with the included event-time dummies. You may have generated leads of the policy variable and included them in the proxyiv option instead of specifying the lead numbers."
 			exit 301
-		}	
+		}
 	}
 	
 	if "`te'" == "note" loc tte ""
