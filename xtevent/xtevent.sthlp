@@ -229,30 +229,32 @@ that two-way clustering is allowed with {help reghdfe}.
 {hline}
 {pstd}Setup{p_end}
 {phang2}{cmd:. {stata webuse nlswork}}{p_end}
-{phang2}{cmd:. {stata xtset idcode year}}{p_end}
+{pstd}year variable has many missing observations.{p_end}
+{pstd}Create a time variable that ignores these gaps.{p_end}
+{phang2}{cmd:. {stata "by idcode (year): gen time=_n"}}{p_end}
+{phang2}{cmd:. {stata xtset idcode time}}{p_end}
 
 {hline}
-{pstd}Basic event study with clustered standard errors.
-Impute policy variable without verifying staggered adoption. {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}}
+{pstd}Basic event study with clustered standard errors. {p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode)}}
 {p_end}
 
 {pstd}Omit fixed effects{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) nofe}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) nofe}}
 {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) nofe note}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) nofe note}}
 {p_end}
 
 {pstd}Save event-time dummies without estimating the model{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) savek(a, noe)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) savek(a, noe)}}
 {p_end}
 
 {pstd}Change normalization, asymmetric window{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) cluster(idcode) impute(nuchange) w(-3 1) norm(-2)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) cluster(idcode) w(-3 1) norm(-2)}}
 {p_end}
 
 {pstd}Adjust the pre-trend by estimating a linear trend by GMM {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(2) cluster(idcode) impute(nuchange) trend(-2, method(gmm))}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(2) cluster(idcode) trend(-2, method(gmm))}}
 {p_end}
 
 {pstd}Impute outer and inner missing values in the policy variable verifying staggered adoption:{p_end}
@@ -260,19 +262,19 @@ Impute policy variable without verifying staggered adoption. {p_end}
 First, generate a policy variable that follows staggered-adoption.
 {p_end}
 {phang2}
-{cmd:. {stata "by idcode (year): egen maxval= max(union)"}}
+{cmd:. {stata "by idcode (time): egen maxval= max(union)"}}
 {p_end}
 {phang2}
-{cmd:. {stata "by idcode (year): gen union2=sum(union) if !missing(union)"}}
+{cmd:. {stata "by idcode (time): gen union2=sum(union) if !missing(union)"}}
 {p_end}
 {phang2}
 {cmd:. {stata replace union2=1 if union2>1 & !missing(union2)}}
 {p_end}
 {phang2}
-{cmd:. {stata "by idcode (year): egen pmean=mean(union2)"}}
+{cmd:. {stata "by idcode (time): egen pmean=mean(union2)"}}
 {p_end}
 {phang2}
-{cmd:. {stata "by idcode (year): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)"}}
+{cmd:. {stata "by idcode (time): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)"}}
 {p_end}
 {pstd}
 Impute the policy variable that follows staggered-adoption and 
@@ -290,15 +292,15 @@ Compare the imputed and original values for a unit
 {hline}
 
 {pstd}FHS estimator with proxy variables{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work)}}
 {p_end}
 
 {pstd}Additional lags and proxys{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work hours) proxyiv(1 2)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work hours) proxyiv(1 2)}}
 {p_end}
 
 {pstd}{help reghdfe} and two-way clustering {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe proxy(wks_work)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode year) reghdfe proxy(wks_work)}}
 {p_end}
 
 
