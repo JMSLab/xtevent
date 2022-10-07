@@ -475,7 +475,6 @@ program define _eventiv, rclass
 		*mat `deltax' = `bb'[1,${names}]
 		* mat `Vdeltax' = `VV'[${names},${names}]
 		* Scaling factor
-		*in case proxyiv contains only variable names, set the reference period = -1 for the computation of the scaling factor 
 		if "`instype'"=="varlist" loc ivnormcomma = "`=`norm0'-1'"
 		else loc ivnormcomma = strtrim("`ivnorm'")
 		loc ivnorms : list sizeof ivnormcomma
