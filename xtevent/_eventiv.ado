@@ -154,7 +154,6 @@ program define _eventiv, rclass
 		
 	* Count normalizations and set omitted coefs for plot accordingly
 	* Need one more normalization per IV
-	
 	loc komit ""
 	loc norm0 "`norm'"
 
@@ -171,7 +170,10 @@ program define _eventiv, rclass
 		foreach v in `proxyiv_numbers' {
 			cap confirm integer number `v'
 			if !_rc {
-				if (`v'==1 | `v'==2) & `norm'==-1 loc ivnorm "`ivnorm' -2"				
+				if `=-`v''==`norm' {
+					loc ivnorm "`ivnorm' `=-`v'-1'"
+					di as txt _n "A lead order and the normalized coefficient had the same value. The lead order has been changed from `v' to `=`v'+1'"
+					}
 				else loc ivnorm "`ivnorm' -`v'"		
 			}
 			else {
@@ -473,7 +475,9 @@ program define _eventiv, rclass
 		*mat `deltax' = `bb'[1,${names}]
 		* mat `Vdeltax' = `VV'[${names},${names}]
 		* Scaling factor
-		loc ivnormcomma = strtrim("`ivnorm'")
+		*in case proxyiv contains only variable names, set the reference period = -1 for the computation of the scaling factor 
+		if "`instype'"=="varlist" loc ivnormcomma = "`=`norm0'-1'"
+		else loc ivnormcomma = strtrim("`ivnorm'")
 		loc ivnorms : list sizeof ivnormcomma
 		loc ivnormcomma : subinstr local ivnormcomma " " ",", all
 		if `ivnorms'>1 loc scfactlead = -max(`ivnormcomma')
