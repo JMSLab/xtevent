@@ -157,11 +157,18 @@ program define _eventiv, rclass
 	
 	loc komit ""
 	loc norm0 "`norm'"
+
+	*create an instrument list of only numbers  
+	loc proxyiv_numbers ""
+	foreach v in `proxyiv' {
+		cap confirm number `v'
+		if !_rc loc proxyiv_numbers "`proxyiv_numbers' `v'"
+	}
 	
 	* Set normalizations in case these are numbers, so we are using leads of delta z
 	loc ivnorm ""
 	if "`instype'"=="numlist" | "`instype'"=="mixed" {
-		foreach v in `proxyiv' {
+		foreach v in `proxyiv_numbers' {
 			cap confirm integer number `v'
 			if !_rc {
 				if (`v'==1 | `v'==2) & `norm'==-1 loc ivnorm "`ivnorm' -2"				
