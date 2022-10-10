@@ -267,7 +267,10 @@ program define _eventiv, rclass
 				loc `orig' = r(`orig')
 				if "``orig''"=="." loc `orig' ""
 			}
-			
+			*if xtivreg, warn the user about robust estandar errors equivalent to vce(cluster panelvar)
+			if "`cmd'"=="xtivreg" & (("`vce_orig'"=="robust" | "`vce_orig'"=="r") | "`rob_orig'"!=""){
+				di as text _n "You specified to compute robust estandar errors and the underlying estimation command is {bf:xtivreg}. Estandar errors will be equivalent as specifying {bf:vce(cluster panelvar)} option."
+			}
 			*if it doesn't contain cluster and robust:
 			if "`cl_orig'"=="" & "`rob_orig'"=="" {
 				`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
