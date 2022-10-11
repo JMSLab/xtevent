@@ -163,9 +163,12 @@ program define _eventols, rclass
 	else loc indepvars ""
 	
 	
-	************ SA ***********
+	***************** SA *******************
 	loc sun_abraham ""
-	if "`cohort'"!="" & "`control_cohort'"!="" loc sun_abraham "sun_abraham"
+	if "`cohort'"!="" & "`control_cohort'"!="" {
+		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated using method that is robust to treatment effects heterogeneity."
+		loc sun_abraham "sun_abraham"
+	}
 	if "`sun_abraham'"!=""{
 		* Parse the dependent variable
 		local lhs = "`depenvar'"
@@ -187,7 +190,7 @@ program define _eventols, rclass
 		local nrel_times: word count `nvarlist' 
 		local ncohort: word count `cohort_list'  
 		
-		************ step 2 
+		**** step 2 
 		* Initiate empty matrix for weights 
 		tempname bb ff_w
 		
@@ -222,7 +225,7 @@ program define _eventols, rclass
 		// But here estimates are on the panel, which is why it is 1/NT instead
 		// Should cancel out for balanced panel, but unbalanced panel is a TODO
 		
-		******************** step 1 
+		**** step 1 
 		* Prepare interaction terms for the interacted regression
 		local cohort_rel_varlist "" // hold the temp varnames	
 		foreach l of varlist `nvarlist' { 
@@ -239,9 +242,7 @@ program define _eventols, rclass
 					local bcohort_rel_varlist "`bcohort_rel_varlist' `l'_x_`yy'" 
 			}
 		}
-		
-		* Estimate the interacted regression
-		tempname evt_bb b evt_VV V
+		* Estimate the interacted regression as an xtevent regression:
 	}
 	
 	
@@ -254,7 +255,7 @@ program define _eventols, rclass
 		else loc te "i.`t'"
 		
 		* If gmm trend run regression before adjustment quietly
-		if "`methodt'"=="gmm" loc q "quietly" 
+		if ("`methodt'"=="gmm" | "`sun_abraham'"!="") loc q "quietly" 
 		else loc q ""
 			
 		if "`reghdfe'"=="" {
@@ -266,12 +267,12 @@ program define _eventols, rclass
 				loc abs "absorb(`i')"
 				loc cmd "areg"
 			}
-			if "`sun_abraham'"==""{
-				`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
-			}
-			else {
+			
+			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
+			estimates store reg_base
+			if "`sun_abraham'"!=""{
 				qui `cmd' `depenvar' `cohort_rel_varlist' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
-			}
+			}			
 		}
 		else {
 			loc cmd "reghdfe"
@@ -309,26 +310,26 @@ program define _eventols, rclass
 			else {
 				loc abs "absorb(`i' `t' `addabsorb')"	
 			}
-			if "`sun_abraham'"==""{
-				`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-			}
-			else{
+			`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			estimates store reg_base
+			if "`sun_abraham'"!=""{
 				qui reghdfe `depenvar' `cohort_rel_varlist' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 			}
 		}
 		
+	*** SA: combine cohort shares and output from the interacted regression 	
 	if "`sun_abraham'"!=""{	
+		tempname evt_bb b evt_VV V
 		local bcohort_rel_varlist "`bcohort_rel_varlist' `covariates'" // TODO: does not catch the constant term if reghdfe includes a constant. 
 		mat `b' = e(b) 
-		*user: get the variance of the delta estimates
 		mata st_matrix("`V'",diagonal(st_matrix("e(V)"))') 
 		* Convert the delta estimate vector to a matrix where each column is a relative time
 		local end = 0
 		forval i = 1/`nrel_times' { 
-			local start = `end'+1 //"end" starts in 0
+			local start = `end'+1 
 			local end = `start'+`ncohort'-1
-			mat `b'`i' = `b'[.,`start'..`end'] //dim(e(b))=1xn 
-			mat `evt_bb'  = nullmat(`evt_bb') \ `b'`i' //it will stack those row-vectors 
+			mat `b'`i' = `b'[.,`start'..`end']  
+			mat `evt_bb'  = nullmat(`evt_bb') \ `b'`i' 
 			mat `V'`i' = `V'[.,`start'..`end'] 
 			mat `evt_VV'  = nullmat(`evt_VV') \ `V'`i'
 
@@ -381,51 +382,34 @@ program define _eventols, rclass
 		matrix colnames `V_iw' =  `dvarlist'
 		matrix rownames `V_iw' =  `dvarlist'
 
-		matrix rownames `ff_w' =  `cohort_list'
-		matrix colnames `ff_w' =  `dvarlist'
-		matrix rownames `Sigma_ff' =  `cohort_list'
-		matrix colnames `Sigma_ff' =  `cohort_list'
+		*insert SA's estimations into base regresion
+		tempname b_sa_adj v_sa_adj
+		qui estimates restore reg_base
+		mat `b_sa_adj'=e(b)
+		mat `v_sa_adj'=e(V)
 
-		matrix colnames `evt_bb' =  `dvarlist'
-		matrix rownames `evt_bb' =  `cohort_list'
-		matrix colnames `evt_VV' =  `dvarlist'
-		matrix rownames `evt_VV' =  `cohort_list'
-		
-		*mat li `b_iw'
-		*mat li `V_iw'
-		
-		*mat li `evt_bb'
-		*mat li `evt_VV'
-		/*
-		ereturn matrix b_interact `evt_bb' //cohort-relative time effects
-		ereturn matrix V_interact `evt_VV'
-		ereturn matrix b_iw  `b_iw' //SA's estimator
-		ereturn matrix V_iw `V_iw'
-		ereturn matrix ff_w `ff_w' //cohort shares 
-	// 	ereturn matrix Sigma_l `Sigma_l'
-		ereturn matrix Sigma_ff `Sigma_ff'
-		*/
-	return local title "IW estimates for dynamic effects"
-	* Display results	
-	_coef_table_header
-	_coef_table , bmatrix(`b_iw') vmatrix(`V_iw_diag')
+		loc deltanames : colnames(`b_iw')
+		foreach i in `deltanames' {
+			mat `b_sa_adj'[1,colnumb("`b_sa_adj'","`i'")]=`b_iw'[1,"`i'"]
+			foreach j in `deltanames' {
+			mat `v_sa_adj'[rownumb("`v_sa_adj'","`j'"),colnumb("`v_sa_adj'","`i'")]= `V_iw'["`j'","`i'"]	
+			}
+		}
+
+		repostdelta `b_sa_adj' `v_sa_adj'
+		* Display results	
+		if "`methodt'"=="gmm" loc qq "quietly" 
+		`qq' _coef_table_header
+		`qq' _coef_table , bmatrix(e(b)) vmatrix(e(V))
 	}
-		
-		
 		
 		
 		* Return coefficients and variance matrix of the delta k estimates separately
 		mat `bb'=e(b)
 		mat `VV'=e(V)
-		if "`sun_abraham'"==""{
-			mat `delta' = `bb'[1,`names']
-			mat `Vdelta' = `VV'[`names',`names']
-		}
-		else {
-			mat `delta' = `b_iw'
-			mat `Vdelta' = `V_iw'
-		}
-		
+		mat `delta' = `bb'[1,`names']
+		mat `Vdelta' = `VV'[`names',`names']
+
 		loc df = e(df_r)
 		
 		gen byte `esample' = e(sample)
@@ -595,6 +579,7 @@ program define _eventols, rclass
 	}
 	
 	*skip the rest of the program if the user indicated not to estimate
+	return local noestimate "`noestimate'"
 	if "`noestimate'"!="" exit 
 	
 	* Calculate mean before change in policy for 2nd axis in plot
@@ -742,6 +727,3 @@ program define parsesavek, rclass
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
 end	
-
-
-

@@ -43,6 +43,8 @@ program define xtevent, eclass
 	note /* No time effects */
 	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
+	cohort(varname) /* categorical variable indicating cohort */
+	control_cohort(varname) /* dummy variable indicating the control cohort */
 		
 	*/
 	]
@@ -229,6 +231,11 @@ program define xtevent, eclass
 			}
 		}
 	}
+	
+	*don't try returning matrices and macros if noestimate is specified 
+	loc noestimate = r(noestimate)
+	if "`noestimate'"=="." loc noestimate ""
+	if "`noestimate'"!="" exit 
 	
 	if `=r(flagerr)'!=1  {
 		mat delta=r(delta)
