@@ -34,7 +34,7 @@
     
 * **About the** ***impute*** **option**:
 
-    The **impute** option, available since **xtevent 2.0.0**, is intended to impute missing values in the *policyvar* following different imputation rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows the staggered adoption pattern. See [here](https://github.com/JMSLab/xtevent/blob/issue103_emphasize_impute_option/issue103/impute_option_description.md) or in the help file for a detailed explanation of the **impute** option.
+    The **impute** option, available since **xtevent 2.0.0**, is intended to impute missing values in the *policyvar* following different imputation rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows the staggered adoption pattern. See [here](https://raw.githack.com/JMSLab/xtevent/issue103_emphasize_impute_option/issue103/impute_option_description.html) or in the help file for a detailed explanation of the **impute** option.
 
     `To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use impute(stag).`
 
