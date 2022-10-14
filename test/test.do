@@ -90,6 +90,12 @@ des a_eq*, s
 des a_evtime, s
 drop a*
 
+* Test savek with suboption noestimate
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(a, noe)
+des a_eq*, s
+des a_evtime, s
+drop a*
+
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b)
 
 * Test factor variables in varlist
@@ -111,7 +117,7 @@ xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-2) plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-6) plot
 * xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-7) plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(1) plot 
-xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(5)plot 
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(5) plot 
 
 graph drop _all
 
@@ -155,6 +161,13 @@ drop z_imputed
 replace z=0.5 in 7
 xtevent y eta, policyvar(z) timevar(t) window(5) impute(instag)
 replace z=1 in 7
+
+*Difference in averages between the post and pre-period
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) diffavg
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(4) diff
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) norm(1) diff
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) norm(2) diff
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5) norm(-2) diff
 
 *Trend adjustment. Default method is GMM
 xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3)

@@ -1,4 +1,4 @@
-* xtevent.ado 2.0.0 Jun 24 2022
+* xtevent.ado 2.1.1 Aug 12 2022
 
 version 11.2
 
@@ -29,7 +29,7 @@ program define xtevent, eclass
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
 	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
-	savek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
+	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
@@ -41,7 +41,7 @@ program define xtevent, eclass
 	
 	nofe /* No fixed effects */
 	note /* No time effects */
-	kvars(string) /* Use previously generated dummies */
+	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
 		
 	*/
@@ -192,14 +192,14 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' absorb(`addabsorb') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 
 			if _rc {
 				errpostest
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
-			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' absorb(`addabsorb') `options' 		
+			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 		
 			if _rc {
 				errpostest
 			}
@@ -212,7 +212,7 @@ program define xtevent, eclass
 		di as txt _n "Plotting options ignored"
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' absorb(`addabsorb') `options' `static'
+			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `options' `static'
 			if _rc {
 				errpostest
 			}
@@ -221,14 +221,39 @@ program define xtevent, eclass
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			
-			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' absorb(`addabsorb') `options' `static'
+			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `options' `static'
 			if _rc {
 				errpostest
 			}
 		}
 	}
-	
+	 
+			
 	if `=r(flagerr)'!=1  {
+	
+		loc noestimate=r(noestimate)
+		if "`noestimate'"=="." loc noestimate ""
+		if "`noestimate'"!="" {
+			loc savek = r(savek)
+			*clear previous estimates, so it will not mix them with the new ones
+			ereturn clear 
+		}
+		
+		ereturn scalar lwindow= `lwindow'
+		ereturn scalar rwindow=`rwindow'
+		if "`pre'"!="" {
+			ereturn scalar pre = `pre'
+			ereturn scalar post = `post'
+			ereturn scalar overidpre = `overidpre'
+			ereturn scalar overidpost = `overidpost'
+		}
+		ereturn local cmdline `"xtevent `0'"' /*"*/
+		ereturn local cmd2 "xtevent"
+		ereturn local stub = "`savek'"
+		ereturn local noestimate = "`noestimate'"
+		*don't return the remaining if the user indicated not to estimate  
+		if "`noestimate'"!="" exit
+	
 		mat delta=r(delta)
 		mat Vdelta=r(Vdelta)
 		mat b = r(b)
@@ -255,7 +280,7 @@ program define xtevent, eclass
 		loc saveov = r(saveov)
 		if "`saveov'"=="." loc saveov ""
 		if "`saveov'"!="" {
-
+		
 			mat mattrendy = r(mattrendy)
 			mat mattrendx = r(mattrendx)
 			mat deltaov = r(deltaov)			
@@ -264,18 +289,10 @@ program define xtevent, eclass
 			ereturn matrix mattrendx = mattrendx
 			ereturn matrix deltaov = deltaov
 			ereturn matrix Vdeltaov = Vdeltaov
-			ereturn local trend = r(trend)
 		}
-		ereturn scalar lwindow= `lwindow'
-		ereturn scalar rwindow=`rwindow'
-		if "`pre'"!="" {
-			ereturn scalar pre = `pre'
-			ereturn scalar post = `post'
-			ereturn scalar overidpre = `overidpre'
-			ereturn scalar overidpost = `overidpost'
-		}
+		if "`trend'"!="" ereturn local trend = r(trend)
+		
 		ereturn local names=r(names)
-		ereturn local cmdline `"xtevent `0'"' /*"*/
 		loc cmd = r(cmd)
 		ereturn local cmd = r(cmd)
 		ereturn local df = r(df)
@@ -283,10 +300,7 @@ program define xtevent, eclass
 		ereturn local kmiss = r(kmiss)
 		ereturn local y1 = r(y1)
 		ereturn local method = r(method)
-		ereturn local cmd2 "xtevent"
 		ereturn local depvar = r(depvar)
-		
-		if "`savek'"!="" ereturn local stub="`savek'"
 	}
 	else {
 		exit 198

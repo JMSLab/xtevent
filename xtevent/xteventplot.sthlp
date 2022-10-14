@@ -1,5 +1,5 @@
 {smcl}
-{* *! version .0 Jun 24 2022}{...}
+{* *! version 2.1.1 Aug 12 2022}{...}
 {cmd:help xteventplot}
 {hline}
 
@@ -27,25 +27,26 @@
 {synopt:{opt overlay(string)}} generate overlay plots{p_end}
 {synopt:{opt y}} generate event study plot for dependent variable in IV setting{p_end}
 {synopt:{opt proxy}} generate event study plot for proxy variable in IV setting{p_end}
-{synopt:{opt l:evels(numlist)}} customize confidence levels for plot{p_end}
-{synopt:{opt smpath([type, subopt])}} smoothest path through confidence region{p_end}
+{synopt:{opt lev:els(numlist)}} customize confidence levels for plot{p_end}
+{synopt:{opt sm:path([type, subopt])}} smoothest path through confidence region{p_end}
 {synopt:{opt overidpre(integer)}} change pre-event coefficients to be tested{p_end}
 {synopt:{opt overidpost(integer)}} change post-event coefficients to be tested{p_end}
 
 {syntab:Appearance}
 {synopt: {opt noci}} omit all confidence intervals{p_end}
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
-{synopt:{opt nozeroline}} omit reference line at 0{p_end}
-{synopt:{opt nominus1label}} omit label for value of dependent variable at event-time = -2 {p_end}
+{synopt:{opt nozero:line}} omit reference line at 0{p_end}
+{synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -2 {p_end}
 {synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
 {synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
-{synopt:{opt scatterplotopts(string)}} graphics options for coefficient scatter plot{p_end}
-{synopt:{opt ciplotopts(string)}} graphics options for confidence interval plot{p_end}
-{synopt:{opt suptciplotopts(string)}} graphics options for sup-t confidence interval plot{p_end}
-{synopt:{opt staticovplotopts(string)}} graphics options for smoothest path plot{p_end}
-{synopt:{opt trendplotopts(string)}} graphics options for extrapolated trend plot{p_end}
-{synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
+{synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
+{synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
+{synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
+{synopt:{opt smplot:opts(string)}} graphics options for smoothest path plot{p_end}
+{synopt:{opt trendplot:opts(string)}} graphics options for extrapolated trend plot{p_end}
+{synopt:{opt staticovplot:opts(string)}} graphics options for the static effect overlay plot {p_end}
 {synopt:{opt textboxoption(string)}} textbox options for displaying the p-values of the pre-trend and leveling-off tests{p_end}
+{synopt:{opt addplots(string)}} plot to be overlaid on event-study plot{p_end}
 {synopt:{it: additional_options}} additional options to be passed to {cmd:twoway}{p_end}
 
 {synoptline}
@@ -170,7 +171,7 @@ the confidence region plot. These options are only active if {opt smpath} is spe
 overlay plot. These options are only active if {opt overlay(trend)} is specified.
 
 {phang}
-{opt staticovopts} specifies options to be passed to {cmd:line} for the static effect overlay
+{opt staticovplotopts} specifies options to be passed to {cmd:line} for the static effect overlay
  plot. These options are only active if {opt overlay(static)} is specified.
 
 {phang}
@@ -186,38 +187,44 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 
 {hline}
 {pstd}Setup{p_end}
-{phang2}{cmd:. webuse nlswork}{p_end}
-{phang2}{cmd:. xtset idcode year}{p_end}
+{phang2}{cmd:. {stata webuse nlswork}}{p_end}
+{phang2}{cmd:. {stata xtset idcode year}}{p_end}
 
 {hline}
-{pstd}Basic event study with clustered standard errors{p_end}
-{phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode)}
+
+{pstd}Add an extra effect if union equals 1 {p_end}
+{phang2}{cmd:. {stata gen ln_wage2=ln_wage}}{p_end}
+{phang2}{cmd:. {stata replace ln_wage2=ln_wage2+0.5 if union==1}}{p_end}
+
+{pstd}Basic event study with clustered standard errors.
+Impute policy variable without verifying staggered adoption.{p_end}
+{phang2}{cmd:. {stata xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}}
 {p_end}
 
 {pstd}Plot{p_end}
-{phang2}{cmd:. xteventplot}{p_end}
+{phang2}{cmd:. {stata xteventplot}}{p_end}
 
 {pstd}Supress confidence intervals or sup-t confidence intervals{p_end}
-{phang2}{cmd:. xteventplot, noci}{p_end}
-{phang2}{cmd:. xteventplot, nosupt}{p_end}
+{phang2}{cmd:. {stata xteventplot, noci}}{p_end}
+{phang2}{cmd:. {stata xteventplot, nosupt}}{p_end}
 
 {pstd}Plot smoothest path in confidence region{p_end}
-{phang2}{cmd:. xteventplot, smpath(line)}{p_end}
-{phang2}{cmd:. xteventplot, smpath(line, technique(nr 10 bfgs 10))}{p_end}
+{phang2}{cmd:. {stata xteventplot, smpath(line)}}{p_end}
+{phang2}{cmd:. {stata xteventplot, smpath(line, technique(nr 10 bfgs 10))}}{p_end}
 
 {pstd}Adjust textbox options for the p-values of the pre-trend and leveling-off tests{p_end}
-{phang2}{cmd:. xteventplot, textboxoption(color(blue) size(large))}{p_end}
+{phang2}{cmd:. {stata xteventplot, textboxoption(color(blue) size(large))}}{p_end}
 
 {hline}
 
 {pstd}FHS estimator with proxy variables{p_end}
-{phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work)}{p_end}
+{phang2}{cmd:. {stata xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work)}}{p_end}
 
 {pstd}Dependent variable, proxy variable, and overlay plots{p_end}
-{phang2}{cmd:. xteventplot, y}{p_end}
-{phang2}{cmd:. xteventplot, proxy}{p_end}
-{phang2}{cmd:. xteventplot, overlay(iv)}{p_end}
-{phang2}{cmd:. xteventplot}{p_end}
+{phang2}{cmd:. {stata xteventplot, y}}{p_end}
+{phang2}{cmd:. {stata xteventplot, proxy}}{p_end}
+{phang2}{cmd:. {stata xteventplot, overlay(iv)}}{p_end}
+{phang2}{cmd:. {stata xteventplot}}{p_end}
 
 {title:Authors}
 
@@ -234,4 +241,6 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
            
 {pstd}For support and to report bugs please email Jorge Pérez Pérez, Banco de México.{break} 
        jorgepp@banxico.org.mx  
+
+{pstd}{cmd:xtevent} can also be found on {browse "https://github.com/JMSLab/xtevent":Github}.
 	   

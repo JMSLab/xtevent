@@ -1,4 +1,4 @@
-* xteventplot.ado 2.00 Jun 24 2022
+* xteventplot.ado 2.1.1 Aug 12 2022
 
 version 11.2
 
@@ -9,24 +9,24 @@ program define xteventplot
 	[	
 	noci /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
-	nozeroline /* Supress line at 0 */
-	nominus1label /* Supress label for value of dependent variable at event time = -1 */
-	noprepval /* Supress p-vale for pre-trends test */
-	nopostpval /* Supress p-vale for leveling-off test */
+	NOZEROline /* Supress line at 0 */
+	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
+	noprepval /* Supress p-value for pre-trends test */
+	nopostpval /* Supress p-value for leveling-off test */
 	suptreps(integer 1000) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
 	proxy /* Plot for proxy variable in IV setting */	
-	levels(numlist min=1 max=5) /* Levels for multiple CIs */
-	smpath(string) /* Options for smoothest path through confidence region */
+	LEVels(numlist min=1 max=5) /* Levels for multiple CIs */
+	SMpath(string) /* Options for smoothest path through confidence region */
 	overidpre(numlist >0 integer min=1 max=1) /* Test the leftmost coefficients as overid restriction */
 	overidpost(numlist >1 integer min=1 max=1) /* Test the rightmost coefficients as overid restriction */
-	scatterplotopts(string)
-	ciplotopts(string)
-	suptciplotopts(string)
-	smplotopts(string)
-	trendplotopts(string)
-	staticovplotopts(string)
+	SCATTERPLOTopts(string)
+	CIPLOTopts(string)
+	SUPTCIPLOTopts(string)
+	SMPLOTopts(string)
+	TRENDPLOTopts(string)
+	STATICOVPLOTopts(string)
 	addplots(string asis) /* Plots to overlay on coefficients scatter */
 	textboxoption(string) /* Option for adjusting text size of the test results */
 	*
@@ -49,7 +49,6 @@ program define xteventplot
 	*/
 	
 	* Capture errors
-	
 	if "`=e(cmd2)'"!="xtevent" {
 		di as err "{cmd:xteventplot} only available after {cmd:xtevent}"
 		exit 301
@@ -107,8 +106,8 @@ program define xteventplot
 	
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
-	if "`zeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
-	if "`minus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
+	if "`nozeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
+	if "`nominus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
 	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
 	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
 	
@@ -570,11 +569,11 @@ program define xteventplot
 	
 	* Line at zero by default, unless supressed
 	
-	if "`zeroline'"=="nozeroline" loc zeroline ""
+	if "`nozeroline'"=="nozeroline" loc zeroline ""
 	else loc zeroline "yline(0, lpattern(dash) lstyle(refline))"
 
 	* Label for value of y at -1 by default, unless supressed
-	if "`minus1label'"=="nominus1label" loc ylab ""
+	if "`nominus1label'"=="nominus1label" loc ylab ""
 	else loc ylab "ylab(#5 0 `y1plot')"	
 
 	tw  `smgraph' `smplotopts' || `cigraph' `ciplotopts' || `cigraphsupt' `suptciplotopts' || `cmdov' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts' || `addplots'	|| `trendplot' `trendplotopts' ||,`zeroline' `options' `legend'

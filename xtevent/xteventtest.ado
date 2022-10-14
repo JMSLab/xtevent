@@ -1,4 +1,4 @@
-* xteventtest.ado 2.00 Jun 24 2022
+* xteventtest.ado 2.1.1 Aug 12 2022
 
 version 11.2
 
@@ -9,9 +9,9 @@ program define xteventtest, rclass
 	[
 	coefs(numlist) /*Coefficients to test */
 	cumul /* Test sum of coefficients */
-	linpretrend /* Test for linear pre-trend */
-	constanteff /* Test for constant effects */
-	trend(numlist <0 integer min=1 max=1) /* Test significance of a linear trend from time a*/
+	LINpretrend /* Test for linear pre-trend */
+	CONSTanteff /* Test for constant effects */
+	TRend(numlist <0 integer min=1 max=1) /* Test significance of a linear trend from time a*/
 	overidpre(numlist >0 integer min=1 max=1) /* Test the leftmost coefficients as overid restriction */
 	overidpost(numlist >1 integer min=1 max=1) /* Test the rightmost coefficients as overid restriction */
 	overid /* Test overid restrictions from xtevent command */
