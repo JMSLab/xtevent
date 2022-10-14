@@ -157,11 +157,13 @@ program define _eventiv, rclass
 	loc komit ""
 	loc norm0 "`norm'"
 
-	*create an instrument list of only numbers  
+	*split proxyiv into two lists: only numbers or only varnames 
 	loc proxyiv_numbers ""
+	loc proxyiv_vrnames ""
 	foreach v in `proxyiv' {
 		cap confirm number `v'
 		if !_rc loc proxyiv_numbers "`proxyiv_numbers' `v'"
+		else loc proxyiv_vrnames "`proxyiv_vrnames' `v'"
 	}
 	
 	* Set normalizations in case these are numbers, so we are using leads of delta z
@@ -172,7 +174,7 @@ program define _eventiv, rclass
 			if !_rc {
 				if `=-`v''==`norm' {
 					loc ivnorm "`ivnorm' `=-`v'-1'"
-					di as txt _n "A lead order and the normalized coefficient had the same value. The lead order has been changed from `v' to `=`v'+1'"
+					di as txt _n "A lead order and the normalized coefficient had the same value. The corresponding omitted event-time dummy has been changed from `=-`v'' to `=-`v'-1'"
 					}
 				else loc ivnorm "`ivnorm' -`v'"		
 			}
@@ -181,6 +183,27 @@ program define _eventiv, rclass
 				exit 301
 			}
 		}
+	}
+	
+	*set normalizations for external instruments 
+	*get the pool of available coefficients for normalization
+	loc available ""
+	forvalues l=1/`=-`lwindow'+1'{
+		loc l = -`l'
+		loc available "`available' `l'"
+	}
+	loc available: list available - norm 
+	foreach var of loc proxyiv_vrnames{
+		loc available: list available - ivnorm
+		loc lenav: word count(`available')
+		if `lenav'==1 {
+			di as err "Number of instruments specified in {bf:proxyiv} reached the maximum imposed by the number of pre-event coefficients you specified."
+			exit 301
+		}
+		*normalize one extra coefficient per external instrument 
+		loc avcomma : subinstr loc available " " ",", all
+		loc avmax = max(`avcomma') //choose the coefficient closest to zero 
+		loc ivnorm "`ivnorm' `avmax'" // add it to ivnorm 
 	}
 	
 	* Normalize one more lag if normalization = number of proxys
@@ -475,8 +498,9 @@ program define _eventiv, rclass
 		*mat `deltax' = `bb'[1,${names}]
 		* mat `Vdeltax' = `VV'[${names},${names}]
 		* Scaling factor
-		if "`instype'"=="varlist" loc ivnormcomma = "`=`norm0'-1'"
-		else loc ivnormcomma = strtrim("`ivnorm'")
+		*if "`instype'"=="varlist" loc ivnormcomma = "`=`norm0'-1'"
+		*else loc ivnormcomma = strtrim("`ivnorm'")
+		loc ivnormcomma = strtrim("`ivnorm'")
 		loc ivnorms : list sizeof ivnormcomma
 		loc ivnormcomma : subinstr local ivnormcomma " " ",", all
 		if `ivnorms'>1 loc scfactlead = -max(`ivnormcomma')
