@@ -548,13 +548,13 @@ F test of absorbed indicators: F(2693, 20164) = 10.079        Prob > F = 0.000
 </pre>
 <h2 id="how-the-imputation-works-on-the-event-time-dummies">How the
 imputation works on the event-time dummies</h2>
-<p>Finally, let’s see how the imputation affects the event-time dummies.
-First, we differentiate the <em>policyvar</em>.</p>
+<p>Finally, let’s see how the imputation works on the event-time
+dummies. First, we differentiate the <em>policyvar</em>.</p>
 <pre class='stata'>. gen union2_d=d.union2
 (4,717 missing values generated)
 </pre>
 <p>Estimate an event-study without imputing the <em>policyvar</em> and
-save the event-study dummies by the <em>savek</em> option.</p>
+save the event-time dummies by the <em>savek</em> option.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >     policyvar(union2) window(3) savek(vv)
 

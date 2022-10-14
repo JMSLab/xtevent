@@ -72,11 +72,11 @@ Compare the original *policyvar* and the imputed *policyvar* for unit 2.
 
 ## How the imputation works on the event-time dummies 
 
-Finally, let's see how the imputation affects the event-time dummies. First, we differentiate the *policyvar*. 
+Finally, let's see how the imputation works on the event-time dummies. First, we differentiate the *policyvar*. 
 
 	gen union2_d=d.union2
 	
-Estimate an event-study without imputing the *policyvar* and save the event-study dummies by the *savek* option.
+Estimate an event-study without imputing the *policyvar* and save the event-time dummies by the *savek* option.
 
 	xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 		policyvar(union2) window(3) savek(vv)
