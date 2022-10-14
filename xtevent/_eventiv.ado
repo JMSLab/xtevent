@@ -197,7 +197,7 @@ program define _eventiv, rclass
 		loc available: list available - ivnorm
 		loc lenav: word count(`available')
 		if `lenav'==1 {
-			di as err "Number of instruments specified in {bf:proxyiv} reached the maximum imposed by the number of pre-event coefficients you specified."
+			di as err "Number of instruments specified in {bf:proxyiv} reached the maximum imposed by the number of pre-event periods."
 			exit 301
 		}
 		*normalize one extra coefficient per external instrument 
@@ -498,8 +498,6 @@ program define _eventiv, rclass
 		*mat `deltax' = `bb'[1,${names}]
 		* mat `Vdeltax' = `VV'[${names},${names}]
 		* Scaling factor
-		*if "`instype'"=="varlist" loc ivnormcomma = "`=`norm0'-1'"
-		*else loc ivnormcomma = strtrim("`ivnorm'")
 		loc ivnormcomma = strtrim("`ivnorm'")
 		loc ivnorms : list sizeof ivnormcomma
 		loc ivnormcomma : subinstr local ivnormcomma " " ",", all
