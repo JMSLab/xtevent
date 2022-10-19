@@ -45,7 +45,7 @@ program define xtevent, eclass
 	impute(string) /* impute policyvar */
 	cohort(varname) /* categorical variable indicating cohort */
 	control_cohort(varname) /* dummy variable indicating the control cohort */
-		
+	SAVEINTeract(string) /* add cohort-relative time interactions to the dataset*/ 
 	*/
 	]
 	;
@@ -259,6 +259,18 @@ program define xtevent, eclass
 			ereturn matrix Vdeltax = Vdeltax
 			if `=r(x1)'!=. ereturn local x1 = r(x1)
 			
+		}
+		loc sun_abraham = r(sun_abraham)
+		if "`sun_abraham'"=="." loc sun_abraham ""
+		if "`sun_abraham'"!="" {
+			mat b_interact = r(b_interact)
+			mat V_interact = r(V_interact)
+			mat ff_w = r(ff_w)
+			mat Sigma_ff = r(Sigma_ff)
+			ereturn matrix b_interact = b_interact
+			ereturn matrix V_interact = V_interact
+			ereturn matrix ff_w = ff_w
+			ereturn matrix Sigma_ff = Sigma_ff
 		}
 		
 		loc saveov = r(saveov)

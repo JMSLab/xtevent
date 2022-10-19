@@ -24,6 +24,7 @@ program define _eventols, rclass
 	DIFFavg /* Obtain regular DiD estimate implied by the model */
 	cohort(varname) /* categorical variable indicating cohort */
 	control_cohort(varname) /* dummy variable indicating the control cohort */
+	SAVEINTeract(string) /* add cohort-relative time interactions to the dataset*/ 
 	*
 	]
 	;
@@ -184,7 +185,7 @@ program define _eventols, rclass
 			qui replace `n`l'' = 0 if  `control_cohort' == 1 
 			local nvarlist "`nvarlist' `n`l''" 
 		}	
-		
+
 		* Get cohort count  and count of relative time
 		qui levelsof `cohort' if  `control_cohort' == 0, local(cohort_list) 
 		local nrel_times: word count `nvarlist' 
@@ -226,14 +227,21 @@ program define _eventols, rclass
 		// Should cancel out for balanced panel, but unbalanced panel is a TODO
 		
 		**** step 1 
+		parsesaveint `saveinteract'
+		loc saveint=r(saveint)
+		if "`saveint'"=="." loc saveint ""	
 		* Prepare interaction terms for the interacted regression
 		local cohort_rel_varlist "" // hold the temp varnames	
-		foreach l of varlist `nvarlist' { 
+		foreach l of varlist `rel_time_list' { 
 			foreach yy of local cohort_list {  
-				tempvar n`l'_`yy'
-				qui gen `n`l'_`yy''  = (`cohort' == `yy') * `l' 
+				tempvar n`n`l''_`yy'
+				qui gen `n`n`l''_`yy''  = (`cohort' == `yy') * `n`l' '
 				// TODO: might be more efficient to use the c. operator if format w/o missing
-				local cohort_rel_varlist "`cohort_rel_varlist' `n`l'_`yy''"
+				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
+				if "`saveint'"!=""{
+					loc lnumber=substr("`l'",7,2)
+					qui gen `saveint'_interact_`lnumber'_c`yy' = `n`n`l''_`yy''
+				}
 			}
 		}
 		local bcohort_rel_varlist "" // hold the interaction varnames
@@ -381,6 +389,16 @@ program define _eventols, rclass
 		matrix colnames `b_iw' =  `dvarlist'
 		matrix colnames `V_iw' =  `dvarlist'
 		matrix rownames `V_iw' =  `dvarlist'
+		
+		matrix rownames `ff_w' =  `cohort_list'
+		matrix colnames `ff_w' =  `dvarlist'
+		matrix rownames `Sigma_ff' =  `cohort_list'
+		matrix colnames `Sigma_ff' =  `cohort_list'
+
+		matrix colnames `evt_bb' =  `dvarlist'
+		matrix rownames `evt_bb' =  `cohort_list'
+		matrix colnames `evt_VV' =  `dvarlist'
+		matrix rownames `evt_VV' =  `cohort_list'
 
 		*insert SA's estimations into base regresion
 		tempname b_sa_adj v_sa_adj
@@ -605,6 +623,13 @@ program define _eventols, rclass
 	return local kmiss = "`kmiss'"
 	return local y1 = `y1'
 	return local depvar = "`depvar'"
+	if "`sun_abraham'"!=""{
+		return matrix b_interact `evt_bb' //interactions: cohort-relative time effects
+		return matrix V_interact `evt_VV' // variance of the interactions
+		return matrix ff_w `ff_w' //cohort shares
+		return matrix Sigma_ff `Sigma_ff' //variance estimate of the cohort share estimators
+		return loc sun_abraham = "sun_abraham"
+	}
 	if "`saveov'"!="" {
 		return matrix deltaov = `deltaov' //user:delta coefs from unadjusted regression. excludes only norm=-1
 		return matrix Vdeltaov = `Vdeltaov'
@@ -726,4 +751,13 @@ program define parsesavek, rclass
 		
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
+end	
+
+cap program drop parsesaveint
+*program to parse savek
+program define parsesaveint, rclass
+
+	syntax [anything] , [*]
+		
+	return local saveint "`anything'"
 end	
