@@ -269,6 +269,7 @@ program define _eventiv, rclass
 			}
 			*if xtivreg, warn the user about robust estandar errors equivalent to vce(cluster panelvar)
 			if "`cmd'"=="xtivreg" & (("`vce_orig'"=="robust" | "`vce_orig'"=="r") | "`rob_orig'"!=""){
+				di as text _n "You specified to compute robust estandar errors and the underlying estimation command is {bf:xtivreg}. Estandar errors will be equivalent as specifying {bf:vce(cluster panelvar)} option."
 				di as text _n "You asked for robust standard errors and the underlying estimation command is {cmd:xtivreg}. Standard errors will be clustered by panelvar. See {help xtivreg##options_fe:xtivreg}."
 			}
 			*if it doesn't contain cluster and robust:
