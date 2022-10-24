@@ -29,7 +29,7 @@ program define xtevent, eclass
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
 	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
-	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
+	SAVek(string) /* Generate the time-to-event dummies, trend, and cohort-relative time interactions and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
@@ -44,8 +44,7 @@ program define xtevent, eclass
 	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
 	cohort(varname) /* categorical variable indicating cohort */
-	control_cohort(varname) /* dummy variable indicating the control cohort */
-	SAVEINTeract(string) /* add cohort-relative time interactions to the dataset*/ 
+	control_cohort(varname) /* dummy variable indicating the control cohort */ 
 	*/
 	]
 	;
@@ -324,6 +323,7 @@ program define cleanup
 	cap drop _ttrend
 	cap drop __k	
 	cap drop _f*
+	cap drop _interact*
 	cap _estimates clear
 end
 

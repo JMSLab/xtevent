@@ -24,7 +24,6 @@ program define _eventols, rclass
 	DIFFavg /* Obtain regular DiD estimate implied by the model */
 	cohort(varname) /* categorical variable indicating cohort */
 	control_cohort(varname) /* dummy variable indicating the control cohort */
-	SAVEINTeract(string) /* add cohort-relative time interactions to the dataset*/ 
 	*
 	]
 	;
@@ -40,12 +39,11 @@ program define _eventols, rclass
 	**** parsers
 	*parse savek 
 	if "`savek'"!="" parsesavek `savek'
-	loc savek = r(savekl)
-	if "`savek'"=="." loc savek ""
-	return loc savek = "`savek'"
-	loc noestimate = r(noestimatel)
-	if "`noestimate'"=="." loc noestimate ""
-	return loc noestimate = "`noestimate'"
+	foreach ll in savek noestimate saveint{
+		loc `ll' = r(`ll'l)
+		if "``ll''"=="." loc `ll' ""
+		return loc `ll' = "``ll''"
+	}
 	
 	*error messages for incorrect specification of noestimate 
 	if "`noestimate'"!="" & "`diffavg'"!="" {
@@ -91,7 +89,17 @@ program define _eventols, rclass
 		else loc ttrend ""
 	}
 	
-	
+	* error messages for sun_abraham
+	loc sun_abraham ""
+	if "`cohort'"!="" & "`control_cohort'"!="" {
+		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated with the Interaction Weighted Estimator."
+		loc sun_abraham "sun_abraham"
+	}
+	if "`saveint'"!="" & "`sun_abraham'"==""{
+		di as err _n "Suboption {bf:saveint} can only be specified if options {bf:cohort} and {bf:control_cohort} have been specified as well."
+		exit 301
+	}
+	*gen & kvars
 	if ("`gen'"!="" & "`kvars'"=="") |  ("`gen'"=="" & "`kvars'"!="") {
 		di as err _n "Options -nogen- and -kvars- must be specified together"
 		exit 301
@@ -162,14 +170,8 @@ program define _eventols, rclass
 		}
 	}
 	else loc indepvars ""
-	
-	
-	***************** SA *******************
-	loc sun_abraham ""
-	if "`cohort'"!="" & "`control_cohort'"!="" {
-		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated using method that is robust to treatment effects heterogeneity."
-		loc sun_abraham "sun_abraham"
-	}
+		
+	******** SA *******
 	if "`sun_abraham'"!=""{
 		* Parse the dependent variable
 		local lhs = "`depenvar'"
@@ -208,7 +210,6 @@ program define _eventols, rclass
 			qui predict double `resid`yy'', resid 
 			local nresidlist "`nresidlist' `resid`yy''" //list of variables of residuals 
 		}
-	 
 		
 		* Get VCV estimate for the cohort shares using avar
 		* In case users have not set relative time indicators to zero for control cohort
@@ -227,9 +228,6 @@ program define _eventols, rclass
 		// Should cancel out for balanced panel, but unbalanced panel is a TODO
 		
 		**** step 1 
-		parsesaveint `saveinteract'
-		loc saveint=r(saveint)
-		if "`saveint'"=="." loc saveint ""	
 		* Prepare interaction terms for the interacted regression
 		local cohort_rel_varlist "" // hold the temp varnames	
 		foreach l of varlist `rel_time_list' { 
@@ -240,7 +238,7 @@ program define _eventols, rclass
 				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
 				if "`saveint'"!=""{
 					loc lnumber=substr("`l'",7,2)
-					qui gen `saveint'_interact_`lnumber'_c`yy' = `n`n`l''_`yy''
+					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
 				}
 			}
 		}
@@ -255,7 +253,7 @@ program define _eventols, rclass
 	
 	
 	***** Main regression
-	
+	tempname reg_base
 	
 	if "`noestimate'"==""{ 
 		
@@ -277,7 +275,7 @@ program define _eventols, rclass
 			}
 			
 			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
-			estimates store reg_base
+			_estimates hold `reg_base', copy
 			if "`sun_abraham'"!=""{
 				qui `cmd' `depenvar' `cohort_rel_varlist' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
 			}			
@@ -319,7 +317,7 @@ program define _eventols, rclass
 				loc abs "absorb(`i' `t' `addabsorb')"	
 			}
 			`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-			estimates store reg_base
+			_estimates hold `reg_base', copy
 			if "`sun_abraham'"!=""{
 				qui reghdfe `depenvar' `cohort_rel_varlist' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 			}
@@ -401,8 +399,8 @@ program define _eventols, rclass
 		matrix rownames `evt_VV' =  `cohort_list'
 
 		*insert SA's estimations into base regresion
-		tempname b_sa_adj v_sa_adj
-		qui estimates restore reg_base
+		tempname b_sa_adj v_sa_adj est_sun_abraham
+		_estimates unhold `reg_base'
 		mat `b_sa_adj'=e(b)
 		mat `v_sa_adj'=e(V)
 
@@ -419,6 +417,7 @@ program define _eventols, rclass
 		if "`methodt'"=="gmm" loc qq "quietly" 
 		`qq' _coef_table_header
 		`qq' _coef_table , bmatrix(e(b)) vmatrix(e(V))
+		_estimates hold `est_sun_abraham', copy 
 	}
 		
 		
@@ -541,11 +540,14 @@ program define _eventols, rclass
 		loc included2: list local included2 - toexc
 		*estimate the contrafactual: no adjusting by trend. only exclude event-time dummy -1
 		*trend excludes from trend (e.g. -3) to -1
-		if "`reghdfe'"== "" {
-			qui _regress `varlist' `included2' `te' [`weight'`exp'] if `touse', `abs' `options'
-		}
+		if "`sun_abraham'"!="" _estimates unhold `est_sun_abraham' //call the SA estimations that have not been corrected by trend
 		else {
-			qui reghdfe `varlist' `included2' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			if "`reghdfe'"== "" {
+				qui _regress `varlist' `included2' `te' [`weight'`exp'] if `touse', `abs' `options'
+			}
+			else {
+				qui reghdfe `varlist' `included2' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			}
 		}
 		loc j=1
 		loc names2 ""
@@ -589,11 +591,13 @@ program define _eventols, rclass
 		cap confirm var __k
 		if !_rc qui drop __k
 		if "`methodt'"=="ols" qui drop _ttrend
+		if "`saveint'"!="" qui drop _interact*
 	}
 	else if "`savek'" != "" & "`drop'"!="nodrop"  {
 		ren __k `savek'_evtime
 		ren _k_eq* `savek'_eq*
-		if "`methodt'"=="ols" ren _ttrend `savek'_trend	
+		if "`methodt'"=="ols" ren _ttrend `savek'_trend
+		if "`saveint'"!="" ren _interact* `savek'_interact*
 	}
 	
 	*skip the rest of the program if the user indicated not to estimate
@@ -745,19 +749,12 @@ program define parsetrend, rclass
 end	
 
 *program to parse savek
+cap program drop parsesavek
 program define parsesavek, rclass
 
-	syntax [anything] , [NOEstimate]
+	syntax [anything] , [NOEstimate SAVEINTeract]
 		
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
-end	
-
-cap program drop parsesaveint
-*program to parse savek
-program define parsesaveint, rclass
-
-	syntax [anything] , [*]
-		
-	return local saveint "`anything'"
+	return local saveintl "`saveinteract'"
 end	
