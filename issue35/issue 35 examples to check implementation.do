@@ -17,7 +17,9 @@ gen never_treat=time_of_treat==.
 *default 
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe  
 
-*Sun and Abraham within xtevent (cohort + control_cohort + reghdfe)
+************ verify equivalence between xtevent and EventStudyInteract ********
+
+*Sun-Abraham within xtevent (cohort + control_cohort + reghdfe)
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) 
 
 *EventStudyInteract
@@ -27,18 +29,19 @@ eventstudyinteract y g_eq_m4-g_eq_m2 g_eq_p0-g_eq_p4, cohort(time_of_treat) ///
             control_cohort(never_treat) covariates(x)  ///
 			absorb(i t) vce(cluster i)
 			
-****** test postestimation options on xtevent 
+**************** test postestimation options on xtevent  ********************
 
 *diffavg 
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) diffavg
 
 *trend adjustment by GMM
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) trend(-2,method(gmm) saveoverlay)
+xteventplot, overlay(trend)
 
 ***check the returned matrices
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) 
 ereturn list
-*cohort-relative time effects
+*cohort-relative-time effects
 mat li e(b_interact)
 *variance of cohort-relative time effects
 mat li e(V_interact)
@@ -48,12 +51,16 @@ mat li e(ff_w)
 mat li e(Sigma_ff)
 
 *option to save interactions
-xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) saveint(aa)
+cap drop aa_*
+xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) savek(aa, saveint)
 describe aa_*
 
 *save them again: expect an error
-xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) saveint(aa)
+xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) savek(aa, saveint)
 drop aa_*
+
+*specify saveint without cohort and control_cohort (expect an error)
+xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe savek(aa, saveint)
 
 *xteventplot 
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat) trend(-2,method(gmm) saveoverlay)
@@ -62,7 +69,5 @@ xteventplot, overlay(trend)
 xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) control_cohort(never_treat)
 xteventplot, smpath(line)
 
-
 *xteventtest
 xteventtest, coefs(1 2)
-
