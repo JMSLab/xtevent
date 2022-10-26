@@ -74,7 +74,7 @@ See {help xteventtest} for hypothesis testing after estimation and {help xtevent
 {pstd}
 {cmd: xtevent} estimates the effect of a policy variable of interest on a dependent variable using a panel event
 study design. Additional control variables can be included in {it:varlist}. The command allows for estimation when a pre-trend is present using
-the instrumental variables estimator of Freyaldenhoven et al. (2019). {p_end}
+the instrumental variables estimator of Freyaldenhoven et al. (2019). It also allows to use the Interaction Weighted Estimator of Sun and Abraham (2021).{p_end}
 
 
 {marker options}{...}
@@ -318,14 +318,14 @@ Compare the imputed and original values for a unit
 {phang2}{cmd:. {stata "by idcode: egen time_of_treat=min(timet)"}}
 {p_end}
 
-{pstd}Generate the variable that indicates the control cohort. In this example, we use the never treated units as the control cohort. {p_end}
+{pstd}Generate the variable that indicates the control cohort. We use the never treated units as the control cohort. {p_end}
 {phang2}{cmd:. {stata gen never_treat=time_of_treat==.}}
 {p_end}
 
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union) window(3) impute(nuchange) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat)}}
 {p_end}
 
-{pstd}Indicate the {bf:reghdfe} option to use the same underlying estimation command as with {help EventStudyInteract}.{p_end}
+{pstd}Indicate the {bf:reghdfe} option to use the same underlying estimation command as with {help EventStudyInteract}. This produces identical estimations as with {help EventStudyInteract}.{p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union) window(3) impute(nuchange) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat) reghdfe}}
 {p_end}
 
