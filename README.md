@@ -109,7 +109,18 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe ///
             proxy(wks_work)
-
+            
+*Interaction Weighted Estimator
+*Generate the variable that indicates cohort
+gen timet=year if union==1
+by idcode: egen time_of_treat=min(timet)
+*Generate the variable that indicates the control cohort. 
+*We use the never treated units as the control cohort. 
+gen never_treat=time_of_treat==.
+*Estimate the event-time coefficients with the IW Estimator.
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
+            policyvar(union) window(3) impute(nuchange) vce(cluster idcode) ///
+            reghdfe cohort(time_of_treat) control_cohort(never_treat) 
 
 ```
 #### xteventplot
