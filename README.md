@@ -25,21 +25,13 @@
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.1.0)  for the complete update list.
     
 * **Version 2.0.0 (24jun2022)**:
-    - Adds `impute` option for imputing missing values in the policy variable according to several available rules. See the help file to know more about the available imputation rules. 
+    - **To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use *impute(stag)*.** The **impute** option imputes missing values in the *policyvar* following different rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows staggered adoption. See [here](https://raw.githack.com/JMSLab/xtevent/issue103_emphasize_impute_option/issue103/impute_option_description.html) for a detailed explanation of the **impute** option.
     - The option `nonstaggered` has been depreciated. The default option is now not to impute missing values or endpoints.   You should now choose any of the imputation rules in the `impute` option. To get results using imputation consistent with staggered adoption, as in version 1.0.0 you should use `impute(stag)`.
     - Now the option `trend` allows for trend adjustment by either OLS or GMM.
     - Fixed several bugs present in version 1.0.0
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.0.0)  for the complete update list.
     
-    
-* **About the** ***impute*** **option**:
-
-    The **impute** option, available since **xtevent 2.0.0**, is intended to impute missing values in the *policyvar* following different imputation rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows the staggered adoption pattern. See [here](https://raw.githack.com/JMSLab/xtevent/issue103_emphasize_impute_option/issue103/impute_option_description.html) or in the help file for a detailed explanation of the **impute** option.
-
-    `To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use impute(stag).`
-
 -----------
-
 ### Installation
 
 #### To install version 2.1.0 from SSC:
