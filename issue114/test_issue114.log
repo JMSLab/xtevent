@@ -22,8 +22,9 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-A lead order and the normalized coefficient had the same value. The corresponding omitted event-time dummy has been
->  changed from -1 to -2
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+
+The coefficient at -2 was selected to be normalized to zero.
 
 Fixed-effects (within) IV regression            Number of obs     =     13,000
 Group variable: i                               Number of groups  =      1,000
@@ -77,14 +78,19 @@ Instruments:    x _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3
                 17.t _fd1z
 ------------------------------------------------------------------------------
 
+. xteventplot
+
 . 
 . ***** numlist proxyiv
 . xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(1 2 3)
 
 Proxy for the confound specified. Implementing FHS estimator
 
-A lead order and the normalized coefficient had the same value. The corresponding omitted event-time dummy has been
->  changed from -1 to -2
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+
+The coefficient at -2 was selected to be normalized to zero.
+
+The coefficient at -3 was selected to be normalized to zero.
 
 Fixed-effects (within) IV regression            Number of obs     =     11,000
 Group variable: i                               Number of groups  =      1,000
@@ -137,12 +143,84 @@ Instruments:    x _k_eq_m5 _k_eq_m4 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3
                 16.t _fd1z _fd2z _fd3z
 ------------------------------------------------------------------------------
 
-. 
+. xteventplot
+
+. xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(1 3 4)
+
+Proxy for the confound specified. Implementing FHS estimator
+
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+
+The coefficient at -2 was selected to be normalized to zero.
+
+The coefficient at -3 was selected to be normalized to zero.
+
+The coefficient at -4 was selected to be normalized to zero.
+
+Fixed-effects (within) IV regression            Number of obs     =     11,000
+Group variable: i                               Number of groups  =      1,000
+
+R-sq:                                           Obs per group:
+     within  = 0.3887                                         min =         11
+     between = 0.4185                                         avg =       11.0
+     overall = 0.3997                                         max =         11
+
+                                                Wald chi2(19)     =   63899.67
+corr(u_i, Xb)  = 0.1083                         Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        zeta |   .2516568   .3125933     0.81   0.421    -.3610147    .8643283
+           x |   .0555488   .0273402     2.03   0.042     .0019631    .1091345
+    _k_eq_m5 |  -.3056904   .0687592    -4.45   0.000    -.4404559   -.1709249
+    _k_eq_p0 |   1.222278   .2317645     5.27   0.000      .768028    1.676528
+    _k_eq_p1 |   1.499094   .2463563     6.09   0.000     1.016245    1.981944
+    _k_eq_p2 |   1.630573   .2541104     6.42   0.000     1.132526    2.128621
+    _k_eq_p3 |   1.580569   .2438833     6.48   0.000     1.102567    2.058572
+    _k_eq_p4 |   1.643881   .2875124     5.72   0.000     1.080367    2.207395
+    _k_eq_p5 |    1.79103   .2864853     6.25   0.000     1.229529    2.352531
+             |
+           t |
+          7  |   .1426831   .0502576     2.84   0.005       .04418    .2411862
+          8  |   .4108184   .0500486     8.21   0.000      .312725    .5089118
+          9  |   .5692094   .0509311    11.18   0.000     .4693864    .6690325
+         10  |   .7847335   .0607635    12.91   0.000     .6656393    .9038277
+         11  |   .9189104   .0512619    17.93   0.000     .8184389    1.019382
+         12  |   1.066192   .0594952    17.92   0.000      .949584    1.182801
+         13  |   1.276358   .0547492    23.31   0.000     1.169052    1.383665
+         14  |   1.398911   .0742896    18.83   0.000     1.253306    1.544516
+         15  |   1.620508     .08697    18.63   0.000      1.45005    1.790966
+         16  |   1.849246   .0651997    28.36   0.000     1.721457    1.977035
+             |
+       _cons |   1.444508   .0672739    21.47   0.000     1.312653    1.576362
+-------------+----------------------------------------------------------------
+     sigma_u |   1.137626
+     sigma_e |  1.0377287
+         rho |  .54582568   (fraction of variance due to u_i)
+------------------------------------------------------------------------------
+F  test that all u_i=0:     F(999,9981) =    12.37        Prob > F    = 0.0000
+------------------------------------------------------------------------------
+Instrumented:   zeta
+Instruments:    x _k_eq_m5 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4
+                _k_eq_p5 7.t 8.t 9.t 10.t 11.t 12.t 13.t 14.t 15.t 16.t _fd1z
+                _fd3z _fd4z
+------------------------------------------------------------------------------
+
+. xteventplot
+
 . ****** Mixed proxyiv
 . *This proxyiv type used to generate an error.  
+. *it will choose to normalize the coeffients closest to zero, among the available coefficients to normalize
 . xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(2 eta zeta)
 
 Proxy for the confound specified. Implementing FHS estimator
+
+The coefficient at -2 was selected to be normalized to zero.
+
+The coefficient at -3 was selected to be normalized to zero
+
+The coefficient at -4 was selected to be normalized to zero
 
 Fixed-effects (within) IV regression            Number of obs     =     11,000
 Group variable: i                               Number of groups  =      1,000
@@ -194,6 +272,75 @@ Instruments:    x _k_eq_m5 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4
                 eta zeta
 ------------------------------------------------------------------------------
 
+. xteventplot
+
+. xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(1 eta zeta)
+
+Proxy for the confound specified. Implementing FHS estimator
+
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+
+The coefficient at -2 was selected to be normalized to zero.
+
+The coefficient at -3 was selected to be normalized to zero
+
+The coefficient at -4 was selected to be normalized to zero
+
+Fixed-effects (within) IV regression            Number of obs     =     11,000
+Group variable: i                               Number of groups  =      1,000
+
+R-sq:                                           Obs per group:
+     within  = 0.3995                                         min =         11
+     between = 0.4233                                         avg =       11.0
+     overall = 0.4075                                         max =         11
+
+                                                Wald chi2(19)     =   65146.42
+corr(u_i, Xb)  = 0.1224                         Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        zeta |   .1056748   .0108778     9.71   0.000     .0843548    .1269949
+           x |   .0681519   .0044407    15.35   0.000     .0594483    .0768555
+    _k_eq_m5 |  -.3216449    .059152    -5.44   0.000    -.4375808   -.2057091
+    _k_eq_p0 |   1.323726   .0804153    16.46   0.000     1.166115    1.481337
+    _k_eq_p1 |   1.390659   .0819916    16.96   0.000     1.229958     1.55136
+    _k_eq_p2 |   1.518748   .0847084    17.93   0.000     1.352723    1.684773
+    _k_eq_p3 |   1.474655   .0892311    16.53   0.000     1.299765    1.649545
+    _k_eq_p4 |   1.517298   .0954979    15.89   0.000     1.330126    1.704471
+    _k_eq_p5 |   1.662468   .0791794    21.00   0.000      1.50728    1.817657
+             |
+           t |
+          7  |   .1516559   .0460314     3.29   0.001     .0614361    .2418757
+          8  |   .4194224   .0461243     9.09   0.000     .3290205    .5098243
+          9  |   .5786964    .046294    12.50   0.000     .4879618    .6694309
+         10  |   .8027382   .0465673    17.24   0.000      .711468    .8940085
+         11  |   .9281673   .0468586    19.81   0.000     .8363261    1.020009
+         12  |   1.082837     .04723    22.93   0.000     .9902681    1.175406
+         13  |   1.288559   .0476933    27.02   0.000     1.195082    1.382037
+         14  |   1.425123   .0482738    29.52   0.000     1.330508    1.519738
+         15  |   1.654014   .0487801    33.91   0.000     1.558407    1.749621
+         16  |   1.868876    .049419    37.82   0.000     1.772017    1.965736
+             |
+       _cons |   1.457026   .0611608    23.82   0.000     1.337153    1.576899
+-------------+----------------------------------------------------------------
+     sigma_u |  1.1367948
+     sigma_e |  1.0284909
+         rho |  .54989345   (fraction of variance due to u_i)
+------------------------------------------------------------------------------
+F  test that all u_i=0:     F(999,9981) =    12.60        Prob > F    = 0.0000
+------------------------------------------------------------------------------
+Instrumented:   zeta
+Instruments:    x _k_eq_m5 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4
+                _k_eq_p5 7.t 8.t 9.t 10.t 11.t 12.t 13.t 14.t 15.t 16.t _fd1z
+                eta zeta
+------------------------------------------------------------------------------
+
+. xteventplot
+
+. graph export xteventplot_working.png, replace
+(file xteventplot_working.png written in PNG format)
+
 . 
 . ******* varlist proxyiv 
 . *This proxyiv type used to generate an error. 
@@ -202,6 +349,10 @@ Instruments:    x _k_eq_m5 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4
 . xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(eta alpha) 
 
 Proxy for the confound specified. Implementing FHS estimator
+
+The coefficient at -2 was selected to be normalized to zero
+
+The coefficient at -3 was selected to be normalized to zero
 
 Fixed-effects (within) IV regression            Number of obs     =     11,000
 Group variable: i                               Number of groups  =      1,000
@@ -254,11 +405,18 @@ Instruments:    x _k_eq_m5 _k_eq_m4 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3
                 16.t eta alpha
 ------------------------------------------------------------------------------
 
+. xteventplot
+
 . 
-. ***** number of instruments in proxyiv is greater than the number of available coefficients
+. ***** number of instruments in proxyiv is greater than the number of available coefficients. Otherwise, all pre-e
+> vent coefficients would be normalized. Expect an error
 . xtevent y x, panelvar(i) t(t) policyvar(z) window(3) proxy(zeta) proxyiv(2 eta alpha) 
 
 Proxy for the confound specified. Implementing FHS estimator
+
+The coefficient at -2 was selected to be normalized to zero.
+
+The coefficient at -3 was selected to be normalized to zero
 Number of instruments specified in proxyiv reached the maximum imposed by the number of pre-event periods.
 r(198);
 
@@ -266,7 +424,7 @@ end of do-file
 
 r(198);
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD7a48_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD4eb4_000000.tmp"
 
 . 
 . *****Case when a lead order = normalized coefficient.
@@ -277,8 +435,9 @@ r(198);
 
 Proxy for the confound specified. Implementing FHS estimator
 
-A lead order and the normalized coefficient had the same value. The corresponding omitted event-time dummy has been
->  changed from -2 to -3
+The corresponding coefficient of lead 2 and the normalized coefficient were the same. Lead 2 has been changed to 3.
+
+The coefficient at -3 was selected to be normalized to zero.
 
 Fixed-effects (within) IV regression            Number of obs     =     13,000
 Group variable: i                               Number of groups  =      1,000
@@ -331,6 +490,8 @@ Instruments:    x _k_eq_m4 _k_eq_m1 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3
                 _k_eq_p4 6.t 7.t 8.t 9.t 10.t 11.t 12.t 13.t 14.t 15.t 16.t
                 17.t _fd2z
 ------------------------------------------------------------------------------
+
+. xteventplot
 
 . 
 . 
