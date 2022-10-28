@@ -165,25 +165,32 @@ program define _eventiv, rclass
 		if !_rc loc proxyiv_numbers "`proxyiv_numbers' `v'"
 		else loc proxyiv_vrnames "`proxyiv_vrnames' `v'"
 	}
-	
+	foreach v in `proxyiv_numbers' {
+		cap confirm integer number `v'
+		if _rc {
+			di as err "Lead of policy variable to be used as instrument must be an integer."
+			exit 301
+		}
+	}
 	* Set normalizations in case these are numbers, so we are using leads of delta z
 	loc ivnorm ""
 	if "`instype'"=="numlist" | "`instype'"=="mixed" {
 		foreach v in `proxyiv_numbers' {
-			cap confirm integer number `v'
-			if !_rc {
-				if `=-`v''==`norm' {
-					loc ivnorm "`ivnorm' `=-`v'-1'"
-					di as txt _n "A lead order and the normalized coefficient had the same value. The corresponding omitted event-time dummy has been changed from `=-`v'' to `=-`v'-1'"
-					}
-				else loc ivnorm "`ivnorm' -`v'"		
+			if `=-`v''==`norm' {
+				loc ivnorm "`ivnorm' `=-`v'-1'"
+				di as txt _n "The corresponding coefficient of lead `v' and the normalized coefficient were the same. Lead `=`v'' has been changed to `=`v'+1'."
+				loc repeatlead=strmatch("`proxyiv_numbers'","*`=`v'+1'*")
+				if "`repeatlead'"=="0"{
+					di as txt _n "The coefficient at `=-`v'-1' was selected to be normalized to zero."
+				}
 			}
 			else {
-				di as err "Lead of policy variable to be used as instrument must be an integer."
-				exit 301
+				loc ivnorm "`ivnorm' -`v'"	
+				di as txt _n "The coefficient at `=-`v'' was selected to be normalized to zero."
 			}
 		}
 	}
+	
 	
 	*set normalizations for external instruments 
 	*get the pool of available coefficients for normalization
@@ -204,6 +211,7 @@ program define _eventiv, rclass
 		loc avcomma : subinstr loc available " " ",", all
 		loc avmax = max(`avcomma') //choose the coefficient closest to zero 
 		loc ivnorm "`ivnorm' `avmax'" // add it to ivnorm 
+		di as text _n "The coefficient at `avmax' was selected to be normalized to zero"
 	}
 	
 	* Normalize one more lag if normalization = number of proxys
