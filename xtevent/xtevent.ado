@@ -171,7 +171,7 @@ program define xtevent, eclass
 		if ("`pre'"!="0" & "`pre'"!="") {
 			if `norm'==-1 {
 				loc norm = -`pre'-1
-				di as text _n "You allowed for anticipation effects `pre' periods before the event, so the coefficients were normalized to `norm'. Use options {bf:norm} and {bf:window} to override this"
+				di as text _n "You allowed for anticipation effects `pre' periods before the event, so the coefficient at `norm' was selected to be normalized to zero. Use options {bf:norm} and {bf:window} to override this."
 			}
 		}
 		
