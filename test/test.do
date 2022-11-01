@@ -341,6 +341,12 @@ cap noi xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxy
 cap drop f1z
 */
 
+*Generate an instrument for the proxy. This instrument is collinear with the event-time dummies.
+gen lead1=f1.d.z 
+*expect an error message: instrument is collinear  
+*xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(lead1)
+drop lead1
+
 * Other leads
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(4) proxy(x) proxyiv(2) plot
 xteventplot, smpath(scatter)
