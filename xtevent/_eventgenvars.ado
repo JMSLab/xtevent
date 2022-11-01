@@ -142,7 +142,8 @@ program define _eventgenvars, rclass
 		preserve 
 		qui keep `panelvar' `timevar' `policyvar' `touse' `rr'
 		*sorting by policyvar guarantees not choosing a missing value 
-		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z, by(state t)
+		qui keep if `touse'
+		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z if `touse', by(state t)
 	}
 	qui xtset `panelvar' `timevar'
 
