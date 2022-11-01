@@ -13,7 +13,7 @@ program define get_unit_time_effects, eclass
 	[
 	name(string) /*name for the effects dataset*/
 	NOOutput /* supress output */
-	NOCONStant /*omit constant*/
+	replace /*replace unit_time_effects file*/
 	*
 	]
 	;
@@ -21,7 +21,26 @@ program define get_unit_time_effects, eclass
 	
 	marksample touse
 	
-	tempvar predicted
+	tempvar predicted goup_interact
+	
+	*check if file already exists
+	if "`replace'"==""{
+		if "`name'"!=""{
+			di "name: `name'"
+			cap confirm file "`name'"
+			if !_rc {
+				di as err _n "File `name' already exists."
+				exit 602
+			}
+		}
+		else{
+			cap confirm file "unit_time_effects.dta"
+			if !_rc {
+				di as err _n "File unit_time_effects.dta already exists."
+				exit 602
+			}
+		}
+	}
 	
 	if "`nooutput'"!="" loc q quietly
 	
@@ -39,23 +58,11 @@ program define get_unit_time_effects, eclass
 	*get_unit_time_effects
 	* firs step of the two-step estimation for repeated cross-sectional datasets 
 	* regress dependent variable on controls and unit time effects
-		
-	`q' reg `depenvar' `indepvars' i.`panelvar'#i.`timevar' [`weight'`exp'] if `touse', `options'
-	qui predict `predicted'	
 	
-	* create list of coefficient values to subtract
-	loc tosub "0"
-	foreach var in `indepvars'{
-		loc tosub "`tosub' + _b[`var']*`var'"
-	}
-	
-	*handle noconstant
-	loc constant "0"
-	if "`noconstant'"=="" loc constant "_b[_cons]"
-	
-	*remove prediction from the controls and the constant
-	qui replace `predicted' = `predicted' - (`tosub') - `constant'
-	
+	egen `goup_interact'=group(`panelvar' `timevar') 
+	`q' areg `depenvar' `indepvars', absorb(`goup_interact') `options'
+	qui predict `predicted', d	//calculates d_absorbvar, the individual coefficients for the absorbed variable.
+
 	*create file necessary for step 2
 	preserve
 	qui gen effects = `predicted'
@@ -63,14 +70,14 @@ program define get_unit_time_effects, eclass
 	keep `panelvar' `timevar' effects
 	if "`name'"!=""{
 		if strmatch("`name'", "*.dta*"){
-			save "`name'", replace
+			save "`name'", `replace'
 		}
 		else{
-			save "`name'.dta", replace
+			save "`name'.dta", `replace'
 		}
 	}
 	else {
-		save "unit_time_effects.dta", replace
+		save "unit_time_effects.dta", `replace'
 	}
 
 	*go back to the original dataset 
