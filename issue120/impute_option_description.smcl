@@ -1,0 +1,468 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\103\impute_option_description\impute_option_description.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}13 Oct 2022, 19:31:53
+{txt}
+{com}. //_1
+. webuse nlswork, clear
+{txt}(National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
+
+{com}. //_2
+. by idcode (year): gen time=_n
+{txt}
+{com}. xtset idcode time
+{res}{txt}{col 8}panel variable:  {res}idcode (unbalanced)
+{txt}{col 9}time variable:  {res}{col 25}time, 1 to 15
+{txt}{col 17}delta:  {res}1 unit
+{txt}
+{com}. //_3
+. by idcode (time): gen union2=sum(union)
+{txt}
+{com}. replace union2=1 if union2>1 
+{txt}(4,177 real changes made)
+
+{com}. order time union union2, after(year)
+{txt}
+{com}. //_4
+. replace union2=. if idcode==2 & inlist(time, 1,8,9,11,12)
+{txt}(5 real changes made, 5 to missing)
+
+{com}. list idcode time union2 if idcode==2, noobs
+{txt}
+  {c TLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c TRC}
+  {c |} {res}idcode   time   union2 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c RT}
+  {c |} {res}     2      1        . {txt}{c |}
+  {c |} {res}     2      2        0 {txt}{c |}
+  {c |} {res}     2      3        0 {txt}{c |}
+  {c |} {res}     2      4        0 {txt}{c |}
+  {c |} {res}     2      5        1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c RT}
+  {c |} {res}     2      6        1 {txt}{c |}
+  {c |} {res}     2      7        1 {txt}{c |}
+  {c |} {res}     2      8        . {txt}{c |}
+  {c |} {res}     2      9        . {txt}{c |}
+  {c |} {res}     2     10        1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c RT}
+  {c |} {res}     2     11        . {txt}{c |}
+  {c |} {res}     2     12        . {txt}{c |}
+  {c BLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c BRC}
+
+{com}. //_5
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>     policyvar(union2) window(3) impute(nuchange, saveimp)
+
+{txt}Using options {bf:panelvar} and {bf:timevar} from {cmd:xtset}
+
+No proxy or instruments provided. Implementing OLS estimator
+{res}
+{txt}Linear regression, absorbing indicators{col 49}Number of obs{col 67}= {res}    22,877
+{txt}Absorbed variable: {bf:idcode}{col 49}No. of categories{col 67}= {res}     2,694
+{txt}{col 49}F({res}  27{txt},{res}  20156{txt}){col 67}= {res}    174.19
+{txt}{col 49}Prob > F{col 67}= {res}    0.0000
+{txt}{col 49}R-squared{col 67}= {res}    0.6701
+{txt}{col 49}Adj R-squared{col 67}= {res}    0.6256
+{txt}{col 49}Root MSE{col 67}= {res}    0.2851
+
+{txt}{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}            ln_wage{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}_k_eq_m4 {c |}{col 21}{res}{space 2}-.0426688{col 33}{space 2} .0131367{col 44}{space 1}   -3.25{col 53}{space 3}0.001{col 61}{space 4}-.0684177{col 74}{space 3}-.0169199
+{txt}{space 11}_k_eq_m3 {c |}{col 21}{res}{space 2}-.0540115{col 33}{space 2} .0148103{col 44}{space 1}   -3.65{col 53}{space 3}0.000{col 61}{space 4}-.0830409{col 74}{space 3}-.0249822
+{txt}{space 11}_k_eq_m2 {c |}{col 21}{res}{space 2}-.0422174{col 33}{space 2} .0133608{col 44}{space 1}   -3.16{col 53}{space 3}0.002{col 61}{space 4}-.0684057{col 74}{space 3}-.0160291
+{txt}{space 11}_k_eq_p0 {c |}{col 21}{res}{space 2} .0881427{col 33}{space 2} .0126766{col 44}{space 1}    6.95{col 53}{space 3}0.000{col 61}{space 4} .0632956{col 74}{space 3} .1129898
+{txt}{space 11}_k_eq_p1 {c |}{col 21}{res}{space 2} .0839043{col 33}{space 2} .0131147{col 44}{space 1}    6.40{col 53}{space 3}0.000{col 61}{space 4} .0581985{col 74}{space 3} .1096101
+{txt}{space 11}_k_eq_p2 {c |}{col 21}{res}{space 2} .0796825{col 33}{space 2} .0137776{col 44}{space 1}    5.78{col 53}{space 3}0.000{col 61}{space 4} .0526774{col 74}{space 3} .1066877
+{txt}{space 11}_k_eq_p3 {c |}{col 21}{res}{space 2} .0606217{col 33}{space 2} .0147132{col 44}{space 1}    4.12{col 53}{space 3}0.000{col 61}{space 4} .0317825{col 74}{space 3} .0894609
+{txt}{space 11}_k_eq_p4 {c |}{col 21}{res}{space 2} .0283481{col 33}{space 2} .0132207{col 44}{space 1}    2.14{col 53}{space 3}0.032{col 61}{space 4} .0024345{col 74}{space 3} .0542618
+{txt}{space 16}age {c |}{col 21}{res}{space 2} .0196494{col 33}{space 2} .0040289{col 44}{space 1}    4.88{col 53}{space 3}0.000{col 61}{space 4} .0117524{col 74}{space 3} .0275464
+{txt}{space 19} {c |}
+{space 8}c.age#c.age {c |}{col 21}{res}{space 2}-.0005162{col 33}{space 2} .0000599{col 44}{space 1}   -8.61{col 53}{space 3}0.000{col 61}{space 4}-.0006337{col 74}{space 3}-.0003988
+{txt}{space 19} {c |}
+{space 12}ttl_exp {c |}{col 21}{res}{space 2}  .048873{col 33}{space 2} .0036671{col 44}{space 1}   13.33{col 53}{space 3}0.000{col 61}{space 4} .0416853{col 74}{space 3} .0560608
+{txt}{space 19} {c |}
+c.ttl_exp#c.ttl_exp {c |}{col 21}{res}{space 2}-.0004775{col 33}{space 2} .0001341{col 44}{space 1}   -3.56{col 53}{space 3}0.000{col 61}{space 4}-.0007403{col 74}{space 3}-.0002146
+{txt}{space 19} {c |}
+{space 13}tenure {c |}{col 21}{res}{space 2} .0096665{col 33}{space 2} .0009371{col 44}{space 1}   10.32{col 53}{space 3}0.000{col 61}{space 4} .0078297{col 74}{space 3} .0115032
+{txt}{space 19} {c |}
+{space 15}time {c |}
+{space 17}2  {c |}{col 21}{res}{space 2}  .058775{col 33}{space 2} .0086904{col 44}{space 1}    6.76{col 53}{space 3}0.000{col 61}{space 4}  .041741{col 74}{space 3}  .075809
+{txt}{space 17}3  {c |}{col 21}{res}{space 2} .0616701{col 33}{space 2} .0104441{col 44}{space 1}    5.90{col 53}{space 3}0.000{col 61}{space 4} .0411988{col 74}{space 3} .0821414
+{txt}{space 17}4  {c |}{col 21}{res}{space 2} .0645453{col 33}{space 2} .0128146{col 44}{space 1}    5.04{col 53}{space 3}0.000{col 61}{space 4} .0394276{col 74}{space 3} .0896631
+{txt}{space 17}5  {c |}{col 21}{res}{space 2} .0528849{col 33}{space 2}  .015525{col 44}{space 1}    3.41{col 53}{space 3}0.001{col 61}{space 4} .0224546{col 74}{space 3} .0833153
+{txt}{space 17}6  {c |}{col 21}{res}{space 2} .0526472{col 33}{space 2} .0185005{col 44}{space 1}    2.85{col 53}{space 3}0.004{col 61}{space 4} .0163848{col 74}{space 3} .0889097
+{txt}{space 17}7  {c |}{col 21}{res}{space 2} .0391945{col 33}{space 2} .0215651{col 44}{space 1}    1.82{col 53}{space 3}0.069{col 61}{space 4}-.0030748{col 74}{space 3} .0814638
+{txt}{space 17}8  {c |}{col 21}{res}{space 2} .0310191{col 33}{space 2}   .02451{col 44}{space 1}    1.27{col 53}{space 3}0.206{col 61}{space 4}-.0170224{col 74}{space 3} .0790606
+{txt}{space 17}9  {c |}{col 21}{res}{space 2} .0237829{col 33}{space 2} .0273636{col 44}{space 1}    0.87{col 53}{space 3}0.385{col 61}{space 4}-.0298519{col 74}{space 3} .0774177
+{txt}{space 16}10  {c |}{col 21}{res}{space 2} .0110167{col 33}{space 2} .0303628{col 44}{space 1}    0.36{col 53}{space 3}0.717{col 61}{space 4}-.0484968{col 74}{space 3} .0705302
+{txt}{space 16}11  {c |}{col 21}{res}{space 2} .0005248{col 33}{space 2}  .033287{col 44}{space 1}    0.02{col 53}{space 3}0.987{col 61}{space 4}-.0647205{col 74}{space 3} .0657702
+{txt}{space 16}12  {c |}{col 21}{res}{space 2}-.0044624{col 33}{space 2} .0361144{col 44}{space 1}   -0.12{col 53}{space 3}0.902{col 61}{space 4}-.0752496{col 74}{space 3} .0663248
+{txt}{space 16}13  {c |}{col 21}{res}{space 2}-.0209216{col 33}{space 2} .0395187{col 44}{space 1}   -0.53{col 53}{space 3}0.597{col 61}{space 4}-.0983816{col 74}{space 3} .0565383
+{txt}{space 16}14  {c |}{col 21}{res}{space 2} .0063342{col 33}{space 2} .0439576{col 44}{space 1}    0.14{col 53}{space 3}0.885{col 61}{space 4}-.0798264{col 74}{space 3} .0924947
+{txt}{space 16}15  {c |}{col 21}{res}{space 2}-.0069669{col 33}{space 2} .0515434{col 44}{space 1}   -0.14{col 53}{space 3}0.892{col 61}{space 4}-.1079961{col 74}{space 3} .0940623
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 1.224197{col 33}{space 2}  .061415{col 44}{space 1}   19.93{col 53}{space 3}0.000{col 61}{space 4} 1.103819{col 74}{space 3} 1.344575
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+F test of absorbed indicators: F({res}2693{txt}, {res}20156{txt}) = {res}10.075{col 62}{txt} Prob > F = {res}0.000
+{txt}
+{com}. //_6
+. list idcode time union2 union2_imputed if idcode==2, noobs
+{txt}
+  {c TLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c TRC}
+  {c |} {res}idcode   time   union2   union2~d {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2      1        .          0 {txt}{c |}
+  {c |} {res}     2      2        0          0 {txt}{c |}
+  {c |} {res}     2      3        0          0 {txt}{c |}
+  {c |} {res}     2      4        0          0 {txt}{c |}
+  {c |} {res}     2      5        1          1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2      6        1          1 {txt}{c |}
+  {c |} {res}     2      7        1          1 {txt}{c |}
+  {c |} {res}     2      8        .          . {txt}{c |}
+  {c |} {res}     2      9        .          . {txt}{c |}
+  {c |} {res}     2     10        1          1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2     11        .          1 {txt}{c |}
+  {c |} {res}     2     12        .          1 {txt}{c |}
+  {c BLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c BRC}
+
+{com}. //_7
+. drop union2_imputed
+{txt}
+{com}. //_8
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>             policyvar(union2) window(3) impute(stag, saveimp)
+
+{txt}Using options {bf:panelvar} and {bf:timevar} from {cmd:xtset}
+
+No proxy or instruments provided. Implementing OLS estimator
+{res}
+{txt}Linear regression, absorbing indicators{col 49}Number of obs{col 67}= {res}    22,877
+{txt}Absorbed variable: {bf:idcode}{col 49}No. of categories{col 67}= {res}     2,694
+{txt}{col 49}F({res}  27{txt},{res}  20156{txt}){col 67}= {res}    174.19
+{txt}{col 49}Prob > F{col 67}= {res}    0.0000
+{txt}{col 49}R-squared{col 67}= {res}    0.6701
+{txt}{col 49}Adj R-squared{col 67}= {res}    0.6256
+{txt}{col 49}Root MSE{col 67}= {res}    0.2851
+
+{txt}{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}            ln_wage{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}_k_eq_m4 {c |}{col 21}{res}{space 2}-.0426688{col 33}{space 2} .0131367{col 44}{space 1}   -3.25{col 53}{space 3}0.001{col 61}{space 4}-.0684177{col 74}{space 3}-.0169199
+{txt}{space 11}_k_eq_m3 {c |}{col 21}{res}{space 2}-.0540115{col 33}{space 2} .0148103{col 44}{space 1}   -3.65{col 53}{space 3}0.000{col 61}{space 4}-.0830409{col 74}{space 3}-.0249822
+{txt}{space 11}_k_eq_m2 {c |}{col 21}{res}{space 2}-.0422174{col 33}{space 2} .0133608{col 44}{space 1}   -3.16{col 53}{space 3}0.002{col 61}{space 4}-.0684057{col 74}{space 3}-.0160291
+{txt}{space 11}_k_eq_p0 {c |}{col 21}{res}{space 2} .0881427{col 33}{space 2} .0126766{col 44}{space 1}    6.95{col 53}{space 3}0.000{col 61}{space 4} .0632956{col 74}{space 3} .1129898
+{txt}{space 11}_k_eq_p1 {c |}{col 21}{res}{space 2} .0839043{col 33}{space 2} .0131147{col 44}{space 1}    6.40{col 53}{space 3}0.000{col 61}{space 4} .0581985{col 74}{space 3} .1096101
+{txt}{space 11}_k_eq_p2 {c |}{col 21}{res}{space 2} .0796825{col 33}{space 2} .0137776{col 44}{space 1}    5.78{col 53}{space 3}0.000{col 61}{space 4} .0526774{col 74}{space 3} .1066877
+{txt}{space 11}_k_eq_p3 {c |}{col 21}{res}{space 2} .0606217{col 33}{space 2} .0147132{col 44}{space 1}    4.12{col 53}{space 3}0.000{col 61}{space 4} .0317825{col 74}{space 3} .0894609
+{txt}{space 11}_k_eq_p4 {c |}{col 21}{res}{space 2} .0283481{col 33}{space 2} .0132207{col 44}{space 1}    2.14{col 53}{space 3}0.032{col 61}{space 4} .0024345{col 74}{space 3} .0542618
+{txt}{space 16}age {c |}{col 21}{res}{space 2} .0196494{col 33}{space 2} .0040289{col 44}{space 1}    4.88{col 53}{space 3}0.000{col 61}{space 4} .0117524{col 74}{space 3} .0275464
+{txt}{space 19} {c |}
+{space 8}c.age#c.age {c |}{col 21}{res}{space 2}-.0005162{col 33}{space 2} .0000599{col 44}{space 1}   -8.61{col 53}{space 3}0.000{col 61}{space 4}-.0006337{col 74}{space 3}-.0003988
+{txt}{space 19} {c |}
+{space 12}ttl_exp {c |}{col 21}{res}{space 2}  .048873{col 33}{space 2} .0036671{col 44}{space 1}   13.33{col 53}{space 3}0.000{col 61}{space 4} .0416853{col 74}{space 3} .0560608
+{txt}{space 19} {c |}
+c.ttl_exp#c.ttl_exp {c |}{col 21}{res}{space 2}-.0004775{col 33}{space 2} .0001341{col 44}{space 1}   -3.56{col 53}{space 3}0.000{col 61}{space 4}-.0007403{col 74}{space 3}-.0002146
+{txt}{space 19} {c |}
+{space 13}tenure {c |}{col 21}{res}{space 2} .0096665{col 33}{space 2} .0009371{col 44}{space 1}   10.32{col 53}{space 3}0.000{col 61}{space 4} .0078297{col 74}{space 3} .0115032
+{txt}{space 19} {c |}
+{space 15}time {c |}
+{space 17}2  {c |}{col 21}{res}{space 2}  .058775{col 33}{space 2} .0086904{col 44}{space 1}    6.76{col 53}{space 3}0.000{col 61}{space 4}  .041741{col 74}{space 3}  .075809
+{txt}{space 17}3  {c |}{col 21}{res}{space 2} .0616701{col 33}{space 2} .0104441{col 44}{space 1}    5.90{col 53}{space 3}0.000{col 61}{space 4} .0411988{col 74}{space 3} .0821414
+{txt}{space 17}4  {c |}{col 21}{res}{space 2} .0645453{col 33}{space 2} .0128146{col 44}{space 1}    5.04{col 53}{space 3}0.000{col 61}{space 4} .0394276{col 74}{space 3} .0896631
+{txt}{space 17}5  {c |}{col 21}{res}{space 2} .0528849{col 33}{space 2}  .015525{col 44}{space 1}    3.41{col 53}{space 3}0.001{col 61}{space 4} .0224546{col 74}{space 3} .0833153
+{txt}{space 17}6  {c |}{col 21}{res}{space 2} .0526472{col 33}{space 2} .0185005{col 44}{space 1}    2.85{col 53}{space 3}0.004{col 61}{space 4} .0163848{col 74}{space 3} .0889097
+{txt}{space 17}7  {c |}{col 21}{res}{space 2} .0391945{col 33}{space 2} .0215651{col 44}{space 1}    1.82{col 53}{space 3}0.069{col 61}{space 4}-.0030748{col 74}{space 3} .0814638
+{txt}{space 17}8  {c |}{col 21}{res}{space 2} .0310191{col 33}{space 2}   .02451{col 44}{space 1}    1.27{col 53}{space 3}0.206{col 61}{space 4}-.0170224{col 74}{space 3} .0790606
+{txt}{space 17}9  {c |}{col 21}{res}{space 2} .0237829{col 33}{space 2} .0273636{col 44}{space 1}    0.87{col 53}{space 3}0.385{col 61}{space 4}-.0298519{col 74}{space 3} .0774177
+{txt}{space 16}10  {c |}{col 21}{res}{space 2} .0110167{col 33}{space 2} .0303628{col 44}{space 1}    0.36{col 53}{space 3}0.717{col 61}{space 4}-.0484968{col 74}{space 3} .0705302
+{txt}{space 16}11  {c |}{col 21}{res}{space 2} .0005248{col 33}{space 2}  .033287{col 44}{space 1}    0.02{col 53}{space 3}0.987{col 61}{space 4}-.0647205{col 74}{space 3} .0657702
+{txt}{space 16}12  {c |}{col 21}{res}{space 2}-.0044624{col 33}{space 2} .0361144{col 44}{space 1}   -0.12{col 53}{space 3}0.902{col 61}{space 4}-.0752496{col 74}{space 3} .0663248
+{txt}{space 16}13  {c |}{col 21}{res}{space 2}-.0209216{col 33}{space 2} .0395187{col 44}{space 1}   -0.53{col 53}{space 3}0.597{col 61}{space 4}-.0983816{col 74}{space 3} .0565383
+{txt}{space 16}14  {c |}{col 21}{res}{space 2} .0063342{col 33}{space 2} .0439576{col 44}{space 1}    0.14{col 53}{space 3}0.885{col 61}{space 4}-.0798264{col 74}{space 3} .0924947
+{txt}{space 16}15  {c |}{col 21}{res}{space 2}-.0069669{col 33}{space 2} .0515434{col 44}{space 1}   -0.14{col 53}{space 3}0.892{col 61}{space 4}-.1079961{col 74}{space 3} .0940623
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 1.224197{col 33}{space 2}  .061415{col 44}{space 1}   19.93{col 53}{space 3}0.000{col 61}{space 4} 1.103819{col 74}{space 3} 1.344575
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+F test of absorbed indicators: F({res}2693{txt}, {res}20156{txt}) = {res}10.075{col 62}{txt} Prob > F = {res}0.000
+{txt}
+{com}. //_9
+. list idcode time union2 union2_imputed if idcode==2, noobs
+{txt}
+  {c TLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c TRC}
+  {c |} {res}idcode   time   union2   union2~d {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2      1        .          0 {txt}{c |}
+  {c |} {res}     2      2        0          0 {txt}{c |}
+  {c |} {res}     2      3        0          0 {txt}{c |}
+  {c |} {res}     2      4        0          0 {txt}{c |}
+  {c |} {res}     2      5        1          1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2      6        1          1 {txt}{c |}
+  {c |} {res}     2      7        1          1 {txt}{c |}
+  {c |} {res}     2      8        .          . {txt}{c |}
+  {c |} {res}     2      9        .          . {txt}{c |}
+  {c |} {res}     2     10        1          1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2     11        .          1 {txt}{c |}
+  {c |} {res}     2     12        .          1 {txt}{c |}
+  {c BLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c BRC}
+
+{com}. //_10
+. drop union2_imputed
+{txt}
+{com}. //_11
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>     policyvar(union2) window(3) impute(instag, saveimp)
+
+{txt}Using options {bf:panelvar} and {bf:timevar} from {cmd:xtset}
+
+No proxy or instruments provided. Implementing OLS estimator
+{res}
+{txt}Linear regression, absorbing indicators{col 49}Number of obs{col 67}= {res}    22,885
+{txt}Absorbed variable: {bf:idcode}{col 49}No. of categories{col 67}= {res}     2,694
+{txt}{col 49}F({res}  27{txt},{res}  20164{txt}){col 67}= {res}    174.37
+{txt}{col 49}Prob > F{col 67}= {res}    0.0000
+{txt}{col 49}R-squared{col 67}= {res}    0.6701
+{txt}{col 49}Adj R-squared{col 67}= {res}    0.6256
+{txt}{col 49}Root MSE{col 67}= {res}    0.2850
+
+{txt}{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}            ln_wage{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}_k_eq_m4 {c |}{col 21}{res}{space 2}-.0426694{col 33}{space 2}  .013134{col 44}{space 1}   -3.25{col 53}{space 3}0.001{col 61}{space 4}-.0684132{col 74}{space 3}-.0169256
+{txt}{space 11}_k_eq_m3 {c |}{col 21}{res}{space 2}-.0539937{col 33}{space 2} .0148069{col 44}{space 1}   -3.65{col 53}{space 3}0.000{col 61}{space 4}-.0830165{col 74}{space 3}-.0249709
+{txt}{space 11}_k_eq_m2 {c |}{col 21}{res}{space 2}-.0422109{col 33}{space 2} .0133581{col 44}{space 1}   -3.16{col 53}{space 3}0.002{col 61}{space 4} -.068394{col 74}{space 3}-.0160279
+{txt}{space 11}_k_eq_p0 {c |}{col 21}{res}{space 2} .0881611{col 33}{space 2} .0126701{col 44}{space 1}    6.96{col 53}{space 3}0.000{col 61}{space 4} .0633266{col 74}{space 3} .1129956
+{txt}{space 11}_k_eq_p1 {c |}{col 21}{res}{space 2} .0838372{col 33}{space 2} .0131075{col 44}{space 1}    6.40{col 53}{space 3}0.000{col 61}{space 4} .0581453{col 74}{space 3}  .109529
+{txt}{space 11}_k_eq_p2 {c |}{col 21}{res}{space 2} .0795712{col 33}{space 2} .0137695{col 44}{space 1}    5.78{col 53}{space 3}0.000{col 61}{space 4} .0525819{col 74}{space 3} .1065604
+{txt}{space 11}_k_eq_p3 {c |}{col 21}{res}{space 2} .0605613{col 33}{space 2} .0147034{col 44}{space 1}    4.12{col 53}{space 3}0.000{col 61}{space 4} .0317414{col 74}{space 3} .0893812
+{txt}{space 11}_k_eq_p4 {c |}{col 21}{res}{space 2} .0283394{col 33}{space 2} .0132114{col 44}{space 1}    2.15{col 53}{space 3}0.032{col 61}{space 4}  .002444{col 74}{space 3} .0542349
+{txt}{space 16}age {c |}{col 21}{res}{space 2} .0196417{col 33}{space 2} .0040278{col 44}{space 1}    4.88{col 53}{space 3}0.000{col 61}{space 4} .0117468{col 74}{space 3} .0275366
+{txt}{space 19} {c |}
+{space 8}c.age#c.age {c |}{col 21}{res}{space 2}-.0005161{col 33}{space 2} .0000599{col 44}{space 1}   -8.61{col 53}{space 3}0.000{col 61}{space 4}-.0006335{col 74}{space 3}-.0003987
+{txt}{space 19} {c |}
+{space 12}ttl_exp {c |}{col 21}{res}{space 2} .0488691{col 33}{space 2} .0036658{col 44}{space 1}   13.33{col 53}{space 3}0.000{col 61}{space 4} .0416839{col 74}{space 3} .0560543
+{txt}{space 19} {c |}
+c.ttl_exp#c.ttl_exp {c |}{col 21}{res}{space 2}-.0004773{col 33}{space 2} .0001341{col 44}{space 1}   -3.56{col 53}{space 3}0.000{col 61}{space 4}-.0007401{col 74}{space 3}-.0002145
+{txt}{space 19} {c |}
+{space 13}tenure {c |}{col 21}{res}{space 2}  .009665{col 33}{space 2} .0009366{col 44}{space 1}   10.32{col 53}{space 3}0.000{col 61}{space 4} .0078292{col 74}{space 3} .0115007
+{txt}{space 19} {c |}
+{space 15}time {c |}
+{space 17}2  {c |}{col 21}{res}{space 2} .0587788{col 33}{space 2} .0086886{col 44}{space 1}    6.77{col 53}{space 3}0.000{col 61}{space 4} .0417485{col 74}{space 3} .0758091
+{txt}{space 17}3  {c |}{col 21}{res}{space 2} .0616812{col 33}{space 2} .0104416{col 44}{space 1}    5.91{col 53}{space 3}0.000{col 61}{space 4} .0412148{col 74}{space 3} .0821476
+{txt}{space 17}4  {c |}{col 21}{res}{space 2} .0645673{col 33}{space 2} .0128114{col 44}{space 1}    5.04{col 53}{space 3}0.000{col 61}{space 4} .0394559{col 74}{space 3} .0896786
+{txt}{space 17}5  {c |}{col 21}{res}{space 2}   .05292{col 33}{space 2} .0155204{col 44}{space 1}    3.41{col 53}{space 3}0.001{col 61}{space 4} .0224988{col 74}{space 3} .0833411
+{txt}{space 17}6  {c |}{col 21}{res}{space 2} .0526476{col 33}{space 2} .0184946{col 44}{space 1}    2.85{col 53}{space 3}0.004{col 61}{space 4} .0163967{col 74}{space 3} .0888985
+{txt}{space 17}7  {c |}{col 21}{res}{space 2}  .039172{col 33}{space 2} .0215588{col 44}{space 1}    1.82{col 53}{space 3}0.069{col 61}{space 4} -.003085{col 74}{space 3} .0814289
+{txt}{space 17}8  {c |}{col 21}{res}{space 2} .0310151{col 33}{space 2} .0245032{col 44}{space 1}    1.27{col 53}{space 3}0.206{col 61}{space 4}-.0170132{col 74}{space 3} .0790433
+{txt}{space 17}9  {c |}{col 21}{res}{space 2} .0238217{col 33}{space 2} .0273557{col 44}{space 1}    0.87{col 53}{space 3}0.384{col 61}{space 4}-.0297976{col 74}{space 3} .0774411
+{txt}{space 16}10  {c |}{col 21}{res}{space 2} .0110269{col 33}{space 2} .0303544{col 44}{space 1}    0.36{col 53}{space 3}0.716{col 61}{space 4}-.0484701{col 74}{space 3}  .070524
+{txt}{space 16}11  {c |}{col 21}{res}{space 2}  .000538{col 33}{space 2} .0332784{col 44}{space 1}    0.02{col 53}{space 3}0.987{col 61}{space 4}-.0646903{col 74}{space 3} .0657663
+{txt}{space 16}12  {c |}{col 21}{res}{space 2}-.0044897{col 33}{space 2} .0361042{col 44}{space 1}   -0.12{col 53}{space 3}0.901{col 61}{space 4}-.0752568{col 74}{space 3} .0662774
+{txt}{space 16}13  {c |}{col 21}{res}{space 2}-.0209286{col 33}{space 2} .0395095{col 44}{space 1}   -0.53{col 53}{space 3}0.596{col 61}{space 4}-.0983704{col 74}{space 3} .0565132
+{txt}{space 16}14  {c |}{col 21}{res}{space 2} .0063175{col 33}{space 2} .0439478{col 44}{space 1}    0.14{col 53}{space 3}0.886{col 61}{space 4}-.0798237{col 74}{space 3} .0924588
+{txt}{space 16}15  {c |}{col 21}{res}{space 2}-.0069889{col 33}{space 2} .0515324{col 44}{space 1}   -0.14{col 53}{space 3}0.892{col 61}{space 4}-.1079966{col 74}{space 3} .0940188
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 1.224299{col 33}{space 2} .0613977{col 44}{space 1}   19.94{col 53}{space 3}0.000{col 61}{space 4} 1.103954{col 74}{space 3} 1.344643
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+F test of absorbed indicators: F({res}2693{txt}, {res}20164{txt}) = {res}10.079{col 62}{txt} Prob > F = {res}0.000
+{txt}
+{com}. //_12
+. list idcode time union2 union2_imputed if idcode==2, noobs
+{txt}
+  {c TLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c TRC}
+  {c |} {res}idcode   time   union2   union2~d {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2      1        .          0 {txt}{c |}
+  {c |} {res}     2      2        0          0 {txt}{c |}
+  {c |} {res}     2      3        0          0 {txt}{c |}
+  {c |} {res}     2      4        0          0 {txt}{c |}
+  {c |} {res}     2      5        1          1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2      6        1          1 {txt}{c |}
+  {c |} {res}     2      7        1          1 {txt}{c |}
+  {c |} {res}     2      8        .          1 {txt}{c |}
+  {c |} {res}     2      9        .          1 {txt}{c |}
+  {c |} {res}     2     10        1          1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c RT}
+  {c |} {res}     2     11        .          1 {txt}{c |}
+  {c |} {res}     2     12        .          1 {txt}{c |}
+  {c BLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c BRC}
+
+{com}. //_13
+. gen union2_d=d.union2
+{txt}(4,717 missing values generated)
+
+{com}. //_14
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>     policyvar(union2) window(3) savek(vv)
+
+{txt}Using options {bf:panelvar} and {bf:timevar} from {cmd:xtset}
+
+No proxy or instruments provided. Implementing OLS estimator
+{res}
+{txt}Linear regression, absorbing indicators{col 49}Number of obs{col 67}= {res}     5,629
+{txt}Absorbed variable: {bf:idcode}{col 49}No. of categories{col 67}= {res}     1,589
+{txt}{col 49}F({res}  20{txt},{res}   4020{txt}){col 67}= {res}     16.56
+{txt}{col 49}Prob > F{col 67}= {res}    0.0000
+{txt}{col 49}R-squared{col 67}= {res}    0.8039
+{txt}{col 49}Adj R-squared{col 67}= {res}    0.7255
+{txt}{col 49}Root MSE{col 67}= {res}    0.2158
+
+{txt}{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}            ln_wage{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}_k_eq_m4 {c |}{col 21}{res}{space 2} -.043966{col 33}{space 2} .0269874{col 44}{space 1}   -1.63{col 53}{space 3}0.103{col 61}{space 4}-.0968762{col 74}{space 3} .0089442
+{txt}{space 11}_k_eq_m3 {c |}{col 21}{res}{space 2}-.0415434{col 33}{space 2} .0246832{col 44}{space 1}   -1.68{col 53}{space 3}0.092{col 61}{space 4}-.0899362{col 74}{space 3} .0068495
+{txt}{space 11}_k_eq_m2 {c |}{col 21}{res}{space 2}-.0483384{col 33}{space 2} .0221456{col 44}{space 1}   -2.18{col 53}{space 3}0.029{col 61}{space 4} -.091756{col 74}{space 3}-.0049208
+{txt}{space 11}_k_eq_p0 {c |}{col 21}{res}{space 2} .0409026{col 33}{space 2} .0215966{col 44}{space 1}    1.89{col 53}{space 3}0.058{col 61}{space 4}-.0014386{col 74}{space 3} .0832439
+{txt}{space 11}_k_eq_p1 {c |}{col 21}{res}{space 2} .0178648{col 33}{space 2} .0228461{col 44}{space 1}    0.78{col 53}{space 3}0.434{col 61}{space 4}-.0269262{col 74}{space 3} .0626557
+{txt}{space 11}_k_eq_p2 {c |}{col 21}{res}{space 2} .0257693{col 33}{space 2} .0247226{col 44}{space 1}    1.04{col 53}{space 3}0.297{col 61}{space 4}-.0227007{col 74}{space 3} .0742394
+{txt}{space 11}_k_eq_p3 {c |}{col 21}{res}{space 2} .0125174{col 33}{space 2} .0275682{col 44}{space 1}    0.45{col 53}{space 3}0.650{col 61}{space 4}-.0415316{col 74}{space 3} .0665664
+{txt}{space 11}_k_eq_p4 {c |}{col 21}{res}{space 2}-.0131412{col 33}{space 2} .0300731{col 44}{space 1}   -0.44{col 53}{space 3}0.662{col 61}{space 4}-.0721011{col 74}{space 3} .0458186
+{txt}{space 16}age {c |}{col 21}{res}{space 2}-.0092482{col 33}{space 2} .0146948{col 44}{space 1}   -0.63{col 53}{space 3}0.529{col 61}{space 4}-.0380582{col 74}{space 3} .0195619
+{txt}{space 19} {c |}
+{space 8}c.age#c.age {c |}{col 21}{res}{space 2} -.000205{col 33}{space 2} .0002251{col 44}{space 1}   -0.91{col 53}{space 3}0.363{col 61}{space 4}-.0006463{col 74}{space 3} .0002363
+{txt}{space 19} {c |}
+{space 12}ttl_exp {c |}{col 21}{res}{space 2} .0419136{col 33}{space 2} .0107666{col 44}{space 1}    3.89{col 53}{space 3}0.000{col 61}{space 4} .0208052{col 74}{space 3} .0630221
+{txt}{space 19} {c |}
+c.ttl_exp#c.ttl_exp {c |}{col 21}{res}{space 2}-.0006619{col 33}{space 2} .0004468{col 44}{space 1}   -1.48{col 53}{space 3}0.139{col 61}{space 4}-.0015379{col 74}{space 3} .0002142
+{txt}{space 19} {c |}
+{space 13}tenure {c |}{col 21}{res}{space 2} .0077222{col 33}{space 2} .0019094{col 44}{space 1}    4.04{col 53}{space 3}0.000{col 61}{space 4} .0039788{col 74}{space 3} .0114657
+{txt}{space 19} {c |}
+{space 15}time {c |}
+{space 17}6  {c |}{col 21}{res}{space 2} .0286525{col 33}{space 2}  .013708{col 44}{space 1}    2.09{col 53}{space 3}0.037{col 61}{space 4} .0017773{col 74}{space 3} .0555278
+{txt}{space 17}7  {c |}{col 21}{res}{space 2} .0389628{col 33}{space 2} .0242012{col 44}{space 1}    1.61{col 53}{space 3}0.107{col 61}{space 4} -.008485{col 74}{space 3} .0864105
+{txt}{space 17}8  {c |}{col 21}{res}{space 2} .0690636{col 33}{space 2} .0346343{col 44}{space 1}    1.99{col 53}{space 3}0.046{col 61}{space 4} .0011612{col 74}{space 3}  .136966
+{txt}{space 17}9  {c |}{col 21}{res}{space 2} .0936788{col 33}{space 2} .0443348{col 44}{space 1}    2.11{col 53}{space 3}0.035{col 61}{space 4} .0067581{col 74}{space 3} .1805995
+{txt}{space 16}10  {c |}{col 21}{res}{space 2} .0970093{col 33}{space 2}  .055501{col 44}{space 1}    1.75{col 53}{space 3}0.081{col 61}{space 4}-.0118035{col 74}{space 3} .2058221
+{txt}{space 16}11  {c |}{col 21}{res}{space 2}  .117309{col 33}{space 2} .0662891{col 44}{space 1}    1.77{col 53}{space 3}0.077{col 61}{space 4}-.0126544{col 74}{space 3} .2472723
+{txt}{space 16}12  {c |}{col 21}{res}{space 2} .1389331{col 33}{space 2} .0757329{col 44}{space 1}    1.83{col 53}{space 3}0.067{col 61}{space 4}-.0095453{col 74}{space 3} .2874115
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 1.883213{col 33}{space 2} .2462565{col 44}{space 1}    7.65{col 53}{space 3}0.000{col 61}{space 4} 1.400414{col 74}{space 3} 2.366013
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+F test of absorbed indicators: F({res}1588{txt}, {res}4020{txt}) = {res}8.341{col 62}{txt} Prob > F = {res}0.000
+{txt}
+{com}. //_15
+. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
+{txt}
+  {c TLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c TRC}
+  {c |} {res}idcode   time   union2   union2_d   vv_eq_m4   vv_eq_m3   vv_eq_m2   vv_eq_m1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  {c |} {res}    24      1        0          .          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      2        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      3        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      4        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      5        0          0          1          0          0          0 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  {c |} {res}    24      6        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      7        0          0          0          1          0          0 {txt}{c |}
+  {c |} {res}    24      8        0          0          0          0          1          0 {txt}{c |}
+  {c |} {res}    24      9        0          0          0          0          0          1 {txt}{c |}
+  {c |} {res}    24     10        1          1          0          0          0          0 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  {c |} {res}    24     11        1          0          0          0          0          0 {txt}{c |}
+  {c |} {res}    24     12        1          0          0          0          0          0 {txt}{c |}
+  {c |} {res}    24     13        1          0          .          .          0          0 {txt}{c |}
+  {c |} {res}    24     14        1          0          .          .          .          0 {txt}{c |}
+  {c |} {res}    24     15        1          0          .          .          .          . {txt}{c |}
+  {c BLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c BRC}
+
+{com}. //_16
+. drop vv*
+{txt}
+{com}. //_17
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+> policyvar(union2) window(3) savek(vv) impute(stag)
+
+{txt}Using options {bf:panelvar} and {bf:timevar} from {cmd:xtset}
+
+No proxy or instruments provided. Implementing OLS estimator
+{res}
+{txt}Linear regression, absorbing indicators{col 49}Number of obs{col 67}= {res}    22,877
+{txt}Absorbed variable: {bf:idcode}{col 49}No. of categories{col 67}= {res}     2,694
+{txt}{col 49}F({res}  27{txt},{res}  20156{txt}){col 67}= {res}    174.19
+{txt}{col 49}Prob > F{col 67}= {res}    0.0000
+{txt}{col 49}R-squared{col 67}= {res}    0.6701
+{txt}{col 49}Adj R-squared{col 67}= {res}    0.6256
+{txt}{col 49}Root MSE{col 67}= {res}    0.2851
+
+{txt}{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}            ln_wage{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}_k_eq_m4 {c |}{col 21}{res}{space 2}-.0426688{col 33}{space 2} .0131367{col 44}{space 1}   -3.25{col 53}{space 3}0.001{col 61}{space 4}-.0684177{col 74}{space 3}-.0169199
+{txt}{space 11}_k_eq_m3 {c |}{col 21}{res}{space 2}-.0540115{col 33}{space 2} .0148103{col 44}{space 1}   -3.65{col 53}{space 3}0.000{col 61}{space 4}-.0830409{col 74}{space 3}-.0249822
+{txt}{space 11}_k_eq_m2 {c |}{col 21}{res}{space 2}-.0422174{col 33}{space 2} .0133608{col 44}{space 1}   -3.16{col 53}{space 3}0.002{col 61}{space 4}-.0684057{col 74}{space 3}-.0160291
+{txt}{space 11}_k_eq_p0 {c |}{col 21}{res}{space 2} .0881427{col 33}{space 2} .0126766{col 44}{space 1}    6.95{col 53}{space 3}0.000{col 61}{space 4} .0632956{col 74}{space 3} .1129898
+{txt}{space 11}_k_eq_p1 {c |}{col 21}{res}{space 2} .0839043{col 33}{space 2} .0131147{col 44}{space 1}    6.40{col 53}{space 3}0.000{col 61}{space 4} .0581985{col 74}{space 3} .1096101
+{txt}{space 11}_k_eq_p2 {c |}{col 21}{res}{space 2} .0796825{col 33}{space 2} .0137776{col 44}{space 1}    5.78{col 53}{space 3}0.000{col 61}{space 4} .0526774{col 74}{space 3} .1066877
+{txt}{space 11}_k_eq_p3 {c |}{col 21}{res}{space 2} .0606217{col 33}{space 2} .0147132{col 44}{space 1}    4.12{col 53}{space 3}0.000{col 61}{space 4} .0317825{col 74}{space 3} .0894609
+{txt}{space 11}_k_eq_p4 {c |}{col 21}{res}{space 2} .0283481{col 33}{space 2} .0132207{col 44}{space 1}    2.14{col 53}{space 3}0.032{col 61}{space 4} .0024345{col 74}{space 3} .0542618
+{txt}{space 16}age {c |}{col 21}{res}{space 2} .0196494{col 33}{space 2} .0040289{col 44}{space 1}    4.88{col 53}{space 3}0.000{col 61}{space 4} .0117524{col 74}{space 3} .0275464
+{txt}{space 19} {c |}
+{space 8}c.age#c.age {c |}{col 21}{res}{space 2}-.0005162{col 33}{space 2} .0000599{col 44}{space 1}   -8.61{col 53}{space 3}0.000{col 61}{space 4}-.0006337{col 74}{space 3}-.0003988
+{txt}{space 19} {c |}
+{space 12}ttl_exp {c |}{col 21}{res}{space 2}  .048873{col 33}{space 2} .0036671{col 44}{space 1}   13.33{col 53}{space 3}0.000{col 61}{space 4} .0416853{col 74}{space 3} .0560608
+{txt}{space 19} {c |}
+c.ttl_exp#c.ttl_exp {c |}{col 21}{res}{space 2}-.0004775{col 33}{space 2} .0001341{col 44}{space 1}   -3.56{col 53}{space 3}0.000{col 61}{space 4}-.0007403{col 74}{space 3}-.0002146
+{txt}{space 19} {c |}
+{space 13}tenure {c |}{col 21}{res}{space 2} .0096665{col 33}{space 2} .0009371{col 44}{space 1}   10.32{col 53}{space 3}0.000{col 61}{space 4} .0078297{col 74}{space 3} .0115032
+{txt}{space 19} {c |}
+{space 15}time {c |}
+{space 17}2  {c |}{col 21}{res}{space 2}  .058775{col 33}{space 2} .0086904{col 44}{space 1}    6.76{col 53}{space 3}0.000{col 61}{space 4}  .041741{col 74}{space 3}  .075809
+{txt}{space 17}3  {c |}{col 21}{res}{space 2} .0616701{col 33}{space 2} .0104441{col 44}{space 1}    5.90{col 53}{space 3}0.000{col 61}{space 4} .0411988{col 74}{space 3} .0821414
+{txt}{space 17}4  {c |}{col 21}{res}{space 2} .0645453{col 33}{space 2} .0128146{col 44}{space 1}    5.04{col 53}{space 3}0.000{col 61}{space 4} .0394276{col 74}{space 3} .0896631
+{txt}{space 17}5  {c |}{col 21}{res}{space 2} .0528849{col 33}{space 2}  .015525{col 44}{space 1}    3.41{col 53}{space 3}0.001{col 61}{space 4} .0224546{col 74}{space 3} .0833153
+{txt}{space 17}6  {c |}{col 21}{res}{space 2} .0526472{col 33}{space 2} .0185005{col 44}{space 1}    2.85{col 53}{space 3}0.004{col 61}{space 4} .0163848{col 74}{space 3} .0889097
+{txt}{space 17}7  {c |}{col 21}{res}{space 2} .0391945{col 33}{space 2} .0215651{col 44}{space 1}    1.82{col 53}{space 3}0.069{col 61}{space 4}-.0030748{col 74}{space 3} .0814638
+{txt}{space 17}8  {c |}{col 21}{res}{space 2} .0310191{col 33}{space 2}   .02451{col 44}{space 1}    1.27{col 53}{space 3}0.206{col 61}{space 4}-.0170224{col 74}{space 3} .0790606
+{txt}{space 17}9  {c |}{col 21}{res}{space 2} .0237829{col 33}{space 2} .0273636{col 44}{space 1}    0.87{col 53}{space 3}0.385{col 61}{space 4}-.0298519{col 74}{space 3} .0774177
+{txt}{space 16}10  {c |}{col 21}{res}{space 2} .0110167{col 33}{space 2} .0303628{col 44}{space 1}    0.36{col 53}{space 3}0.717{col 61}{space 4}-.0484968{col 74}{space 3} .0705302
+{txt}{space 16}11  {c |}{col 21}{res}{space 2} .0005248{col 33}{space 2}  .033287{col 44}{space 1}    0.02{col 53}{space 3}0.987{col 61}{space 4}-.0647205{col 74}{space 3} .0657702
+{txt}{space 16}12  {c |}{col 21}{res}{space 2}-.0044624{col 33}{space 2} .0361144{col 44}{space 1}   -0.12{col 53}{space 3}0.902{col 61}{space 4}-.0752496{col 74}{space 3} .0663248
+{txt}{space 16}13  {c |}{col 21}{res}{space 2}-.0209216{col 33}{space 2} .0395187{col 44}{space 1}   -0.53{col 53}{space 3}0.597{col 61}{space 4}-.0983816{col 74}{space 3} .0565383
+{txt}{space 16}14  {c |}{col 21}{res}{space 2} .0063342{col 33}{space 2} .0439576{col 44}{space 1}    0.14{col 53}{space 3}0.885{col 61}{space 4}-.0798264{col 74}{space 3} .0924947
+{txt}{space 16}15  {c |}{col 21}{res}{space 2}-.0069669{col 33}{space 2} .0515434{col 44}{space 1}   -0.14{col 53}{space 3}0.892{col 61}{space 4}-.1079961{col 74}{space 3} .0940623
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 1.224197{col 33}{space 2}  .061415{col 44}{space 1}   19.93{col 53}{space 3}0.000{col 61}{space 4} 1.103819{col 74}{space 3} 1.344575
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+F test of absorbed indicators: F({res}2693{txt}, {res}20156{txt}) = {res}10.075{col 62}{txt} Prob > F = {res}0.000
+{txt}
+{com}. //_18
+. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
+{txt}
+  {c TLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c TRC}
+  {c |} {res}idcode   time   union2   union2_d   vv_eq_m4   vv_eq_m3   vv_eq_m2   vv_eq_m1 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  {c |} {res}    24      1        0          .          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      2        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      3        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      4        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      5        0          0          1          0          0          0 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  {c |} {res}    24      6        0          0          1          0          0          0 {txt}{c |}
+  {c |} {res}    24      7        0          0          0          1          0          0 {txt}{c |}
+  {c |} {res}    24      8        0          0          0          0          1          0 {txt}{c |}
+  {c |} {res}    24      9        0          0          0          0          0          1 {txt}{c |}
+  {c |} {res}    24     10        1          1          0          0          0          0 {txt}{c |}
+  {c LT}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c RT}
+  {c |} {res}    24     11        1          0          0          0          0          0 {txt}{c |}
+  {c |} {res}    24     12        1          0          0          0          0          0 {txt}{c |}
+  {c |} {res}    24     13        1          0          0          0          0          0 {txt}{c |}
+  {c |} {res}    24     14        1          0          0          0          0          0 {txt}{c |}
+  {c |} {res}    24     15        1          0          0          0          0          0 {txt}{c |}
+  {c BLC}{hline 8}{c -}{hline 6}{c -}{hline 8}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c -}{hline 10}{c BRC}
+
+{com}. //_^
+. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\103\impute_option_description\impute_option_description.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}13 Oct 2022, 19:32:12
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
