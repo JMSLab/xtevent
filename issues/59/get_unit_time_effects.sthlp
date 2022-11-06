@@ -32,6 +32,7 @@
 {synopt: {opth t:imevar(varname)}} variable that identifies the time periods{p_end}
 {synopt: {opt name}} name of the output file{p_end}
 {synopt:{opt noo:utput}} omit regression output{p_end}
+{synopt:{opt replace}} replace the output file{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -60,11 +61,14 @@ estimates. See {help xtevent}.{p_end}
 {opth timevar(varname)} specifies the time variable. 
 
 {phang}
-{opt name} specifies the name of the output file. It can be either only the name, so the output file will be saved in the current directory, or the whole route/name. If {opt name} is not specified, the ouput file will be saved in the current 
+{opt name} specifies the name of the output file. It can be either only the name, so the output file will be saved in the current directory, or the whole directory/name. If {opt name} is not specified, the ouput file will be saved in the current 
 directoy with the name {it: unit_time_effects}.
 
 {phang}
 {opt nooutput} omits the regression output. 
+
+{phang}
+{opt replace} replaces the output file. 
 
 {title:Examples}
 
