@@ -18,9 +18,9 @@ xteventplot
 ****** Mixed proxyiv
 *This proxyiv type used to generate an error.  
 *it will choose to normalize the coeffients closest to zero, among the available coefficients to normalize
-xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(2 eta zeta)
+xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(2 eta u)
 xteventplot
-xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(1 eta zeta)
+xtevent y x, panelvar(i) t(t) policyvar(z) window(4) proxy(zeta) proxyiv(1 eta u)
 xteventplot
 graph export xteventplot_working.png, replace
 
