@@ -14,7 +14,7 @@ program define get_unit_time_effects, eclass
 	name(string) /*name for the effects dataset*/
 	NOOutput /* supress output */
 	replace /*replace unit_time_effects file*/
-	*
+	load /*load the unit_time_effects file*/
 	]
 	;
 	#d cr
@@ -22,11 +22,18 @@ program define get_unit_time_effects, eclass
 	marksample touse
 	
 	tempvar predicted goup_interact
+		
+	* Check for a var named effects
+	cap unab effvar : effects
+	if !_rc {
+		di as err _n "You have a variable named {bf:effects}. This name is reserved for the variable that will contain the unit-time effects."
+		di as err _n "Please rename this variable before proceeding."
+		exit 110
+	}
 	
 	*check if file already exists
 	if "`replace'"==""{
 		if "`name'"!=""{
-			di "name: `name'"
 			cap confirm file "`name'"
 			if !_rc {
 				di as err _n "File `name' already exists."
@@ -64,13 +71,14 @@ program define get_unit_time_effects, eclass
 	qui predict `predicted', d	//calculates d_absorbvar, the individual coefficients for the absorbed variable.
 
 	*create file necessary for step 2
-	preserve
+	if "`load'"=="" preserve
 	qui gen effects = `predicted'
 	qui bysort `panelvar' `timevar': keep if _n==1 //or collapse?
 	keep `panelvar' `timevar' effects
 	if "`name'"!=""{
 		if strmatch("`name'", "*.dta*"){
 			save "`name'", `replace'
+			
 		}
 		else{
 			save "`name'.dta", `replace'
@@ -81,6 +89,6 @@ program define get_unit_time_effects, eclass
 	}
 
 	*go back to the original dataset 
-	restore
+	if "`load'"=="" restore
 	
 end

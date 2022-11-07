@@ -22,7 +22,8 @@
 {cmd:,}
 {opth p:anelvar(varname)}
 {opth t:imevar(varname)}
-[{it:options}]
+[{opt {opt replace}} 
+{opt {opt load}}]
 
 {synoptset 25 tabbed}{...}
 {synopthdr}
@@ -30,9 +31,10 @@
 {syntab:Main}
 {synopt: {opth p:anelvar(varname)}} variable that identifies the group at which effects will be computed {p_end}
 {synopt: {opth t:imevar(varname)}} variable that identifies the time periods{p_end}
-{synopt: {opt name}} name of the output file{p_end}
-{synopt:{opt noo:utput}} omit regression output{p_end}
-{synopt:{opt replace}} replace the output file{p_end}
+{synopt: {opt name}} name of the unit-time effects file{p_end}
+{synopt:{opt noo:utput}} omit regression table{p_end}
+{synopt:{opt replace}} replace the unit-time effects file{p_end}
+{synopt:{opt load}} replace the dataset in memory with the unit-time effects file{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -45,7 +47,7 @@
 {title:Description}
 
 {pstd}
-{cmd: get_unit_time_effects} estimates group-time fixed effects in a repeated cross-sectional dataset. It produces a dta output file with the variables, {it:panelvar}, {it:timevar}, and {it:effects}, which contains the group-time effects. 
+{cmd: get_unit_time_effects} estimates group-time fixed effects in a repeated cross-sectional dataset. It produces a dta file with the variables, {it:panelvar}, {it:timevar}, and {it:effects}, which contains the group-time effects. 
 Hansen (2007) describes a two-step procedure to obtain the coefficient estimates of covariates that vary at the group level within a repeated cross-sectional framework. The two-step procedure can be used to obtain the coefficient estimates of an  
 event-study when the data is repeated cross-sectional. {cmd:get_unit_time_effects} implements the first part of the two-step procedure. Then, {cmd: xtevent} can be used for the second part of the procedure and obtain the event-study coefficient 
 estimates. See {help xtevent}.{p_end}
@@ -61,14 +63,17 @@ estimates. See {help xtevent}.{p_end}
 {opth timevar(varname)} specifies the time variable. 
 
 {phang}
-{opt name} specifies the name of the output file. It can be either only the name, so the output file will be saved in the current directory, or the whole directory/name. If {opt name} is not specified, the ouput file will be saved in the current 
-directoy with the name {it: unit_time_effects}.
+{opt name} specifies the name of the unit-time effects file. It can be either only the name, so the output file will be saved in the current directory, or the whole directory/name. If {opt name} is not specified, the file will be saved in the 
+current directoy with the name {it: unit_time_effects}.
 
 {phang}
-{opt nooutput} omits the regression output. 
+{opt nooutput} omits the regression table. 
 
 {phang}
-{opt replace} replaces the output file. 
+{opt replace} overwrites the unit-time effects file.
+
+{phang}
+{opt load} replaces the dataset in memory with the unit-time effects file. 
 
 {title:Examples}
 
