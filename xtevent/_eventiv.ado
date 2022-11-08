@@ -22,6 +22,7 @@ program define _eventiv, rclass
 	impute(string) /*imputation on policyvar*/
 	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 	*
 	]
 	;
@@ -48,7 +49,7 @@ program define _eventiv, rclass
 		qui gen double `rr'=.
 
 		*call _eventgenvars
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
 
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
@@ -60,7 +61,30 @@ program define _eventiv, rclass
 		}
 		else loc z = "`policyvar'"
 	}
-				
+	
+	* if dataset is repeated cross-sectional, create leads of policyvar at state level
+	if "`repeatedcs'"!=""{
+		qui {
+			preserve 
+			tempfile state_level_leads
+		
+			keep if `touse'
+			keep `panelvar' `timevar' (`z')
+			bysort `panelvar' `timevar' (`z'): keep if _n==1
+			xtset `panelvar' `timevar'
+			forv v=1(1)`=-`lwindow''{
+				tempvar _fd`v'`z'
+				qui gen double `_fd`v'`z'' = f`v'.d.`z' 
+			}
+			save `state_level_leads'
+		
+			restore
+
+		*merge on the policyvar as well, so missing values in policyvar within a cell will not get lead values
+			merge m:1 `panelvar' `timevar' `z' using `state_level_leads', update nogen
+		}
+	}
+	
 	loc leads : word count `proxy'
 	if "`proxyiv'"=="" & `leads'==1 loc proxyiv "select"
 	
@@ -84,8 +108,10 @@ program define _eventiv, rclass
 			di as text _n "proxyiv=select. Selecting lead order of differenced policy variable to use as instrument."
 			loc Fstart = 0
 			forv v=1(1)`=-`lwindow'' {
-				tempvar _fd`v'`z'
-				qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
+				if "`repeatedcs'"=="" {
+					tempvar _fd`v'`z'
+					qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
+				}
 				qui reg `proxy' `_fd`v'`z'' if `touse'
 				loc Floop = e(F)
 				if `Floop' > `Fstart' {
@@ -112,7 +138,12 @@ program define _eventiv, rclass
 	if `rc' == 0 {
 		loc leadivs ""
 		foreach v in `proxyiv' {
-			qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
+			if "`repeatedcs'"!=""{
+				qui gen double _fd`v'`z' = `_fd`v'`z'' if `touse'
+			}
+			else{
+				qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
+			}
 			loc leadivs "`leadivs' _fd`v'`z'"
 		}
 		loc instype = "numlist"		
@@ -135,7 +166,12 @@ program define _eventiv, rclass
 			cap confirm integer number `v'
 			if _rc loc varivs "`varivs' `v'"
 			else {
-				qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
+				if "`repeatedcs'"!=""{
+					qui gen double _fd`v'`z' = `_fd`v'`z'' if `touse'
+				}
+				else{
+					qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
+				}
 				loc leadivs "`leadivs' _fd`v'`z'"
 			}
 		}
@@ -188,7 +224,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit		
 	
 	if "`gen'" != "nogen" {	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
@@ -248,6 +284,7 @@ program define _eventiv, rclass
 		else {
 			loc cmd "xtivreg"
 			loc ffe "fe"
+			if "`repeatedcs'"!="" qui xtset `panelvar' //xtivreg requires panelvar to be setted 
 		}
 		`cmd' `varlist' (`proxy' = `leadivs' `varivs') `included' `tte' [`weight'`exp'] if `touse' , `ffe' `small' `options'
 	}
@@ -354,6 +391,9 @@ program define _eventiv, rclass
 
 	}
 	
+	*clear xtset if repeatedcs and xtivreg, otherwise error message because timevar not setted
+	if ("`repeatedcs'"!="" & "`cmd'"=="xtivreg") qui xtset, clear
+	
 	* Return coefficients and variance matrix of the delta k estimates separately
 	mat `bb'=e(b)
 	mat `VV'=e(V)
@@ -386,12 +426,12 @@ program define _eventiv, rclass
 	
 	* Calculate mean before change in policy for 2nd axis in plot
 	* This needs to be relative to normalization
+	tempvar temp_k
 	loc absnorm=abs(`norm0')
-	
-	
+	qui gen `temp_k'=_k_eq_m`absnorm' 
 	
 	tokenize `varlist'
-	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
+	qui su `1' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly
 	loc y1 = r(mean)
 	loc depvar "`1'"	
 	
@@ -399,7 +439,7 @@ program define _eventiv, rclass
 	if "`proxy'"!="" {
 		loc nproxy: word count `proxy'
 		if `nproxy' ==1 {
-			qui su `proxy' if f`absnorm'.d.`policyvar'!=0 & f`absnorm'.d.`policyvar'!=. & `esample', meanonly
+			qui su `proxy' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly
 			loc x1 = r(mean)
 		}
 		else loc x1 = .
@@ -416,12 +456,12 @@ program define _eventiv, rclass
 	
 	_estimates hold main
 	
-	qui _eventols `varlist' [`weight'`exp'] if `touse' , panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0')
+	qui _eventols `varlist' [`weight'`exp'] if `touse' , panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0') impute(`impute')
 	mat `deltaov' = r(delta)
 	mat `Vdeltaov' = r(Vdelta)
 	*mat `deltay' = `bby'[1,${names}]
 	*mat `Vdeltay' = `VVy'[${names},${names}]
-	qui _eventols `proxy' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0')
+	qui _eventols `proxy' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0') impute(`impute')
 	mat `deltax' = r(delta)
 	mat `Vdeltax' = r(Vdelta)		
 	*mat `deltax' = `bb'[1,${names}]

@@ -118,9 +118,7 @@ program define _eventgenvars, rclass
 	
 	*** repeated cross section databases
 	if "`repeatedcs'"!=""{
-		*parserepeatedcs `repeatedcs'
-		*loc rcsmethod = r(rcsmethod)
-		
+	
 		*checks:
 		*same value of policyvar in a (policyvar, time) cell
 		tempvar maxpol minpol 
@@ -145,11 +143,11 @@ program define _eventgenvars, rclass
 		qui keep if `touse'
 		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z if `touse', by(state t)
 	}
-	qui xtset `panelvar' `timevar'
-
+	
 	********************* find first and last observed values *********************
-
+	
 	*find minimum valid time (time where there is a no-missing observation)
+	qui xtset `panelvar' `timevar'
 	tempvar zmint zmint2 zminv zminv2 zmaxt zmaxt2 zmaxv zmaxv2
 	qui{
 		by `panelvar' (`timevar'): egen long `zmint'=min(`timevar') if !missing(`z') & `touse'	
@@ -571,8 +569,11 @@ program define _eventgenvars, rclass
 		loc imputed_include ""
 		cap confirm var `policyvar'_imputed
 		if !_rc loc imputed_include "`policyvar'_imputed"
+		loc kvarss ""
+		cap confirm var __k 
+		if !_rc loc kvarss "_k* __k"
 
-		keep `panelvar' `timevar' `policyvar' _k* __k `_ttrend_include' `imputed_include' `rr'
+		keep `panelvar' `timevar' `policyvar' `kvarss' `_ttrend_include' `imputed_include' `rr'
 		tempfile state_level
 		qui save `state_level'
 		*close the process with the state level dataset 
@@ -582,8 +583,8 @@ program define _eventgenvars, rclass
 		*merge also on the policyvar, so missing values in policyvar within a cell, will not get event-time dummy values 
 		qui merge m:1 `panelvar' `timevar' `policyvar' using `state_level', update nogen
 		*sort `panelvar' `timevar'
-		order `imputed_include' _k* __k `_ttrend_include', after(`policyvar')
-		xtset, clear //otherwise next time you run it: error, repeated time variable 
+		if "`kvarss'"!="" order `imputed_include' `kvarss' `_ttrend_include', after(`policyvar')
+		xtset, clear //otherwise next time you run it: error, repeated time variable (in the repeated cross-sectional setting timevar cannot be setted)
 	}
 end
 
