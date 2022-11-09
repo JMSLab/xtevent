@@ -216,7 +216,33 @@ xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5)
 xteventplot, textboxoption(color(blue) size(large))
 drop y2
 
+******** Repeated cross-sectional data 
+use "small_repeated_cross_sectional_example31.dta", clear
+xtset, clear
+*OLS, impute and trend adjustment
+xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(ols)) impute(instag) repeatedcs 
+xteventplot
+*IV
+xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x) repeatedcs 
+xteventplot
+xteventplot, overlay(iv)
+
+*get unit time effects
+get_unit_time_effects y u eta, panelvar(state) timevar(t) replace name("effect_file.dta")
+
+*get_unit_time_effects + xtevent 
+get_unit_time_effects y u eta, panelvar(state) timevar(t) name("effect_file.dta") replace 
+bysort state t (z): keep if _n==1
+keep state t z
+merge m:1 state t using "effect_file.dta"
+drop _merge
+xtevent effects, panelvar(state) t(t) policyvar(z) window(5) 
+xteventplot
+
 *------------------------ 2.2: Replicate 2b and test basic funcionality without controls ----------------------------------
+
+* load panel dataset
+use "example31.dta", clear
 
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) plot
 
