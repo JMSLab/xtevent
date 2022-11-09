@@ -79,7 +79,7 @@ current directoy with the name {it: unit_time_effects}.
 
 {hline}
 {pstd}Load the small version of the repeated cross-sectional dataset example31{p_end}
-{phang2}{cmd:. use "https://github.com/JMSLab/xtevent/blob/issue_59-allow-for-data-structures-that-cannot-be-xtseted/issues/59/small_repeated_cross_sectional_example31.dta?raw=true", clear}{p_end}
+{phang2}{cmd:. use "https://github.com/JMSLab/xtevent/blob/main/test/small_repeated_cross_sectional_example31.dta?raw=true", clear}{p_end}
 {phang2}{cmd:. {stata xtset, clear}}{p_end}
 
 {pstd}Get unit-time effects and save them as a dta file with the name and directory indicated through the {bf:name} option. Add the {bf:replace} option to overwrite the file.{p_end}
