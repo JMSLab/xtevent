@@ -154,24 +154,64 @@ program define _eventiv, rclass
 		
 	* Count normalizations and set omitted coefs for plot accordingly
 	* Need one more normalization per IV
-	
 	loc komit ""
 	loc norm0 "`norm'"
-	
+
+	*split proxyiv into two lists: only numbers or only varnames 
+	loc proxyiv_numbers ""
+	loc proxyiv_vrnames ""
+	foreach v in `proxyiv' {
+		cap confirm number `v'
+		if !_rc loc proxyiv_numbers "`proxyiv_numbers' `v'"
+		else loc proxyiv_vrnames "`proxyiv_vrnames' `v'"
+	}
+	foreach v in `proxyiv_numbers' {
+		cap confirm integer number `v'
+		if _rc {
+			di as err "Lead of policy variable to be used as instrument must be an integer."
+			exit 301
+		}
+	}
 	* Set normalizations in case these are numbers, so we are using leads of delta z
 	loc ivnorm ""
 	if "`instype'"=="numlist" | "`instype'"=="mixed" {
-		foreach v in `proxyiv' {
-			cap confirm integer number `v'
-			if !_rc {
-				if (`v'==1 | `v'==2) & `norm'==-1 loc ivnorm "`ivnorm' -2"				
-				else loc ivnorm "`ivnorm' -`v'"		
+		foreach v in `proxyiv_numbers' {
+			if `=-`v''==`norm' {
+				loc ivnorm "`ivnorm' `=-`v'-1'"
+				di as txt _n "The corresponding coefficient of lead `v' and the normalized coefficient were the same. Lead `=`v'' has been changed to `=`v'+1'."
+				loc repeatlead=strmatch("`proxyiv_numbers'","*`=`v'+1'*")
+				if "`repeatlead'"=="0"{
+					di as txt _n "The coefficient at `=-`v'-1' was selected to be normalized to zero."
+				}
 			}
 			else {
-				di as err "Lead of policy variable to be used as instrument must be an integer."
-				exit 301
+				loc ivnorm "`ivnorm' -`v'"	
+				di as txt _n "The coefficient at `=-`v'' was selected to be normalized to zero."
 			}
 		}
+	}
+	
+	
+	*set normalizations for external instruments 
+	*get the pool of available coefficients for normalization
+	loc available ""
+	forvalues l=1/`=-`lwindow'+1'{
+		loc l = -`l'
+		loc available "`available' `l'"
+	}
+	loc available: list available - norm 
+	foreach var of loc proxyiv_vrnames{
+		loc available: list available - ivnorm
+		loc lenav: word count(`available')
+		if `lenav'==1 {
+			di as err "Number of instruments specified in {bf:proxyiv} reached the maximum imposed by the number of pre-event periods."
+			exit 301
+		}
+		*normalize one extra coefficient per external instrument 
+		loc avcomma : subinstr loc available " " ",", all
+		loc avmax = max(`avcomma') //choose the coefficient closest to zero 
+		loc ivnorm "`ivnorm' `avmax'" // add it to ivnorm 
+		di as text _n "The coefficient at `avmax' was selected to be normalized to zero"
 	}
 	
 	* Normalize one more lag if normalization = number of proxys
