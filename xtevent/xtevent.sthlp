@@ -50,6 +50,7 @@
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
+{synopt:{opt rep:eatedcs}} indicate that the dataset in memory is repeated cross-sectional{p_end}
 {synopt:{opt plot}} display plot. See {help xteventplot}.{p_end} 
 {synopt:{it: additional_options}} additional options to be passed to estimation command{p_end}
 {synoptline}
@@ -207,6 +208,11 @@ Note that standard errors may be different and singleton clusters may be dropped
 {phang}
 {opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd xtevent} includes time and
 unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
+
+{phang}
+{opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which 
+{opt policyvar} changes, while the observations in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional dataset, which involves using {cmd:get_unit_time_effects} 
+first, and then {cmd:xtevent}. See {help get_unit_time_effects}.
 
 {phang}
 {opt plot} displays a default event study plot with 95% and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
