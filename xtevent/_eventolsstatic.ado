@@ -15,6 +15,7 @@ program define _eventolsstatic, rclass
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	impute(string) /*impute policyvar */
 	STatic /* Estimate static model */
+	REPeatedcs /*data is repeated cross-sectional*/
 	*
 	]
 	;
@@ -34,7 +35,7 @@ program define _eventolsstatic, rclass
 		tempvar rr
 		qui gen double `rr'=.
 
-	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static' rr(`rr')
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
 	
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
