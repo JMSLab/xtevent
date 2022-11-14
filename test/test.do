@@ -228,15 +228,15 @@ xteventplot
 xteventplot, overlay(iv)
 
 *get unit time effects
-get_unit_time_effects y u eta, panelvar(state) timevar(t) replace name("effect_file.dta")
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("effect_file.dta", replace) 
 
 *get_unit_time_effects + xtevent 
-get_unit_time_effects y u eta, panelvar(state) timevar(t) name("effect_file.dta") replace 
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("effect_file.dta", replace) 
 bysort state t (z): keep if _n==1
 keep state t z
 merge m:1 state t using "effect_file.dta"
 drop _merge
-xtevent effects, panelvar(state) t(t) policyvar(z) window(5) 
+xtevent _unittimeeffects, panelvar(state) t(t) policyvar(z) window(5) 
 xteventplot
 
 *------------------------ 2.2: Replicate 2b and test basic funcionality without controls ----------------------------------
