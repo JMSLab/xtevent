@@ -3,7 +3,7 @@
 . ****************** issue 59: examples to check implementation *******************
 . 
 . *directory where to save plots
-. global plots "C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation"
+. global plots "C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation"
 
 . *install the xtevent version from the branch
 . *net install xtevent, from("https://raw.githubusercontent.com/JMSLab/xtevent/issue_59-allow-for-data-structures-t
@@ -32,6 +32,8 @@
 . cap drop aa*
 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) repeatedcs savek(aa)
+
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
 
 No proxy or instruments provided. Implementing OLS estimator
 Policyvar has missing values within some (state, t) cells. These observations will be ignored.
@@ -80,6 +82,8 @@ F test of absorbed indicators: F(44, 8811) = 1.487            Prob > F = 0.020
 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(ols)) repeatedcs savek(aa)
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 No proxy or instruments provided. Implementing OLS estimator
 Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
@@ -126,8 +130,9 @@ F test of absorbed indicators: F(45, 8848) = 1.447            Prob > F = 0.027
 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(ols)) impute(instag) repeatedcs savek(aa)
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 No proxy or instruments provided. Implementing OLS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 Linear regression, absorbing indicators         Number of obs     =     19,999
 Absorbed variable: state                        No. of categories =         46
@@ -186,8 +191,9 @@ F test of absorbed indicators: F(45, 19923) = 2.614           Prob > F = 0.000
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(ols)) impute(instag, saveimp) savek(aa) r
 > epeatedcs
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 No proxy or instruments provided. Implementing OLS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 Linear regression, absorbing indicators         Number of obs     =     19,999
 Absorbed variable: state                        No. of categories =         46
@@ -249,6 +255,8 @@ F test of absorbed indicators: F(45, 19923) = 2.614           Prob > F = 0.000
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(ols)) impute(instag, saveimp) savek(aa) r
 > epeatedcs
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 No proxy or instruments provided. Implementing OLS estimator
 
 Policyvar is not constant within some (state, t) cells.
@@ -258,7 +266,7 @@ end of do-file
 
 r(198);
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . replace z=0 in 1
 (1 real change made)
@@ -266,16 +274,16 @@ r(198);
 . 
 end of do-file
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
-. 
 . *xteventplot
 . cap drop aa*
 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(gmm) saveoverlay) impute(stag) repeatedcs
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 No proxy or instruments provided. Implementing OLS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 Linear regression, absorbing indicators         Number of obs     =     19,784
 Absorbed variable: state                        No. of categories =         46
@@ -329,10 +337,14 @@ F test of absorbed indicators: F(45, 19707) = 2.214           Prob > F = 0.000
 . xteventplot
 
 . graph export test_xteventplot.png, replace
-(note: file test_xteventplot.png not found)
 (file test_xteventplot.png written in PNG format)
 
 . xteventplot, overlay(trend)
+
+. 
+end of do-file
+
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . 
 . ************* IV
@@ -348,6 +360,8 @@ F test of absorbed indicators: F(45, 19707) = 2.214           Prob > F = 0.000
 . 
 . *default 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) proxy(x) repeatedcs 
+
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
 
 Proxy for the confound specified. Implementing FHS estimator
 
@@ -411,8 +425,9 @@ Instruments:    _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1 _k_eq_p2
 . *impute 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x)  repeatedcs 
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 Proxy for the confound specified. Implementing FHS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 proxyiv=select. Selecting lead order of differenced policy variable to use as instrument.
 
@@ -488,8 +503,9 @@ Instruments:    _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1 _k_eq_p2
 . *nofe (then, it uses ivregress)
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x) repeatedcs nofe
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 Proxy for the confound specified. Implementing FHS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 proxyiv=select. Selecting lead order of differenced policy variable to use as instrument.
 
@@ -556,8 +572,9 @@ Instruments:   _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1
 . *reghdfe (then, it uses ivreghdfe)
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x) repeatedcs reghdfe
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 Proxy for the confound specified. Implementing FHS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 proxyiv=select. Selecting lead order of differenced policy variable to use as instrument.
 
@@ -629,8 +646,9 @@ Absorbed degrees of freedom:
 . *xteventplot 
 . xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x)  repeatedcs 
 
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
 Proxy for the confound specified. Implementing FHS estimator
-Policyvar has missing values within some (state, t) cells. These observations will be ignored.
 
 proxyiv=select. Selecting lead order of differenced policy variable to use as instrument.
 
@@ -706,11 +724,10 @@ Instruments:    _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1 _k_eq_p2
 . 
 end of do-file
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . 
 . ******************************  get_unit_time_effects (2nd approach) *****************
-. *please, mannually install the ado file in your computer
 . 
 . *load the small version of the repeated cross-sectional dataset example31
 . use "https://github.com/JMSLab/xtevent/blob/issue_59-allow-for-data-structures-that-cannot-be-xtseted/issues/59/s
@@ -726,9 +743,17 @@ end of do-file
 (1 real change made, 1 to missing)
 
 . 
-. *default: save it as get_unit_time_effects.dta in the current directory
+. *move to my directory
+. cd "$plots"
+C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation
+
+. *erase in case those file already exists
 . cap erase unit_time_effects.dta
 
+. cap erase myfile.dta
+
+. 
+. *if saving is not specified, save it as unit_time_effects.dta in the current directory
 . get_unit_time_effects y u eta, panelvar(state) timevar(t)
 
 Linear regression, absorbing indicators         Number of obs     =     20,000
@@ -749,8 +774,9 @@ Absorbed variable: __000002                     No. of categories =        920
 F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
 file unit_time_effects.dta saved
 
-. *replace get_unit_time_effects.dta file
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) replace
+. 
+. *save it with a desired file name: if only a name, it will save it in the currect directory
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("myfile")
 
 Linear regression, absorbing indicators         Number of obs     =     20,000
 Absorbed variable: __000002                     No. of categories =        920
@@ -768,87 +794,153 @@ Absorbed variable: __000002                     No. of categories =        920
        _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
 ------------------------------------------------------------------------------
 F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
-file unit_time_effects.dta saved
+file myfile.dta saved
+
+. *add dta extension
+. cap erase myfile.dta
+
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("myfile.dta")
+
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: __000002                     No. of categories =        920
+                                                F(   2,  19078)   =    1504.21
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.5781
+                                                Adj R-squared     =     0.5577
+                                                Root MSE          =     1.4229
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+           u |   -.001644   .0051352    -0.32   0.749    -.0117095    .0084214
+         eta |   .2550361   .0046498    54.85   0.000     .2459221    .2641501
+       _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
+file myfile.dta saved
+
+. *specify a directory 
+. cap erase myfile.dta
+
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta")
+
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: __000002                     No. of categories =        920
+                                                F(   2,  19078)   =    1504.21
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.5781
+                                                Adj R-squared     =     0.5577
+                                                Root MSE          =     1.4229
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+           u |   -.001644   .0051352    -0.32   0.749    -.0117095    .0084214
+         eta |   .2550361   .0046498    54.85   0.000     .2459221    .2641501
+       _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
+file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta saved
+
+. *don't use quotes
+. cap erase myfile.dta
+
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving($plots/myfile.dta)
+
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: __000002                     No. of categories =        920
+                                                F(   2,  19078)   =    1504.21
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.5781
+                                                Adj R-squared     =     0.5577
+                                                Root MSE          =     1.4229
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+           u |   -.001644   .0051352    -0.32   0.749    -.0117095    .0084214
+         eta |   .2550361   .0046498    54.85   0.000     .2459221    .2641501
+       _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
+file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta saved
+
+. 
+. *try to save it again: expect an error
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta")
+
+File C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta already exists.
+r(602);
+
+end of do-file
+
+r(602);
+
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
+
+. *avoid the error message: add the replace suboption
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace)
+
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: __000002                     No. of categories =        920
+                                                F(   2,  19078)   =    1504.21
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.5781
+                                                Adj R-squared     =     0.5577
+                                                Root MSE          =     1.4229
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+           u |   -.001644   .0051352    -0.32   0.749    -.0117095    .0084214
+         eta |   .2550361   .0046498    54.85   0.000     .2459221    .2641501
+       _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
+file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta saved
+
+. 
+end of do-file
+
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . *don't show the regression output
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) replace noo
-file unit_time_effects.dta saved
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace) nooutput
+file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta saved
 
-. *specify file's name and route
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) replace name("C:\Users\tino_\Dropbox\PC\Documents\xteve
-> nt\issues\59\implementation\effect_file.dta")
+. 
+end of do-file
 
-Linear regression, absorbing indicators         Number of obs     =     20,000
-Absorbed variable: __000002                     No. of categories =        920
-                                                F(   2,  19078)   =    1504.21
-                                                Prob > F          =     0.0000
-                                                R-squared         =     0.5781
-                                                Adj R-squared     =     0.5577
-                                                Root MSE          =     1.4229
-
-------------------------------------------------------------------------------
-           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
--------------+----------------------------------------------------------------
-           u |   -.001644   .0051352    -0.32   0.749    -.0117095    .0084214
-         eta |   .2550361   .0046498    54.85   0.000     .2459221    .2641501
-       _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
-------------------------------------------------------------------------------
-F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
-file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect_file.dta saved
-
-. *specify only file's name 
-. cd "$plots"
-C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation
-
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) replace name(effect_file)
-
-Linear regression, absorbing indicators         Number of obs     =     20,000
-Absorbed variable: __000002                     No. of categories =        920
-                                                F(   2,  19078)   =    1504.21
-                                                Prob > F          =     0.0000
-                                                R-squared         =     0.5781
-                                                Adj R-squared     =     0.5577
-                                                Root MSE          =     1.4229
-
-------------------------------------------------------------------------------
-           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
--------------+----------------------------------------------------------------
-           u |   -.001644   .0051352    -0.32   0.749    -.0117095    .0084214
-         eta |   .2550361   .0046498    54.85   0.000     .2459221    .2641501
-       _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
-------------------------------------------------------------------------------
-F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
-file effect_file.dta saved
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . 
 . *error if there is a variable named effects 
-. gen effects=.
+. gen _unittimeeffects=.
 (20,000 missing values generated)
 
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) name("C:\Users\tino_\Dropbox\PC\Documents\xtevent\issue
-> s\59\implementation\effect_file.dta") replace 
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace)
 
-You have a variable named effects. This name is reserved for the variable that will contain the unit-time effects.
+You have a variable named _unittimeeffects. This name is reserved for the variable that will contain the unit-time 
+> effects.
 
-Please rename this variable before proceeding.
+Please rename or drop this variable before proceeding.
 r(110);
 
 end of do-file
 
 r(110);
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
-. drop effects
+. drop _unittimeeffects
 
 . 
 end of do-file
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
-. *use load option to load the effects file 
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) name("C:\Users\tino_\Dropbox\PC\Documents\xtevent\issue
-> s\59\implementation\effect_file.dta") replace load
+. *use clear option to load the effects file 
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace) clear
 
 Linear regression, absorbing indicators         Number of obs     =     20,000
 Absorbed variable: __000002                     No. of categories =        920
@@ -866,12 +958,12 @@ Absorbed variable: __000002                     No. of categories =        920
        _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
 ------------------------------------------------------------------------------
 F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
-file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect_file.dta saved
+file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta saved
 
 . 
 end of do-file
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . 
 . ************************ get_unit_time_effects + xtevent ***********************
@@ -888,7 +980,7 @@ end of do-file
 (1 real change made, 1 to missing)
 
 . 
-. get_unit_time_effects y u eta, panelvar(state) timevar(t) name("$plots\effect_file.dta") replace 
+. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace)
 
 Linear regression, absorbing indicators         Number of obs     =     20,000
 Absorbed variable: __000002                     No. of categories =        920
@@ -906,14 +998,14 @@ Absorbed variable: __000002                     No. of categories =        920
        _cons |   2.251179   .0100644   223.68   0.000     2.231452    2.270906
 ------------------------------------------------------------------------------
 F test of absorbed indicators: F(919, 19078) = 18.418         Prob > F = 0.000
-file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect_file.dta saved
+file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation/myfile.dta saved
 
 . bysort state t (z): keep if _n==1
 (19,080 observations deleted)
 
 . keep state t z
 
-. merge m:1 state t using "$plots\effect_file.dta"
+. merge m:1 state t using "$plots\myfile.dta"
 
     Result                           # of obs.
     -----------------------------------------
@@ -925,7 +1017,7 @@ file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect
 
 . cap drop aa*
 
-. xtevent effects, panelvar(state) t(t) policyvar(z) window(5) savek(aa)
+. xtevent _unittimeeffects, panelvar(state) t(t) policyvar(z) window(5) savek(aa)
 
 No proxy or instruments provided. Implementing OLS estimator
 
@@ -938,7 +1030,7 @@ Absorbed variable: state                        No. of categories =         45
                                                 Root MSE          =     0.3208
 
 ------------------------------------------------------------------------------
-     effects |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+_unittimee~s |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
     _k_eq_m6 |  -.0845748   .1632699    -0.52   0.605    -.4057211    .2365715
     _k_eq_m5 |   .0648243   .1758963     0.37   0.713    -.2811577    .4108064
@@ -970,17 +1062,257 @@ F test of absorbed indicators: F(44, 340) = 0.989             Prob > F = 0.496
 . xteventplot
 
 . graph export "$plots\get_utf_plus_xtevent.png", replace
-(note: file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\get_utf_plus_xtevent.png not found
-> )
-(file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\get_utf_plus_xtevent.png written in PNG 
+(file C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation\get_utf_plus_xtevent.png written in PNG 
 > format)
 
 . 
 end of do-file
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD3884_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
 
 . 
+. ******************* static
+. *load the small version of the repeated cross-sectional dataset example31
+. use "https://github.com/JMSLab/xtevent/blob/issue_59-allow-for-data-structures-that-cannot-be-xtseted/issues/59/s
+> mall_repeated_cross_sectional_example31.dta?raw=true", clear
+
+. xtset, clear
+
+. ****repeated cross-sectional
+. *ols
+. xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) static repeatedcs
+
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
+option static specified. Estimating static model
+
+Plotting options ignored
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: state                        No. of categories =         46
+                                                F(  20,  19934)   =     744.21
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.4866
+                                                Adj R-squared     =     0.4849
+                                                Root MSE          =     1.5356
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    __00000C |   2.023979   .0503121    40.23   0.000     1.925364    2.122595
+             |
+           t |
+          2  |   .1676187   .0687028     2.44   0.015     .0329555    .3022819
+          3  |   .3802633   .0687517     5.53   0.000     .2455042    .5150223
+          4  |   .5078863   .0698064     7.28   0.000     .3710599    .6447127
+          5  |   .7472692   .0692284    10.79   0.000     .6115757    .8829627
+          6  |   .9364629   .0694271    13.49   0.000       .80038    1.072546
+          7  |   1.057862   .0692967    15.27   0.000     .9220348    1.193689
+          8  |   1.136833   .0679366    16.73   0.000     1.003672    1.269995
+          9  |    1.46715   .0687868    21.33   0.000     1.332322    1.601977
+         10  |   1.602228   .0696061    23.02   0.000     1.465794    1.738662
+         11  |   1.763134   .0684208    25.77   0.000     1.629024    1.897245
+         12  |   2.003192   .0692596    28.92   0.000     1.867437    2.138947
+         13  |    2.14208   .0701629    30.53   0.000     2.004555    2.279605
+         14  |   2.363576   .0703703    33.59   0.000     2.225645    2.501508
+         15  |   2.632911   .0702403    37.48   0.000     2.495234    2.770588
+         16  |   2.710091   .0691976    39.16   0.000     2.574458    2.845724
+         17  |   2.871419   .0697862    41.15   0.000     2.734632    3.008205
+         18  |   3.088504   .0705883    43.75   0.000     2.950145    3.226863
+         19  |    3.33021   .0704581    47.27   0.000     3.192106    3.468314
+         20  |   3.433454   .0706181    48.62   0.000     3.295037    3.571872
+             |
+       _cons |   .2586998   .0489467     5.29   0.000     .1627602    .3546395
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(45, 19934) = 6.734           Prob > F = 0.000
+
+. *IV
+. xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) proxy(x) static repeatedcs
+
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
+option static specified. Estimating static model
+
+Plotting options ignored
+
+Proxy for the confound specified. Implementing FHS estimator
+
+proxyiv=select. Selecting lead order of differenced policy variable to use as instrument.
+
+Lead 1 selected.
+
+Fixed-effects (within) IV regression            Number of obs     =     19,005
+Group variable: state                           Number of groups  =         46
+
+R-sq:                                           Obs per group:
+     within  = 0.4256                                         min =        249
+     between = 0.9838                                         avg =      413.2
+     overall = 0.4862                                         max =        486
+
+                                                Wald chi2(20)     =   51510.98
+corr(u_i, Xb)  = -0.0229                        Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+           x |   .2382911   .0391435     6.09   0.000     .1615713    .3150108
+    __00000M |   1.025171   .1676194     6.12   0.000     .6966435    1.353699
+             |
+           t |
+          2  |   .2133027   .0677779     3.15   0.002     .0804605    .3461448
+          3  |   .4141609   .0676509     6.12   0.000     .2815676    .5467542
+          4  |   .5769161   .0693839     8.31   0.000     .4409263     .712906
+          5  |   .8112636   .0687282    11.80   0.000     .6765588    .9459684
+          6  |   .9627499   .0682077    14.11   0.000     .8290653    1.096435
+          7  |   1.123886    .068788    16.34   0.000     .9890638    1.258708
+          8  |   1.270686   .0700548    18.14   0.000     1.133381    1.407991
+          9  |   1.595758   .0705044    22.63   0.000     1.457572    1.733944
+         10  |   1.740506   .0718068    24.24   0.000     1.599768    1.881245
+         11  |   1.935654   .0725515    26.68   0.000     1.793455    2.077852
+         12  |    2.21381   .0759385    29.15   0.000     2.064973    2.362647
+         13  |   2.351229   .0765389    30.72   0.000     2.201215    2.501242
+         14  |   2.572205   .0766801    33.54   0.000     2.421914    2.722495
+         15  |   2.857614    .077698    36.78   0.000     2.705329      3.0099
+         16  |   2.942488   .0773749    38.03   0.000     2.790836     3.09414
+         17  |   3.163412   .0829461    38.14   0.000      3.00084    3.325983
+         18  |   3.343739   .0804814    41.55   0.000     3.185999     3.50148
+         19  |   3.648547   .0859368    42.46   0.000     3.480114     3.81698
+             |
+       _cons |   .2399397   .0480963     4.99   0.000     .1456726    .3342067
+-------------+----------------------------------------------------------------
+     sigma_u |  .08896771
+     sigma_e |    1.50587
+         rho |  .00347838   (fraction of variance due to u_i)
+------------------------------------------------------------------------------
+F  test that all u_i=0:     F(45,18939) =     1.30        Prob > F    = 0.0837
+------------------------------------------------------------------------------
+Instrumented:   x
+Instruments:    __00000M 2.t 3.t 4.t 5.t 6.t 7.t 8.t 9.t 10.t 11.t 12.t 13.t
+                14.t 15.t 16.t 17.t 18.t 19.t _fd1__00000M
+------------------------------------------------------------------------------
+
+. **** panel
+. *ols
+. xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) static repeatedcs
+
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
+option static specified. Estimating static model
+
+Plotting options ignored
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: state                        No. of categories =         46
+                                                F(  20,  19934)   =     744.21
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.4866
+                                                Adj R-squared     =     0.4849
+                                                Root MSE          =     1.5356
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    __00000C |   2.023979   .0503121    40.23   0.000     1.925364    2.122595
+             |
+           t |
+          2  |   .1676187   .0687028     2.44   0.015     .0329555    .3022819
+          3  |   .3802633   .0687517     5.53   0.000     .2455042    .5150223
+          4  |   .5078863   .0698064     7.28   0.000     .3710599    .6447127
+          5  |   .7472692   .0692284    10.79   0.000     .6115757    .8829627
+          6  |   .9364629   .0694271    13.49   0.000       .80038    1.072546
+          7  |   1.057862   .0692967    15.27   0.000     .9220348    1.193689
+          8  |   1.136833   .0679366    16.73   0.000     1.003672    1.269995
+          9  |    1.46715   .0687868    21.33   0.000     1.332322    1.601977
+         10  |   1.602228   .0696061    23.02   0.000     1.465794    1.738662
+         11  |   1.763134   .0684208    25.77   0.000     1.629024    1.897245
+         12  |   2.003192   .0692596    28.92   0.000     1.867437    2.138947
+         13  |    2.14208   .0701629    30.53   0.000     2.004555    2.279605
+         14  |   2.363576   .0703703    33.59   0.000     2.225645    2.501508
+         15  |   2.632911   .0702403    37.48   0.000     2.495234    2.770588
+         16  |   2.710091   .0691976    39.16   0.000     2.574458    2.845724
+         17  |   2.871419   .0697862    41.15   0.000     2.734632    3.008205
+         18  |   3.088504   .0705883    43.75   0.000     2.950145    3.226863
+         19  |    3.33021   .0704581    47.27   0.000     3.192106    3.468314
+         20  |   3.433454   .0706181    48.62   0.000     3.295037    3.571872
+             |
+       _cons |   .2586998   .0489467     5.29   0.000     .1627602    .3546395
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(45, 19934) = 6.734           Prob > F = 0.000
+
+. *IV
+. xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) proxy(x) static repeatedcs
+
+Option repeatedcs was specified. Using state as the panel variable and t as the time variable.
+
+option static specified. Estimating static model
+
+Plotting options ignored
+
+Proxy for the confound specified. Implementing FHS estimator
+
+proxyiv=select. Selecting lead order of differenced policy variable to use as instrument.
+
+Lead 1 selected.
+
+Fixed-effects (within) IV regression            Number of obs     =     19,005
+Group variable: state                           Number of groups  =         46
+
+R-sq:                                           Obs per group:
+     within  = 0.4256                                         min =        249
+     between = 0.9838                                         avg =      413.2
+     overall = 0.4862                                         max =        486
+
+                                                Wald chi2(20)     =   51510.98
+corr(u_i, Xb)  = -0.0229                        Prob > chi2       =     0.0000
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+           x |   .2382911   .0391435     6.09   0.000     .1615713    .3150108
+    __00000M |   1.025171   .1676194     6.12   0.000     .6966435    1.353699
+             |
+           t |
+          2  |   .2133027   .0677779     3.15   0.002     .0804605    .3461448
+          3  |   .4141609   .0676509     6.12   0.000     .2815676    .5467542
+          4  |   .5769161   .0693839     8.31   0.000     .4409263     .712906
+          5  |   .8112636   .0687282    11.80   0.000     .6765588    .9459684
+          6  |   .9627499   .0682077    14.11   0.000     .8290653    1.096435
+          7  |   1.123886    .068788    16.34   0.000     .9890638    1.258708
+          8  |   1.270686   .0700548    18.14   0.000     1.133381    1.407991
+          9  |   1.595758   .0705044    22.63   0.000     1.457572    1.733944
+         10  |   1.740506   .0718068    24.24   0.000     1.599768    1.881245
+         11  |   1.935654   .0725515    26.68   0.000     1.793455    2.077852
+         12  |    2.21381   .0759385    29.15   0.000     2.064973    2.362647
+         13  |   2.351229   .0765389    30.72   0.000     2.201215    2.501242
+         14  |   2.572205   .0766801    33.54   0.000     2.421914    2.722495
+         15  |   2.857614    .077698    36.78   0.000     2.705329      3.0099
+         16  |   2.942488   .0773749    38.03   0.000     2.790836     3.09414
+         17  |   3.163412   .0829461    38.14   0.000      3.00084    3.325983
+         18  |   3.343739   .0804814    41.55   0.000     3.185999     3.50148
+         19  |   3.648547   .0859368    42.46   0.000     3.480114     3.81698
+             |
+       _cons |   .2399397   .0480963     4.99   0.000     .1456726    .3342067
+-------------+----------------------------------------------------------------
+     sigma_u |  .08896771
+     sigma_e |    1.50587
+         rho |  .00347838   (fraction of variance due to u_i)
+------------------------------------------------------------------------------
+F  test that all u_i=0:     F(45,18939) =     1.30        Prob > F    = 0.0837
+------------------------------------------------------------------------------
+Instrumented:   x
+Instruments:    __00000M 2.t 3.t 4.t 5.t 6.t 7.t 8.t 9.t 10.t 11.t 12.t 13.t
+                14.t 15.t 16.t 17.t 18.t 19.t _fd1__00000M
+------------------------------------------------------------------------------
+
+. 
+end of do-file
+
+. do "C:\Users\tino_\AppData\Local\Temp\STD37f0_000000.tmp"
+
 . ******************* verify that estimation for panel datasets keep working 
 . 
 . use "https://github.com/JMSLab/xtevent/blob/main/test/example31.dta?raw=true", clear

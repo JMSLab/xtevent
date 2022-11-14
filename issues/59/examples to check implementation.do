@@ -1,7 +1,7 @@
 ****************** issue 59: examples to check implementation *******************
 
 *directory where to save plots
-global plots "C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation"
+global plots "C:/Users/tino_/Dropbox/PC/Documents/xtevent/issues/59/implementation"
 *install the xtevent version from the branch
 *net install xtevent, from("https://raw.githubusercontent.com/JMSLab/xtevent/issue_59-allow-for-data-structures-that-cannot-be-xtseted") replace
 
@@ -75,7 +75,6 @@ xteventplot
 xteventplot, overlay(iv)
 
 ******************************  get_unit_time_effects (2nd approach) *****************
-*please, mannually install the ado file in your computer
 
 *load the small version of the repeated cross-sectional dataset example31
 use "https://github.com/JMSLab/xtevent/blob/issue_59-allow-for-data-structures-that-cannot-be-xtseted/issues/59/small_repeated_cross_sectional_example31.dta?raw=true", clear
@@ -84,25 +83,42 @@ xtset, clear
 replace z=. if state==1 & t==12 
 replace z=. in 1
 
-*default: save it as get_unit_time_effects.dta in the current directory
-cap erase unit_time_effects.dta
-get_unit_time_effects y u eta, panelvar(state) timevar(t)
-*replace get_unit_time_effects.dta file
-get_unit_time_effects y u eta, panelvar(state) timevar(t) replace
-*don't show the regression output
-get_unit_time_effects y u eta, panelvar(state) timevar(t) replace noo
-*specify file's name and route
-get_unit_time_effects y u eta, panelvar(state) timevar(t) replace name("C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect_file.dta")
-*specify only file's name 
+*move to my directory
 cd "$plots"
-get_unit_time_effects y u eta, panelvar(state) timevar(t) replace name(effect_file)
+*erase in case those file already exists
+cap erase unit_time_effects.dta
+cap erase myfile.dta
+
+*if saving is not specified, save it as unit_time_effects.dta in the current directory
+get_unit_time_effects y u eta, panelvar(state) timevar(t)
+
+*save it with a desired file name: if only a name, it will save it in the currect directory
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("myfile")
+*add dta extension
+cap erase myfile.dta
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("myfile.dta")
+*specify a directory 
+cap erase myfile.dta
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta")
+*don't use quotes
+cap erase myfile.dta
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving($plots/myfile.dta)
+
+*try to save it again: expect an error
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta")
+*avoid the error message: add the replace suboption
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace)
+
+*don't show the regression output
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace) nooutput
 
 *error if there is a variable named effects 
-gen effects=.
-get_unit_time_effects y u eta, panelvar(state) timevar(t) name("C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect_file.dta") replace 
-drop effects
-*use load option to load the effects file 
-get_unit_time_effects y u eta, panelvar(state) timevar(t) name("C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\59\implementation\effect_file.dta") replace load
+gen _unittimeeffects=.
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace)
+drop _unittimeeffects
+
+*use clear option to load the effects file 
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace) clear
 
 ************************ get_unit_time_effects + xtevent ***********************
 use "https://github.com/JMSLab/xtevent/blob/issue_59-allow-for-data-structures-that-cannot-be-xtseted/issues/59/small_repeated_cross_sectional_example31.dta?raw=true", clear
@@ -111,17 +127,32 @@ xtset, clear
 replace z=. if state==1 & t==12 
 replace z=. in 1
 
-get_unit_time_effects y u eta, panelvar(state) timevar(t) name("$plots\effect_file.dta") replace 
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("$plots/myfile.dta", replace)
 bysort state t (z): keep if _n==1
 keep state t z
-merge m:1 state t using "$plots\effect_file.dta"
+merge m:1 state t using "$plots\myfile.dta"
 drop _merge
 cap drop aa*
-xtevent effects, panelvar(state) t(t) policyvar(z) window(5) savek(aa)
+xtevent _unittimeeffects, panelvar(state) t(t) policyvar(z) window(5) savek(aa)
 xteventplot
 graph export "$plots\get_utf_plus_xtevent.png", replace
 
-******************* verify that estimation for panel datasets keep working 
+******************* static
+*load the small version of the repeated cross-sectional dataset example31
+use "https://github.com/JMSLab/xtevent/blob/issue_59-allow-for-data-structures-that-cannot-be-xtseted/issues/59/small_repeated_cross_sectional_example31.dta?raw=true", clear
+xtset, clear
+****repeated cross-sectional
+*ols
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) static repeatedcs
+*IV
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) proxy(x) static repeatedcs
+**** panel
+*ols
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) static repeatedcs
+*IV
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) proxy(x) static repeatedcs
+
+******************* verify that estimation for panel datasets keeps working 
 
 use "https://github.com/JMSLab/xtevent/blob/main/test/example31.dta?raw=true", clear
 xtevent y, panelvar(i) t(t) policyvar(z) window(5) impute(stag) trend(-3)
