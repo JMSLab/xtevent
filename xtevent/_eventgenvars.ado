@@ -38,7 +38,7 @@ program define _eventgenvars, rclass
 	* kg grouped event time variable, grouping dummies outside window
 	
 	loc z = "`policyvar'"
-
+	
 	if "`static'"==""{
 		* Get span of calendar time
 		qui su `timevar' if `touse', d
@@ -125,14 +125,14 @@ program define _eventgenvars, rclass
 		qui bysort `panelvar' `timevar': egen `maxpol'=max(`policyvar') if `touse' //it ignores missing values
 		qui by `panelvar' `timevar': egen `minpol'=min(`policyvar') if `touse'
 		cap assert `maxpol'==`minpol'
-		if _rc {
+		if _rc { 
 			di as err _n "{bf:Policyvar} is not constant within some (`panelvar', `timevar') cells."
 			exit 110
 		}
 		
 		*missing values 
 		cap assert !missing(`policyvar') if `touse'
-		if _rc {
+		if _rc & "`rr'"=="" { //use rr to avoid showing twice the error message in the case of IV
 			di "{bf:Policyvar} has missing values within some (`panelvar', `timevar') cells. These observations will be ignored."
 		}
 	
@@ -312,6 +312,8 @@ program define _eventgenvars, rclass
 	}
 
 ****************************** event-time dummies ***********************
+	*If impute is specified in the IV setting, note that the following code section is not executed in the first call to _eventgenvars because in the call the option static is added 
+	
 	if "`static'"==""{
 		qui xtset `panelvar' `timevar', noquery
 		
@@ -563,6 +565,7 @@ program define _eventgenvars, rclass
 	*close de process for the repeated cross-sectional dataset
 	if "`repeatedcs'"!=""{
 		*check if trend and imputed policyvar should be merged to the individual-level dataset
+		*In the IV setting, note that the following variables will not be created in the first call to _eventgenvars because the code that generates them was not executed
 		loc _ttrend_include ""
 		cap confirm var _ttrend
 		if !_rc loc _ttrend_include "_ttrend"

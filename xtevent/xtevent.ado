@@ -34,6 +34,7 @@ program define xtevent, eclass
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 	plot /* Produce plot */
 	*
 	/*
@@ -42,9 +43,7 @@ program define xtevent, eclass
 	nofe /* No fixed effects */
 	note /* No time effects */
 	Kvars(string) /* Use previously generated dummies */
-	impute(string) /* impute policyvar */
-	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
-		
+	impute(string) /* impute policyvar */	
 	*/
 	]
 	;
@@ -134,7 +133,10 @@ program define xtevent, eclass
 		}
 	}
 	
-	
+	*inform panel variables in case of data is repeated cross-sectional
+	if "`repeatedcs'"!=""{
+		di as txt _n "Option {bf:repeatedcs} was specified. Using {bf:`panelvar'} as the panel variable and {bf:`timevar'} as the time variable."
+	}
 		
 	
 	
@@ -195,14 +197,14 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 
 			if _rc {
 				errpostest
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
-			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 		
+			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
 			if _rc {
 				errpostest
 			}
@@ -215,7 +217,7 @@ program define xtevent, eclass
 		di as txt _n "Plotting options ignored"
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `options' `static'
+			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' `static'
 			if _rc {
 				errpostest
 			}
@@ -224,7 +226,7 @@ program define xtevent, eclass
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			
-			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `options' `static'
+			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' `static'
 			if _rc {
 				errpostest
 			}

@@ -1,6 +1,6 @@
 
 {smcl}
-{* *! version 1.0.0 Sep 13 2022}{...}
+{* *! version 1.0.0 Nov 14 2022}{...}
 {cmd:help get_unit_time_effects}
 {hline}
 
@@ -22,19 +22,17 @@
 {cmd:,}
 {opth p:anelvar(varname)}
 {opth t:imevar(varname)}
-[{opt {opt replace}} 
-{opt {opt load}}]
+[{it:options}]
 
-{synoptset 25 tabbed}{...}
+{synoptset 28 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
-{synopt: {opth p:anelvar(varname)}} variable that identifies the group at which effects will be computed {p_end}
+{synopt: {opth p:anelvar(varname)}} variable that identifies the groups at which effects will be computed {p_end}
 {synopt: {opth t:imevar(varname)}} variable that identifies the time periods{p_end}
-{synopt: {opt name}} name of the unit-time effects file{p_end}
+{synopt: {opt saving(filename, [replace])}} save results to {it:filename}{p_end}
 {synopt:{opt noo:utput}} omit regression table{p_end}
-{synopt:{opt replace}} replace the unit-time effects file{p_end}
-{synopt:{opt load}} replace the dataset in memory with the unit-time effects file{p_end}
+{synopt:{opt clear}} replace data in memory with the unit-time effects file{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -47,10 +45,10 @@
 {title:Description}
 
 {pstd}
-{cmd: get_unit_time_effects} estimates group-time fixed effects in a repeated cross-sectional dataset. It produces a dta file with the variables, {it:panelvar}, {it:timevar}, and {it:effects}, which contains the group-time effects. 
-Hansen (2007) describes a two-step procedure to obtain the coefficient estimates of covariates that vary at the group level within a repeated cross-sectional framework. The two-step procedure can be used to obtain the coefficient estimates of an  
-event-study when the data is repeated cross-sectional. {cmd:get_unit_time_effects} implements the first part of the two-step procedure. Then, {cmd: xtevent} can be used for the second part of the procedure and obtain the event-study coefficient 
-estimates. See {help xtevent}.{p_end}
+{cmd: get_unit_time_effects} estimates group-time fixed effects in a repeated cross-sectional dataset. It produces a Stata data file (.dta file) with the variables, {it:panelvar}, {it:timevar}, and {it:_unittimeeffects}, which contains the 
+group-time effects. Hansen (2007) describes a two-step procedure to obtain the coefficient estimates of covariates that vary at the group level within a repeated cross-sectional framework. The two-step procedure can be used to obtain the
+ coefficient estimates of an event-study when the data is repeated cross-sectional. {cmd:get_unit_time_effects} implements the first part of the two-step procedure. Then, {cmd: xtevent} can be used for the second part and obtain the event-study 
+ coefficient estimates. See {help xtevent}.{p_end}
 
 {marker options}{...}
 {title:Options}
@@ -63,17 +61,14 @@ estimates. See {help xtevent}.{p_end}
 {opth timevar(varname)} specifies the time variable. 
 
 {phang}
-{opt name} specifies the name of the unit-time effects file. It can be either only the name, so the output file will be saved in the current directory, or the whole directory/name. If {opt name} is not specified, the file will be saved in the 
-current directoy with the name {it: unit_time_effects}.
+{opt saving(filename, [replace])} specifies the name of the Stata data file (.dta file) which contains the unit-time effects estimates. If {opt saving} is not specified, the file will be saved in the 
+current directory with the name {it: unit_time_effects.dta}. The suboption {it:replace} overwrites the unit-time effect file.
 
 {phang}
 {opt nooutput} omits the regression table. 
 
 {phang}
-{opt replace} overwrites the unit-time effects file.
-
-{phang}
-{opt load} replaces the dataset in memory with the unit-time effects file. 
+{opt clear} replaces the dataset in memory with the unit-time effects file. 
 
 {title:Examples}
 
@@ -82,8 +77,8 @@ current directoy with the name {it: unit_time_effects}.
 {phang2}{cmd:. use "https://github.com/JMSLab/xtevent/blob/main/test/small_repeated_cross_sectional_example31.dta?raw=true", clear}{p_end}
 {phang2}{cmd:. {stata xtset, clear}}{p_end}
 
-{pstd}Get unit-time effects and save them as a dta file with the name and directory indicated through the {bf:name} option. Add the {bf:replace} option to overwrite the file.{p_end}
-{phang2}{cmd:. get_unit_time_effects y u eta, panelvar(state) timevar(t) name("My_directory\effect_file.dta") replace}
+{pstd}Get unit-time effects and save them as a dta file with the name and directory indicated through the {bf:saving} option. Add the {bf:replace} suboption to overwrite the file.{p_end}
+{phang2}{cmd:. get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("My_directory/effect_file.dta", replace)}
 {p_end}
 
 {pstd}Proceed with {bf:xtevent}{p_end}
@@ -91,7 +86,7 @@ current directoy with the name {it: unit_time_effects}.
 {phang2}{cmd:. {stata "keep state t z"}}{p_end}
 
 {pstd}Merge with the file that was created with {bf:get_unit_time_effects}{p_end}
-{phang2}{cmd:. merge m:1 state t using "My_directory\effect_file.dta"}{p_end}
+{phang2}{cmd:. merge m:1 state t using "My_directory/effect_file.dta"}{p_end}
 {phang2}{cmd:. {stata drop _merge}}{p_end}
 {pstd}Use {bf:xtevent} to estimate an event-study{p_end}
 {phang2}{cmd:. {stata xtevent effects, panelvar(state) t(t) policyvar(z) window(5)}}{p_end}
@@ -101,5 +96,5 @@ current directoy with the name {it: unit_time_effects}.
 
 {title:References}
 
-{pstd}Hansen, C. (2007) . "Generalized Least Squares Inference in Panel and Multilevel Models with Serial Correlation and Fixed Effects" Journal of Econometrics. 
+{pstd}Hansen, C. (2007) . "Generalized Least Squares Inference in Panel and Multilevel Models with Serial Correlation and Fixed Effects" Journal of Econometrics, 140(2), 670-694. 
 

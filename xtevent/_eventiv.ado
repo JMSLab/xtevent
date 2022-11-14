@@ -42,9 +42,11 @@ program define _eventiv, rclass
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
 	
-	*if impute is specified, bring the imputed policyvar calling the part of _eventgenvars that imputes
+	*If imputation is specified, _eventiv will call _eventgenvars twice.
+	*The first call only imputes the policyvar, but the second call imputes both the policyvar and the event-time dummies
+	*First call: bring the imputed policyvar calling only _eventgenvars' imputation code. This call is neccesary to choose the lead order using the imputed policyvar
 	if "`impute'"!=""{
-		*tempvar to be imputed
+		*rr is the tempvar to be imputed: create it in _eventiv, so after _eventgenvars we can still have access to it.
 		tempvar rr
 		qui gen double `rr'=.
 
@@ -53,12 +55,13 @@ program define _eventiv, rclass
 
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
-		*if imputation succeeded:
+		*if imputation succeeded, use the values brought by rr
 		if "`impute'"!="" {
 			tempvar zimp
 			qui gen double `zimp'=`rr'
 			loc z="`zimp'"
-		}
+		} 
+		*otherwise, keep using the original policyvar 
 		else loc z = "`policyvar'"
 	}
 	
@@ -224,6 +227,7 @@ program define _eventiv, rclass
 	loc komit: list uniq komit		
 	
 	if "`gen'" != "nogen" {	
+		*If impute was specified, this is the second call to _eventgenvars: this time, both the policyvar and the event-time dummies will be imputed. Additional computations will happen as well  (e.g., macros, etc.).
 		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)	
