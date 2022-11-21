@@ -92,7 +92,7 @@ program define _eventols, rclass
 	* error messages for sun_abraham
 	loc sun_abraham ""
 	if "`cohort'"!="" & "`control_cohort'"!="" {
-		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated with Sun and Abraham's Interaction Weighted Estimator."
+		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)."
 		loc sun_abraham "sun_abraham"
 	}
 	if "`saveint'"!="" & "`sun_abraham'"==""{
