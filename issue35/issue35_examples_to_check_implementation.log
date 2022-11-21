@@ -32,34 +32,34 @@
 
 . 
 . *default 
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe  
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe  
 
 No proxy or instruments provided. Implementing OLS estimator
 (MWFE estimator converged in 2 iterations)
 
 HDFE Linear regression                            Number of obs   =     20,000
-Absorbing 2 HDFE groups                           F(   9,    999) =     473.66
+Absorbing 2 HDFE groups                           F(   9,    999) =     887.62
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.7831
-                                                  Adj R-squared   =     0.7713
-                                                  Within R-sq.    =     0.2078
-Number of clusters (i)       =      1,000         Root MSE        =     1.0490
+                                                  R-squared       =     0.8018
+                                                  Adj R-squared   =     0.7911
+                                                  Within R-sq.    =     0.2763
+Number of clusters (i)       =      1,000         Root MSE        =     1.0026
 
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4134686   .0631263    -6.55   0.000     -.537344   -.2895932
-    _k_eq_m3 |  -.0583756   .0770123    -0.76   0.449    -.2095001    .0927489
-    _k_eq_m2 |  -.0563041     .08271    -0.68   0.496    -.2186094    .1060012
-    _k_eq_p0 |   1.280428   .0806589    15.87   0.000     1.122147    1.438708
-    _k_eq_p1 |   1.206089   .0879063    13.72   0.000     1.033587    1.378591
-    _k_eq_p2 |    1.32568   .0817119    16.22   0.000     1.165334    1.486027
-    _k_eq_p3 |   1.336384   .0854027    15.65   0.000     1.168795    1.503973
-    _k_eq_p4 |   1.399209   .0700091    19.99   0.000     1.261828    1.536591
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |   .0677146   .0615231     1.10   0.271    -.0530147    .1884438
+    _k_eq_m3 |   .1467335   .0749326     1.96   0.050    -.0003098    .2937768
+    _k_eq_m2 |   .0642474   .0809199     0.79   0.427    -.0945451      .22304
+    _k_eq_p0 |    1.02733   .0799084    12.86   0.000     .8705221    1.184137
+    _k_eq_p1 |   .9523305   .0863351    11.03   0.000     .7829115     1.12175
+    _k_eq_p2 |   1.042206     .08151    12.79   0.000     .8822554    1.202156
+    _k_eq_p3 |   1.030213   .0841186    12.25   0.000     .8651436    1.195282
+    _k_eq_p4 |   1.024496   .0644215    15.90   0.000     .8980795    1.150913
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -75,104 +75,104 @@ Absorbed degrees of freedom:
 . ************ verify equivalence between xtevent and EventStudyInteract ********
 . 
 . *Sun-Abraham within xtevent (cohort + control_cohort + reghdfe)
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) 
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) 
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                          Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
+Absorbing 2 HDFE groups                         F(   9,    999)   =     887.62
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7831
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8018
+                                                Adj R-squared     =     0.7911
+                                                Root MSE          =     1.0026
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-    _k_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-    _k_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-    _k_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-    _k_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-    _k_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-    _k_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-    _k_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+    _k_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+    _k_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+    _k_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+    _k_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+    _k_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+    _k_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+    _k_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 . 
 . *EventStudyInteract
 . cap drop g*
 
-. xtevent y, panelvar(i) t(t) policyvar(z) window(3) impute(stag) savek(g, noestimate)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) savek(g, noestimate)
 
 No proxy or instruments provided. Implementing OLS estimator
 
 . eventstudyinteract y g_eq_m4-g_eq_m2 g_eq_p0-g_eq_p4, cohort(time_of_treat) ///
->             control_cohort(never_treat) covariates(x)  ///
+>             control_cohort(never_treat) covariates(eta)  ///
 >                         absorb(i t) vce(cluster i)
 (obs=6,280)
 
 IW estimates for dynamic effects                Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F( 132,    999)   =      85.25
+Absorbing 2 HDFE groups                         F( 132,    999)   =     131.85
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7845
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8032
+                                                Adj R-squared     =     0.7912
+                                                Root MSE          =     1.0024
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-     g_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-     g_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-     g_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-     g_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-     g_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-     g_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-     g_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-     g_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
+     g_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+     g_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+     g_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+     g_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+     g_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+     g_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+     g_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+     g_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
 ------------------------------------------------------------------------------
 
 .                         
 . **************** test postestimation options on xtevent  ********************
 . 
 . *diffavg 
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) diffavg
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) diffavg
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                          Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
+Absorbing 2 HDFE groups                         F(   9,    999)   =     887.62
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7831
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8018
+                                                Adj R-squared     =     0.7911
+                                                Root MSE          =     1.0026
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-    _k_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-    _k_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-    _k_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-    _k_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-    _k_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-    _k_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-    _k_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+    _k_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+    _k_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+    _k_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+    _k_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+    _k_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+    _k_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+    _k_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 Difference in pre and post-period averages from lincom:
@@ -183,42 +183,42 @@ Difference in pre and post-period averages from lincom:
 ------------------------------------------------------------------------------
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |      1.459     .04694    31.09   0.000        1.367       1.552
+         (1) |      .9516     .04645    20.49   0.000        .8605       1.043
 ------------------------------------------------------------------------------
 
 . 
 . *trend adjustment by GMM
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) trend(-2,method(gmm) saveoverlay)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) trend(-2,method(gmm) saveoverlay)
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                            Number of obs   =     20,000
-Absorbing 2 HDFE groups                           F(   9,    999) =     473.66
+Absorbing 2 HDFE groups                           F(   9,    999) =     887.62
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.7831
-                                                  Adj R-squared   =     0.7713
-                                                  Within R-sq.    =     0.2078
-Number of clusters (i)       =      1,000         Root MSE        =     1.0490
+                                                  R-squared       =     0.8018
+                                                  Adj R-squared   =     0.7911
+                                                  Within R-sq.    =     0.2763
+Number of clusters (i)       =      1,000         Root MSE        =     1.0026
 
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |   -.255928   .2057531    -1.24   0.214    -.6596859    .1478299
-    _k_eq_m3 |    .055719   .0775434     0.72   0.473    -.0964476    .2078856
-    _k_eq_m2 |          0   .0863485     0.00   1.000    -.1694451    .1694451
-    _k_eq_p0 |    1.22361   .1327171     9.22   0.000     .9631734    1.484046
-    _k_eq_p1 |   1.104694   .2083362     5.30   0.000     .6958668     1.51352
-    _k_eq_p2 |   1.196207   .2770164     4.32   0.000     .6526067    1.739808
-    _k_eq_p3 |   1.136618   .3532201     3.22   0.001     .4434799    1.829757
-    _k_eq_p4 |   1.122235   .4283264     2.62   0.009     .2817118    1.962757
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |  -.1217823   .2011539    -0.61   0.545    -.5165151    .2729504
+    _k_eq_m3 |   .0181845   .0756066     0.24   0.810    -.1301816    .1665505
+    _k_eq_m2 |          0   .0841112     0.00   1.000    -.1650549    .1650549
+    _k_eq_p0 |   1.090371   .1302012     8.37   0.000     .8348719     1.34587
+    _k_eq_p1 |   1.090283   .2043194     5.34   0.000     .6893385    1.491227
+    _k_eq_p2 |   1.273714   .2709857     4.70   0.000     .7419475     1.80548
+    _k_eq_p3 |   1.302223   .3460563     3.76   0.000      .623142    1.981303
+    _k_eq_p4 |   1.334286   .4183846     3.19   0.001     .5132722    2.155299
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -234,35 +234,35 @@ Absorbed degrees of freedom:
 
 . 
 . ***check the returned matrices
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) 
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) 
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                          Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
+Absorbing 2 HDFE groups                         F(   9,    999)   =     887.62
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7831
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8018
+                                                Adj R-squared     =     0.7911
+                                                Root MSE          =     1.0026
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-    _k_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-    _k_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-    _k_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-    _k_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-    _k_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-    _k_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-    _k_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+    _k_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+    _k_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+    _k_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+    _k_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+    _k_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+    _k_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+    _k_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 . ereturn list
@@ -270,12 +270,12 @@ Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
 scalars:
             e(lwindow) =  -3
             e(rwindow) =  3
-                 e(ll) =  -28807.91186011525
+                 e(ll) =  -27902.92247511631
                e(ll_0) =  -31136.87514676814
-                 e(r2) =  .7830710679781092
-          e(r2_within) =  .2077642986003423
-               e(r2_a) =  .7713161292759584
-        e(r2_a_within) =  .2073884554021663
+                 e(r2) =  .8018407779715347
+          e(r2_within) =  .2763122521771803
+               e(r2_a) =  .791102931772322
+        e(r2_a_within) =  .2759689286976373
             e(N_clust) =  1000
            e(N_clust1) =  1000
          e(sumweights) =  20000
@@ -297,10 +297,10 @@ scalars:
                e(df_m) =  9
                 e(tss) =  96238.72990747112
          e(tss_within) =  26351.96174710024
-                e(rss) =  20876.96489797091
-                e(mss) =  75361.76500950022
-               e(rmse) =  1.049031594759969
-                  e(F) =  473.6579685126018
+                e(rss) =  19070.59184747207
+                e(mss) =  77168.13805999905
+               e(rmse) =  1.002621408541502
+                  e(F) =  887.6227765027602
 
 macros:
              e(depvar) : "y"
@@ -311,7 +311,7 @@ macros:
               e(komit) : "-1"
                  e(df) : "999"
                 e(cmd) : "reghdfe"
-            e(cmdline) : "xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) regh.."
+            e(cmdline) : "xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) re.."
               e(names) : "_k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4"
          e(properties) : "b V"
           e(dofmethod) : "pairwise clusters continuous"
@@ -324,7 +324,7 @@ macros:
               e(title) : "HDFE Linear regression"
              e(title2) : "Absorbing 2 HDFE groups"
              e(title3) : "Statistics robust to heteroskedasticity"
-          e(indepvars) : "_k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 x _cons"
+          e(indepvars) : "_k_eq_m4 _k_eq_m3 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2 _k_eq_p3 _k_eq_p4 eta _cons"
            e(clustvar) : "i"
           e(clustvar1) : "i"
             e(vcetype) : "Robust"
@@ -349,48 +349,48 @@ functions:
 
 e(b_interact)[18,8]
       _k_eq_m4    _k_eq_m3    _k_eq_m2    _k_eq_p0    _k_eq_p1    _k_eq_p2    _k_eq_p3    _k_eq_p4
- 3           0           0  -.89503939   .87126245   .50334402    1.470554   .87905428   1.2797329
- 4           0   .29655481   -.2747106   2.0332012   2.4051478   2.1590681   1.4483793   1.5972343
- 5  -1.2654172  -.46440021  -.06398717   .88457061   1.2962113   1.3717499   .83161153   1.0505201
- 6   -.2794015  -.24491892   .01492656   1.6029413   1.4091623   .73018332   .89800016   1.4323533
- 7  -.17818711   .04363951   .23704546   1.1692955   1.2309443   1.3591735   1.7618325   1.5553757
- 8  -.34945315  -.05786537   -.1470466   1.0526249   1.0861686   1.3869066   1.1114382   1.4349484
- 9  -.39752301  -.34959937   .06127075   1.4150616   1.3025899   1.5512087   1.4139595    1.551809
-10  -.59102285  -.18680196  -.05398829   1.1223694   1.3605182   1.1732281   .94842372   1.3582697
-11  -.19808547  -.03781496  -.30624464   1.8381064   .80448334   1.4524433   1.2539685   1.3955915
-12  -.42882335  -.32023774   .11159274   1.0958228   1.2011519   1.0739682   1.8841227    1.232011
-13   -.3263139   .03758153   .15354591   1.3905558   1.4156851   1.4223332   1.5568694   1.5055283
-14  -.69613424  -.28520551  -.46168528   .75422793   .66451742   1.2286703   1.3658087   1.2320204
-15  -.16823371   .42735794   .32300154   1.7015887   1.6194548   1.3104708   1.3715008   1.6097961
-16  -.46246747   .15120598     .097562   1.3485691   1.0236004   1.5117961   1.5425204   1.0931278
-17  -.13232452   .20704123   .09214701    1.442776   1.5064109   1.6079507   1.8831862           0
-18   -.1797525   .51882794   .65414698   1.7053584   1.2912406    1.617913           0           0
-19  -1.1965201   -.9914267  -.78889136   .11575614   .29369075           0           0           0
-20  -.62725266   .13903017  -.75591393   .98025401           0           0           0           0
+ 3           0           0  -.22486413   .90663858   .45968312   1.2041503    .7555786     1.06915
+ 4           0    .7112601  -.08689105   1.5017932   1.9655354   1.8852767   1.1210267   1.1706083
+ 5  -.77773927  -.34496705  -.00516564   .57549121   1.0093845   .99586149   .50677012    .7767764
+ 6   .15124329   .04839438   .07873656    1.346696   1.1082377   .34029202   .44113263   .93411676
+ 7   .28033263   .38316996   .35998102     .891003   .93318648   1.1107663   1.4768404   1.1771817
+ 8   .09700612   .20307467   .01705449   .78998373   .79275784    1.097962   .70264393   .93415806
+ 9   .04147056  -.13272535   .18651863   1.2091007    1.047014   1.2673995   1.1632674   1.1981134
+10  -.16177279   .01121756   .09186864   .82842407   1.0171552   .78024614   .64624537   .88944048
+11   .27780827   .21508222  -.21299347   1.5611868   .69069494   1.3020526   1.0781861   1.2006527
+12   .09751819  -.14723298   .33095057   .86452372   .96270658   .81220982    1.535161   .81455137
+13   .18311833   .23465968   .22054042   1.0870434   1.1218778   1.1631984   1.1606602   1.1053259
+14  -.26922879  -.18968536  -.36489713   .52654914   .36915825   .83097279    1.037638     .846945
+15   .21295213   .54500302   .40673175   1.4228793   1.3517842   1.0635366   1.0830763   1.3025318
+16   .01928271   .26870109    .1176241   1.0826531   .81439743   1.1240565   1.2369229   .74017311
+17   .43678379    .4600582   .24059238   1.2686724    1.293382   1.3925556   1.6187279           0
+18   .47526374   .78552965   .89866426   1.5424733   1.2403788   1.4725655           0           0
+19  -.71841744  -.89045469  -.71803676  -.15149892  -.04920412           0           0           0
+20  -.09982098   .17609072   -.7310789   .79800741           0           0           0           0
 
 . *variance of cohort-relative time effects
 . mat li e(V_interact)
 
 e(V_interact)[18,8]
      _k_eq_m4   _k_eq_m3   _k_eq_m2   _k_eq_p0   _k_eq_p1   _k_eq_p2   _k_eq_p3   _k_eq_p4
- 3          0          0  .14503413  .31558062   .2762976  .74547525  .87645114  .01812623
- 4          0  .25285475  .17424069  .26909472  .33243097  .13455618  .13206143  .18418295
- 5  .23830449  .08564076  .32758436  .08284217   .2983264  .13431835  .22994938  .09086158
- 6  .06458697  .11508536  .09337183  .05140092  .09884611   .0748988  .11139786   .0445527
- 7  .07557859  .13730696  .17668959  .13542109  .09349825  .13595445  .08356797  .10282442
- 8  .03839463  .07171653  .09792639  .06432818  .08952644  .07366924  .06603413  .05740641
- 9  .04004357  .05631858  .12277566  .11880867  .10685925  .10921658  .05628003  .04092351
-10  .04519943  .04871534  .05202756  .09164624  .10229998  .04109438  .08880342  .03655708
-11  .07237722  .13110959  .07853136  .15158951   .1363508   .1059005  .12948783  .10123192
-12  .05579873  .08609215  .08057019  .11887672   .0601601  .14954955  .06631381  .04898249
-13  .03614352  .04409438  .08083305  .09739068  .10650421  .07331557  .08505228  .04729112
-14  .04563821   .0823679  .06566189  .06673067   .0832167   .0793284  .07394536  .06124475
-15  .08183404  .15213835  .09015969  .10179429  .21999526  .14981913  .19902138  .10700379
-16  .08706065   .0922313  .11207063  .11947655  .15598628  .12355487  .10840981  .12136011
-17  .05546258  .09426139  .10674388  .05396017  .07734221  .06681288  .10445824          0
-18   .0525886  .13365885  .16117697  .15233795  .12010584  .15594099          0          0
-19  .03268603   .1413108  .21549683  .13087207  .05869283          0          0          0
-20  .07488097  .08531445  .12134881  .09676251          0          0          0          0
+ 3          0          0  .09431674  .22064617  .16436785  .85283246   .8549393  .06109479
+ 4          0  .29623897  .15419729  .26730138  .35064535  .11665835  .12846326  .10476004
+ 5  .19853033  .07926291  .27203291  .07621864   .2633327  .13181736  .21179671  .09135971
+ 6  .06723927   .1194084  .09120838  .05729529  .09281237  .07211233   .1173197  .04446934
+ 7  .07705098  .10660976  .19107848  .13892978   .1088564  .11639733  .08476834  .07147829
+ 8  .03838459  .06802877  .10089463  .06138927  .08932059  .07473539  .07335936  .04209205
+ 9  .04350701  .05036441  .09956015  .12252832  .11593711  .11005275  .07559054  .05517062
+10  .04537472   .0542581  .04311864  .09198824  .09171204  .04458737  .07403543  .03618997
+11  .06652565  .12345194  .07684379  .14889185  .14497121  .09205129  .11343471  .08517685
+12  .05063361  .07634367  .08023014  .09662135  .05072161  .15472008  .06693765  .04215979
+13  .04369401   .0464834  .07974912  .10504067  .11433768  .08174726  .09403859  .04592685
+14  .03773379  .07970288  .06043982  .06270668   .0767138  .06828417  .05638854  .05532044
+15  .07878325  .14845396  .09251274  .09983155  .18353474  .13211049  .17954441  .09761563
+16  .07759242  .07566037  .11619373  .10845258   .1188879  .11704698   .0814904  .11428318
+17  .04972572   .0954824  .10996404  .04719479  .07201481  .06299624  .09763031          0
+18  .04917894  .10354319  .14164952  .13764484  .10232136  .16413252          0          0
+19  .04259051  .11700509  .17916366  .16850032  .04616466          0          0          0
+20  .06833597  .07390019  .11061628  .08650405          0          0          0          0
 
 . *cohort shares
 . mat li e(ff_w)
@@ -1696,35 +1696,35 @@ r18:20           0           0           0           0           0           0  
 . *option to save interactions
 . cap drop aa_*
 
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) savek(aa, saveint)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) savek(aa, saveint)
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                          Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
+Absorbing 2 HDFE groups                         F(   9,    999)   =     887.62
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7831
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8018
+                                                Adj R-squared     =     0.7911
+                                                Root MSE          =     1.0026
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-    _k_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-    _k_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-    _k_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-    _k_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-    _k_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-    _k_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-    _k_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+    _k_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+    _k_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+    _k_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+    _k_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+    _k_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+    _k_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+    _k_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 . describe aa_*
@@ -1889,35 +1889,35 @@ aa_inter~p4_c20 float   %9.0g
 
 . 
 . *save them again: expect an error
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) savek(aa, saveint)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) savek(aa, saveint)
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                          Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
+Absorbing 2 HDFE groups                         F(   9,    999)   =     887.62
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7831
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8018
+                                                Adj R-squared     =     0.7911
+                                                Root MSE          =     1.0026
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-    _k_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-    _k_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-    _k_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-    _k_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-    _k_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-    _k_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-    _k_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+    _k_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+    _k_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+    _k_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+    _k_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+    _k_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+    _k_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+    _k_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 variable aa_evtime already defined
 r(198);
@@ -1926,18 +1926,18 @@ end of do-file
 
 r(198);
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD4ec8_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD4838_000000.tmp"
 
 . drop aa_*
 
 . 
 end of do-file
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD4ec8_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD4838_000000.tmp"
 
 . 
 . *specify saveint without cohort and control_cohort (expect an error)
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe savek(aa, saveint)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe savek(aa, saveint)
 
 No proxy or instruments provided. Implementing OLS estimator
 
@@ -1948,41 +1948,41 @@ end of do-file
 
 r(198);
 
-. do "C:\Users\tino_\AppData\Local\Temp\STD4ec8_000000.tmp"
+. do "C:\Users\tino_\AppData\Local\Temp\STD4838_000000.tmp"
 
 . 
 . *xteventplot 
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat) trend(-2,method(gmm) saveoverlay)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat) trend(-2,method(gmm) saveoverlay)
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                            Number of obs   =     20,000
-Absorbing 2 HDFE groups                           F(   9,    999) =     473.66
+Absorbing 2 HDFE groups                           F(   9,    999) =     887.62
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.7831
-                                                  Adj R-squared   =     0.7713
-                                                  Within R-sq.    =     0.2078
-Number of clusters (i)       =      1,000         Root MSE        =     1.0490
+                                                  R-squared       =     0.8018
+                                                  Adj R-squared   =     0.7911
+                                                  Within R-sq.    =     0.2763
+Number of clusters (i)       =      1,000         Root MSE        =     1.0026
 
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |   -.255928   .2057531    -1.24   0.214    -.6596859    .1478299
-    _k_eq_m3 |    .055719   .0775434     0.72   0.473    -.0964476    .2078856
-    _k_eq_m2 |          0   .0863485     0.00   1.000    -.1694451    .1694451
-    _k_eq_p0 |    1.22361   .1327171     9.22   0.000     .9631734    1.484046
-    _k_eq_p1 |   1.104694   .2083362     5.30   0.000     .6958668     1.51352
-    _k_eq_p2 |   1.196207   .2770164     4.32   0.000     .6526067    1.739808
-    _k_eq_p3 |   1.136618   .3532201     3.22   0.001     .4434799    1.829757
-    _k_eq_p4 |   1.122235   .4283264     2.62   0.009     .2817118    1.962757
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |  -.1217823   .2011539    -0.61   0.545    -.5165151    .2729504
+    _k_eq_m3 |   .0181845   .0756066     0.24   0.810    -.1301816    .1665505
+    _k_eq_m2 |          0   .0841112     0.00   1.000    -.1650549    .1650549
+    _k_eq_p0 |   1.090371   .1302012     8.37   0.000     .8348719     1.34587
+    _k_eq_p1 |   1.090283   .2043194     5.34   0.000     .6893385    1.491227
+    _k_eq_p2 |   1.273714   .2709857     4.70   0.000     .7419475     1.80548
+    _k_eq_p3 |   1.302223   .3460563     3.76   0.000      .623142    1.981303
+    _k_eq_p4 |   1.334286   .4183846     3.19   0.001     .5132722    2.155299
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
@@ -2005,35 +2005,35 @@ Absorbed degrees of freedom:
 (file overlay_trend.png written in PNG format)
 
 . 
-. xtevent y x, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) co
-> ntrol_cohort(never_treat)
+. xtevent y eta, panelvar(i) t(t) policyvar(z) window(3) impute(stag) vce(cluster i) reghdfe cohort(time_of_treat) 
+> control_cohort(never_treat)
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
 HDFE Linear regression                          Number of obs     =     20,000
-Absorbing 2 HDFE groups                         F(   9,    999)   =     473.66
+Absorbing 2 HDFE groups                         F(   9,    999)   =     887.62
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7831
-                                                Adj R-squared     =     0.7713
-                                                Root MSE          =     1.0490
+                                                R-squared         =     0.8018
+                                                Adj R-squared     =     0.7911
+                                                Root MSE          =     1.0026
                                   (Std. Err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4244172   .0694016    -6.12   0.000    -.5606069   -.2882275
-    _k_eq_m3 |  -.0566072   .0775434    -0.73   0.466    -.2087737    .0955594
-    _k_eq_m2 |  -.0561631   .0830922    -0.68   0.499    -.2192184    .1068922
-    _k_eq_p0 |   1.279773   .0809774    15.80   0.000     1.120867    1.438678
-    _k_eq_p1 |    1.21702   .0892482    13.64   0.000     1.041884    1.392155
-    _k_eq_p2 |   1.364697   .0832949    16.38   0.000     1.201244     1.52815
-    _k_eq_p3 |   1.361271   .0883285    15.41   0.000      1.18794    1.534601
-    _k_eq_p4 |    1.40305   .0820153    17.11   0.000     1.242108    1.563992
-           x |   .0978754   .0034081    28.72   0.000     .0911875    .1045633
-       _cons |   2.403594   .0596598    40.29   0.000     2.286521    2.520667
+    _k_eq_m4 |    .073202   .0674384     1.09   0.278    -.0591353    .2055392
+    _k_eq_m3 |    .148174   .0756066     1.96   0.050     -.000192    .2965401
+    _k_eq_m2 |   .0649948   .0814168     0.80   0.425    -.0947728    .2247624
+    _k_eq_p0 |   1.025376   .0800558    12.81   0.000     .8682796    1.182473
+    _k_eq_p1 |   .9602933    .087571    10.97   0.000     .7884491    1.132138
+    _k_eq_p2 |    1.07873   .0831004    12.98   0.000     .9156583    1.241801
+    _k_eq_p3 |   1.042243   .0871479    11.96   0.000     .8712296    1.213257
+    _k_eq_p4 |   1.009312   .0756579    13.34   0.000     .8608453    1.157778
+         eta |   .2533777   .0046166    54.88   0.000     .2443183     .262437
+       _cons |   2.054903   .0582532    35.28   0.000      1.94059    2.169216
 ------------------------------------------------------------------------------
 
 . xteventplot, smpath(line)
@@ -2054,7 +2054,7 @@ Error code = 5. See mf_optimize##r_error to see what that means.
  ( 1)  _k_eq_p1 = 0
  ( 2)  _k_eq_p2 = 0
 
-       F(  2,   999) =  159.02
+       F(  2,   999) =   99.83
             Prob > F =    0.0000
 
 . 
@@ -2104,17 +2104,17 @@ file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\35/lib/test/randomid.dta
 
 . drop ran ran2
 
-. keep if rid<=50000 //keep up to 50,000 to speed computations
-(1,950,000 observations deleted)
+. keep if rid<=200000 //keep up to 200,000 to speed computations
+(1,800,000 observations deleted)
 
 . 
 . 
 . *generate variable of treatment time
 . gen timet=t if z==1
-(42,464 missing values generated)
+(172,090 missing values generated)
 
 . bysort i: egen time_of_treat=min(timet)
-(34340 missing values generated)
+(141600 missing values generated)
 
 . drop timet
 
@@ -2123,314 +2123,421 @@ file C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\35/lib/test/randomid.dta
 
 . 
 . *compare with various sample sizes
-. foreach i in 1000 10000 50000{
-  2. ******* comparing with a sample size of `i'
-. *default   
-. xtevent y x if rid<=`i', panelvar(i) t(t) policyvar(z) window(3) impute(stag)  
-  3. estimates store base_`i'  
-  4. 
-. *Sun-Abraham within xtevent (cohort + control_cohort)
-. xtevent y x if rid<=`i', panelvar(i) t(t) policyvar(z) window(3) impute(stag) cohort(time_of_treat) control_cohor
-> t(never_treat) 
-  5. estimates store sa_`i' 
-  6. 
-. coefplot  base_`i' sa_`i', vertical keep(_k*) xlabel(, angle(vertical))
-  7. graph export _`i'.png, replace 
-  8. }
+. foreach i in 2000 20000 200000{
+  2.         di "******* comparing with a sample size of `i'"
+  3.         *default   
+.         xtevent y eta if rid<=`i', panelvar(i) t(t) policyvar(z) window(3) impute(stag)  
+  4.         estimates store base_`i'  
+  5. 
+.         *Sun-Abraham within xtevent (cohort + control_cohort)
+.         xtevent y eta if rid<=`i', panelvar(i) t(t) policyvar(z) window(3) impute(stag) cohort(time_of_treat) con
+> trol_cohort(never_treat) 
+  6.         estimates store sa_`i' 
+  7. 
+.         coefplot  base_`i' sa_`i', vertical keep(_k*) xlabel(, angle(vertical))
+  8.         graph export _`i'.png, replace 
+  9.         
+.         esttab base_`i' sa_`i', keep(_k*) se mtitles(xtevent xtevent_SA)
+ 10. }
+******* comparing with a sample size of 2000
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =      1,000
-Absorbed variable: i                            No. of categories =         50
-                                                F(  28,    922)   =      64.87
+Linear regression, absorbing indicators         Number of obs     =      2,000
+Absorbed variable: i                            No. of categories =        100
+                                                F(  28,   1872)   =     125.65
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.8024
-                                                Adj R-squared     =     0.7859
-                                                Root MSE          =     1.0883
+                                                R-squared         =     0.7804
+                                                Adj R-squared     =     0.7655
+                                                Root MSE          =     0.9955
 
 ------------------------------------------------------------------------------
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.7438551   .3000095    -2.48   0.013    -1.332636   -.1550745
-    _k_eq_m3 |  -.9485484   .3807517    -2.49   0.013    -1.695789   -.2013078
-    _k_eq_m2 |  -.0543456   .3806534    -0.14   0.887    -.8013933    .6927021
-    _k_eq_p0 |   1.141497   .3802479     3.00   0.003     .3952452    1.887749
-    _k_eq_p1 |   1.404771   .3797063     3.70   0.000     .6595816     2.14996
-    _k_eq_p2 |   1.478706    .386127     3.83   0.000     .7209157    2.236495
-    _k_eq_p3 |   1.341602   .3884127     3.45   0.001     .5793262    2.103877
-    _k_eq_p4 |   1.073362   .2965528     3.62   0.000     .4913651    1.655359
-           x |   .0883679   .0143296     6.17   0.000     .0602455    .1164902
+    _k_eq_m4 |  -.0141765   .2331718    -0.06   0.952    -.4714805    .4431275
+    _k_eq_m3 |  -.2809902   .2960229    -0.95   0.343    -.8615598    .2995794
+    _k_eq_m2 |  -.2105301   .2956094    -0.71   0.476    -.7902886    .3692285
+    _k_eq_p0 |   .9134507   .2960251     3.09   0.002     .3328769    1.494025
+    _k_eq_p1 |   .9189055   .2995116     3.07   0.002     .3314937    1.506317
+    _k_eq_p2 |   1.217207   .3087718     3.94   0.000     .6116337     1.82278
+    _k_eq_p3 |   .5247951   .3228576     1.63   0.104    -.1084035    1.157994
+    _k_eq_p4 |   .8478442   .2336093     3.63   0.000     .3896821    1.306006
+         eta |   .2785612   .0141227    19.72   0.000     .2508633    .3062591
              |
            t |
-          2  |   .0471056   .2176582     0.22   0.829    -.3800575    .4742686
-          3  |   .5760181   .2196256     2.62   0.009     .1449939    1.007042
-          4  |    .684777   .2198911     3.11   0.002     .2532319    1.116322
-          5  |   1.003954   .2202053     4.56   0.000     .5717924    1.436116
-          6  |   1.042822   .2205041     4.73   0.000     .6100743    1.475571
-          7  |   1.331269   .2205867     6.04   0.000      .898359    1.764179
-          8  |   1.324162   .2222111     5.96   0.000     .8880638     1.76026
-          9  |   1.450744   .2229468     6.51   0.000     1.013202    1.888286
-         10  |   1.798763   .2219077     8.11   0.000     1.363261    2.234266
-         11  |   1.760983   .2230032     7.90   0.000      1.32333    2.198635
-         12  |   2.191936     .22321     9.82   0.000     1.753877    2.629994
-         13  |   2.579902   .2241917    11.51   0.000     2.139917    3.019888
-         14  |   2.395041    .224295    10.68   0.000     1.954853    2.835229
-         15  |   2.738083    .224785    12.18   0.000     2.296933    3.179232
-         16  |   2.891445   .2261555    12.79   0.000     2.447606    3.335284
-         17  |   3.097634   .2260581    13.70   0.000     2.653986    3.541282
-         18  |   3.263636   .2267365    14.39   0.000     2.818656    3.708616
-         19  |    3.80234    .226637    16.78   0.000     3.357556    4.247124
-         20  |    3.57229   .2274699    15.70   0.000     3.125871    4.018709
+          2  |   .1664829   .1411199     1.18   0.238     -.110286    .4432519
+          3  |   .3448851   .1412527     2.44   0.015     .0678557    .6219145
+          4  |   .4635991   .1414392     3.28   0.001      .186204    .7409943
+          5  |   .7488254   .1414919     5.29   0.000      .471327    1.026324
+          6  |   .8781905   .1417764     6.19   0.000     .6001341    1.156247
+          7  |   1.288221   .1419822     9.07   0.000     1.009761    1.566682
+          8  |   1.379055   .1423223     9.69   0.000     1.099928    1.658182
+          9  |    1.65694   .1423118    11.64   0.000     1.377834    1.936047
+         10  |   1.758864   .1430616    12.29   0.000     1.478287    2.039441
+         11  |   1.807684   .1433057    12.61   0.000     1.526628     2.08874
+         12  |   2.095466   .1432892    14.62   0.000     1.814442    2.376489
+         13  |   2.336268   .1435765    16.27   0.000     2.054681    2.617854
+         14  |   2.688037   .1438061    18.69   0.000        2.406    2.970075
+         15  |   2.963619   .1448787    20.46   0.000     2.679478    3.247759
+         16  |   2.780453   .1452213    19.15   0.000      2.49564    3.065266
+         17  |   3.165574   .1457427    21.72   0.000     2.879739    3.451409
+         18  |   3.311298   .1459012    22.70   0.000     3.025152    3.597445
+         19  |   3.688531   .1457523    25.31   0.000     3.402677    3.974385
+         20  |   3.753888   .1458596    25.74   0.000     3.467823    4.039952
              |
-       _cons |   .7780836   .3367118     2.31   0.021     .1172732    1.438894
+       _cons |    .213412    .253535     0.84   0.400     -.283829    .7106529
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(49, 922) = 26.665            Prob > F = 0.000
+F test of absorbed indicators: F(99, 1872) = 20.651           Prob > F = 0.000
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
-Linear regression, absorbing indicators         Number of obs     =      1,000
-Absorbed variable: i                            No. of categories =         50
-                                                F(  28,    922)   =      64.87
+Linear regression, absorbing indicators         Number of obs     =      2,000
+Absorbed variable: i                            No. of categories =        100
+                                                F(  28,   1872)   =     125.65
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.8024
-                                                Adj R-squared     =     0.7859
-                                                Root MSE          =     1.0883
+                                                R-squared         =     0.7804
+                                                Adj R-squared     =     0.7655
+                                                Root MSE          =     0.9955
 ------------------------------------------------------------------------------
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.8706114   .3510136    -2.48   0.013     -1.55949   -.1817331
-    _k_eq_m3 |  -.9371868   .5336307    -1.76   0.079    -1.984458    .1100849
-    _k_eq_m2 |  -.0631878   .4437122    -0.14   0.887    -.9339908    .8076153
-    _k_eq_p0 |   1.148617   .4667695     2.46   0.014     .2325632    2.064671
-    _k_eq_p1 |   1.428443   .4622801     3.09   0.002     .5211992    2.335686
-    _k_eq_p2 |   1.405368    .446342     3.15   0.002     .5294036    2.281332
-    _k_eq_p3 |   1.254492   .4515964     2.78   0.006      .368216    2.140768
-    _k_eq_p4 |   1.221782   .3446935     3.54   0.000     .5453075    1.898257
-           x |   .0883679   .0143296     6.17   0.000     .0602455    .1164902
+    _k_eq_m4 |   .1343127   .2783689     0.48   0.630    -.4116334    .6802588
+    _k_eq_m3 |  -.2810143   .3714421    -0.76   0.449    -1.009498    .4474698
+    _k_eq_m2 |   -.205862   .3489146    -0.59   0.555    -.8901646    .4784405
+    _k_eq_p0 |   .9259235   .3707392     2.50   0.013     .1988179    1.653029
+    _k_eq_p1 |   .8708794   .3316712     2.63   0.009     .2203953    1.521363
+    _k_eq_p2 |   1.234633   .3724904     3.31   0.001     .5040934    1.965174
+    _k_eq_p3 |    .456746   .3903157     1.17   0.242    -.3087536    1.222246
+    _k_eq_p4 |    .686374   .2882204     2.38   0.017     .1211069    1.251641
+         eta |   .2785612   .0141227    19.72   0.000     .2508633    .3062591
              |
            t |
-          2  |   .0471056   .2176582     0.22   0.829    -.3800575    .4742686
-          3  |   .5760181   .2196256     2.62   0.009     .1449939    1.007042
-          4  |    .684777   .2198911     3.11   0.002     .2532319    1.116322
-          5  |   1.003954   .2202053     4.56   0.000     .5717924    1.436116
-          6  |   1.042822   .2205041     4.73   0.000     .6100743    1.475571
-          7  |   1.331269   .2205867     6.04   0.000      .898359    1.764179
-          8  |   1.324162   .2222111     5.96   0.000     .8880638     1.76026
-          9  |   1.450744   .2229468     6.51   0.000     1.013202    1.888286
-         10  |   1.798763   .2219077     8.11   0.000     1.363261    2.234266
-         11  |   1.760983   .2230032     7.90   0.000      1.32333    2.198635
-         12  |   2.191936     .22321     9.82   0.000     1.753877    2.629994
-         13  |   2.579902   .2241917    11.51   0.000     2.139917    3.019888
-         14  |   2.395041    .224295    10.68   0.000     1.954853    2.835229
-         15  |   2.738083    .224785    12.18   0.000     2.296933    3.179232
-         16  |   2.891445   .2261555    12.79   0.000     2.447606    3.335284
-         17  |   3.097634   .2260581    13.70   0.000     2.653986    3.541282
-         18  |   3.263636   .2267365    14.39   0.000     2.818656    3.708616
-         19  |    3.80234    .226637    16.78   0.000     3.357556    4.247124
-         20  |    3.57229   .2274699    15.70   0.000     3.125871    4.018709
+          2  |   .1664829   .1411199     1.18   0.238     -.110286    .4432519
+          3  |   .3448851   .1412527     2.44   0.015     .0678557    .6219145
+          4  |   .4635991   .1414392     3.28   0.001      .186204    .7409943
+          5  |   .7488254   .1414919     5.29   0.000      .471327    1.026324
+          6  |   .8781905   .1417764     6.19   0.000     .6001341    1.156247
+          7  |   1.288221   .1419822     9.07   0.000     1.009761    1.566682
+          8  |   1.379055   .1423223     9.69   0.000     1.099928    1.658182
+          9  |    1.65694   .1423118    11.64   0.000     1.377834    1.936047
+         10  |   1.758864   .1430616    12.29   0.000     1.478287    2.039441
+         11  |   1.807684   .1433057    12.61   0.000     1.526628     2.08874
+         12  |   2.095466   .1432892    14.62   0.000     1.814442    2.376489
+         13  |   2.336268   .1435765    16.27   0.000     2.054681    2.617854
+         14  |   2.688037   .1438061    18.69   0.000        2.406    2.970075
+         15  |   2.963619   .1448787    20.46   0.000     2.679478    3.247759
+         16  |   2.780453   .1452213    19.15   0.000      2.49564    3.065266
+         17  |   3.165574   .1457427    21.72   0.000     2.879739    3.451409
+         18  |   3.311298   .1459012    22.70   0.000     3.025152    3.597445
+         19  |   3.688531   .1457523    25.31   0.000     3.402677    3.974385
+         20  |   3.753888   .1458596    25.74   0.000     3.467823    4.039952
              |
-       _cons |   .7780836   .3367118     2.31   0.021     .1172732    1.438894
+       _cons |    .213412    .253535     0.84   0.400     -.283829    .7106529
 ------------------------------------------------------------------------------
-(file _1000.png written in PNG format)
+(note: file _2000.png not found)
+(file _2000.png written in PNG format)
+
+--------------------------------------------
+                      (1)             (2)   
+                  xtevent      xtevent_SA   
+--------------------------------------------
+_k_eq_m4          -0.0142           0.134   
+                  (0.233)         (0.278)   
+
+_k_eq_m3           -0.281          -0.281   
+                  (0.296)         (0.371)   
+
+_k_eq_m2           -0.211          -0.206   
+                  (0.296)         (0.349)   
+
+_k_eq_p0            0.913**         0.926*  
+                  (0.296)         (0.371)   
+
+_k_eq_p1            0.919**         0.871** 
+                  (0.300)         (0.332)   
+
+_k_eq_p2            1.217***        1.235***
+                  (0.309)         (0.372)   
+
+_k_eq_p3            0.525           0.457   
+                  (0.323)         (0.390)   
+
+_k_eq_p4            0.848***        0.686*  
+                  (0.234)         (0.288)   
+--------------------------------------------
+N                    2000            2000   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+******* comparing with a sample size of 20000
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =     10,000
-Absorbed variable: i                            No. of categories =        500
-                                                F(  28,   9472)   =     606.94
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: i                            No. of categories =      1,000
+                                                F(  28,  18972)   =    1436.36
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7823
-                                                Adj R-squared     =     0.7702
-                                                Root MSE          =     1.0689
-
-------------------------------------------------------------------------------
-           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
--------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4141102   .0924239    -4.48   0.000    -.5952808   -.2329396
-    _k_eq_m3 |   -.400237   .1187798    -3.37   0.001    -.6330709   -.1674031
-    _k_eq_m2 |  -.0059847   .1185561    -0.05   0.960    -.2383801    .2264107
-    _k_eq_p0 |   1.196863   .1186005    10.09   0.000     .9643808    1.429346
-    _k_eq_p1 |   1.149421   .1203014     9.55   0.000     .9136042    1.385237
-    _k_eq_p2 |   1.236182   .1224369    10.10   0.000      .996179    1.476184
-    _k_eq_p3 |   1.230369   .1240818     9.92   0.000     .9871417    1.473596
-    _k_eq_p4 |    1.29316   .0945759    13.67   0.000      1.10777    1.478549
-           x |    .104415   .0042521    24.56   0.000       .09608      .11275
-             |
-           t |
-          2  |   .1106774   .0676135     1.64   0.102    -.0218595    .2432143
-          3  |   .4083363   .0676733     6.03   0.000     .2756821    .5409905
-          4  |   .5887226   .0677452     8.69   0.000     .4559275    .7215178
-          5  |   .7024171   .0678149    10.36   0.000     .5694853    .8353489
-          6  |   .9236911   .0678888    13.61   0.000     .7906145    1.056768
-          7  |   1.193363   .0680232    17.54   0.000     1.060023    1.326703
-          8  |   1.348983   .0681454    19.80   0.000     1.215403    1.482562
-          9  |   1.448327   .0682792    21.21   0.000     1.314485    1.582169
-         10  |   1.641131   .0683888    24.00   0.000     1.507074    1.775188
-         11  |   1.897049   .0685557    27.67   0.000     1.762665    2.031433
-         12  |   2.187918   .0687525    31.82   0.000     2.053148    2.322688
-         13  |    2.41164   .0689726    34.97   0.000     2.276439    2.546841
-         14  |   2.500173   .0691599    36.15   0.000     2.364605    2.635742
-         15  |   2.618522   .0693774    37.74   0.000     2.482528    2.754517
-         16  |   2.835772    .069705    40.68   0.000     2.699135    2.972409
-         17  |    2.93278     .06993    41.94   0.000     2.795702    3.069858
-         18  |   3.167331   .0701008    45.18   0.000     3.029919    3.304744
-         19  |   3.465407   .0702734    49.31   0.000     3.327656    3.603158
-         20  |   3.569483   .0704377    50.68   0.000      3.43141    3.707556
-             |
-       _cons |   .5801302   .1039866     5.58   0.000     .3762941    .7839663
-------------------------------------------------------------------------------
-F test of absorbed indicators: F(499, 9472) = 22.561          Prob > F = 0.000
-
-No proxy or instruments provided. Implementing OLS estimator
-
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
-
-Linear regression, absorbing indicators         Number of obs     =     10,000
-Absorbed variable: i                            No. of categories =        500
-                                                F(  28,   9472)   =     606.94
-                                                Prob > F          =     0.0000
-                                                R-squared         =     0.7823
-                                                Adj R-squared     =     0.7702
-                                                Root MSE          =     1.0689
-------------------------------------------------------------------------------
-           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
--------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4306329   .1052667    -4.09   0.000    -.6369781   -.2242877
-    _k_eq_m3 |  -.4011868   .1214927    -3.30   0.001    -.6393385   -.1630351
-    _k_eq_m2 |  -.0046908   .1219048    -0.04   0.969    -.2436504    .2342688
-    _k_eq_p0 |   1.198708   .1244665     9.63   0.000     .9547273    1.442689
-    _k_eq_p1 |   1.161214   .1255402     9.25   0.000     .9151278    1.407299
-    _k_eq_p2 |   1.267892   .1287477     9.85   0.000     1.015519    1.520266
-    _k_eq_p3 |   1.242426   .1338341     9.28   0.000      .980082    1.504769
-    _k_eq_p4 |   1.312216   .1128775    11.63   0.000     1.090952    1.533481
-           x |    .104415   .0042521    24.56   0.000       .09608      .11275
-             |
-           t |
-          2  |   .1106774   .0676135     1.64   0.102    -.0218595    .2432143
-          3  |   .4083363   .0676733     6.03   0.000     .2756821    .5409905
-          4  |   .5887226   .0677452     8.69   0.000     .4559275    .7215178
-          5  |   .7024171   .0678149    10.36   0.000     .5694853    .8353489
-          6  |   .9236911   .0678888    13.61   0.000     .7906145    1.056768
-          7  |   1.193363   .0680232    17.54   0.000     1.060023    1.326703
-          8  |   1.348983   .0681454    19.80   0.000     1.215403    1.482562
-          9  |   1.448327   .0682792    21.21   0.000     1.314485    1.582169
-         10  |   1.641131   .0683888    24.00   0.000     1.507074    1.775188
-         11  |   1.897049   .0685557    27.67   0.000     1.762665    2.031433
-         12  |   2.187918   .0687525    31.82   0.000     2.053148    2.322688
-         13  |    2.41164   .0689726    34.97   0.000     2.276439    2.546841
-         14  |   2.500173   .0691599    36.15   0.000     2.364605    2.635742
-         15  |   2.618522   .0693774    37.74   0.000     2.482528    2.754517
-         16  |   2.835772    .069705    40.68   0.000     2.699135    2.972409
-         17  |    2.93278     .06993    41.94   0.000     2.795702    3.069858
-         18  |   3.167331   .0701008    45.18   0.000     3.029919    3.304744
-         19  |   3.465407   .0702734    49.31   0.000     3.327656    3.603158
-         20  |   3.569483   .0704377    50.68   0.000      3.43141    3.707556
-             |
-       _cons |   .5801302   .1039866     5.58   0.000     .3762941    .7839663
-------------------------------------------------------------------------------
-(file _10000.png written in PNG format)
-
-No proxy or instruments provided. Implementing OLS estimator
-
-Linear regression, absorbing indicators         Number of obs     =     50,000
-Absorbed variable: i                            No. of categories =      2,500
-                                                F(  28,  47472)   =    3037.52
-                                                Prob > F          =     0.0000
-                                                R-squared         =     0.7812
-                                                Adj R-squared     =     0.7695
-                                                Root MSE          =     1.0545
+                                                R-squared         =     0.7924
+                                                Adj R-squared     =     0.7812
+                                                Root MSE          =     0.9995
 
 ------------------------------------------------------------------------------
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4818943   .0416442   -11.57   0.000    -.5635176    -.400271
-    _k_eq_m3 |  -.3103812   .0534478    -5.81   0.000    -.4151396   -.2056227
-    _k_eq_m2 |  -.1475508   .0533421    -2.77   0.006    -.2521021   -.0429995
-    _k_eq_p0 |   1.237435   .0533862    23.18   0.000     1.132798    1.342073
-    _k_eq_p1 |    1.22297   .0539498    22.67   0.000     1.117227    1.328712
-    _k_eq_p2 |   1.274785   .0546786    23.31   0.000     1.167614    1.381956
-    _k_eq_p3 |   1.283818   .0555851    23.10   0.000      1.17487    1.392766
-    _k_eq_p4 |   1.292878   .0423868    30.50   0.000     1.209799    1.375956
-           x |   .0981794   .0019038    51.57   0.000      .094448    .1019108
+    _k_eq_m4 |   .0455841   .0643902     0.71   0.479    -.0806264    .1717946
+    _k_eq_m3 |   .1449114   .0821241     1.76   0.078    -.0160591    .3058819
+    _k_eq_m2 |    .011875   .0817554     0.15   0.885    -.1483728    .1721227
+    _k_eq_p0 |   1.066777   .0819482    13.02   0.000      .906151    1.227402
+    _k_eq_p1 |   1.000679   .0827648    12.09   0.000     .8384525    1.162905
+    _k_eq_p2 |   .9717852   .0835813    11.63   0.000     .8079584    1.135612
+    _k_eq_p3 |   1.119489   .0853207    13.12   0.000     .9522528    1.286725
+    _k_eq_p4 |   1.012567   .0655554    15.45   0.000     .8840724    1.141061
+         eta |   .2564759   .0045188    56.76   0.000     .2476187    .2653331
              |
            t |
-          2  |   .1753359   .0298314     5.88   0.000      .116866    .2338058
-          3  |    .410234   .0298472    13.74   0.000      .351733     .468735
-          4  |    .550383   .0298702    18.43   0.000      .491837     .608929
-          5  |   .7357846    .029907    24.60   0.000     .6771665    .7944026
-          6  |   .9634408   .0299512    32.17   0.000     .9047359    1.022146
-          7  |   1.157961   .0300088    38.59   0.000     1.099144    1.216779
-          8  |   1.315478   .0300727    43.74   0.000     1.256535    1.374421
-          9  |   1.484158    .030125    49.27   0.000     1.425112    1.543203
-         10  |    1.68046   .0301861    55.67   0.000     1.621295    1.739625
-         11  |   1.855136   .0302528    61.32   0.000      1.79584    1.914431
-         12  |   2.106399   .0303402    69.43   0.000     2.046932    2.165866
-         13  |   2.282967   .0304269    75.03   0.000      2.22333    2.342605
-         14  |    2.42064   .0305226    79.31   0.000     2.360815    2.480465
-         15  |   2.595355   .0306226    84.75   0.000     2.535334    2.655376
-         16  |   2.800021   .0307284    91.12   0.000     2.739792    2.860249
-         17  |   2.960028   .0308338    96.00   0.000     2.899594    3.020463
-         18  |   3.179716   .0308965   102.92   0.000     3.119158    3.240273
-         19  |   3.392269   .0309727   109.52   0.000     3.331562    3.452975
-         20  |   3.568372   .0310256   115.01   0.000     3.507561    3.629182
+          2  |   .1576855   .0447151     3.53   0.000       .07004    .2453311
+          3  |   .3651378   .0447438     8.16   0.000     .2774359    .4528396
+          4  |   .5760221   .0447754    12.86   0.000     .4882584    .6637858
+          5  |   .7759626   .0448233    17.31   0.000     .6881048    .8638203
+          6  |   .9233729   .0448803    20.57   0.000     .8354035    1.011342
+          7  |    1.16208   .0449246    25.87   0.000     1.074024    1.250136
+          8  |   1.364243    .045012    30.31   0.000     1.276015     1.45247
+          9  |   1.592217   .0451041    35.30   0.000     1.503809    1.680626
+         10  |   1.784546   .0452118    39.47   0.000     1.695927    1.873165
+         11  |   1.968032   .0453651    43.38   0.000     1.879112    2.056952
+         12  |   2.187697   .0455114    48.07   0.000     2.098491    2.276904
+         13  |   2.385629   .0456616    52.25   0.000     2.296128     2.47513
+         14  |   2.589202   .0457916    56.54   0.000     2.499446    2.678958
+         15  |   2.778518    .045975    60.44   0.000     2.688403    2.868633
+         16  |   2.942526   .0461168    63.81   0.000     2.852133    3.032919
+         17  |   3.156423   .0462734    68.21   0.000     3.065723    3.247123
+         18  |   3.356814   .0464029    72.34   0.000      3.26586    3.447768
+         19  |   3.632046   .0465307    78.06   0.000     3.540842    3.723251
+         20  |   3.798963    .046631    81.47   0.000     3.707562    3.890364
              |
-       _cons |   .7105101   .0466281    15.24   0.000     .6191184    .8019017
+       _cons |    .145482   .0716609     2.03   0.042     .0050202    .2859438
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(2499, 47472) = 21.886        Prob > F = 0.000
+F test of absorbed indicators: F(999, 18972) = 19.719         Prob > F = 0.000
 
 No proxy or instruments provided. Implementing OLS estimator
 
-You have specified cohort and control_cohort options. Event-time coefficients will be estimated with Sun and Abraha
-> m's Interaction Weighted Estimator.
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
 
-Linear regression, absorbing indicators         Number of obs     =     50,000
-Absorbed variable: i                            No. of categories =      2,500
-                                                F(  28,  47472)   =    3037.52
+Linear regression, absorbing indicators         Number of obs     =     20,000
+Absorbed variable: i                            No. of categories =      1,000
+                                                F(  28,  18972)   =    1436.36
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.7812
-                                                Adj R-squared     =     0.7695
-                                                Root MSE          =     1.0545
+                                                R-squared         =     0.7924
+                                                Adj R-squared     =     0.7812
+                                                Root MSE          =     0.9995
 ------------------------------------------------------------------------------
            y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-    _k_eq_m4 |  -.4964247   .0472375   -10.51   0.000    -.5890108   -.4038386
-    _k_eq_m3 |  -.3112414   .0538892    -5.78   0.000    -.4168651   -.2056177
-    _k_eq_m2 |  -.1476988   .0539427    -2.74   0.006    -.2534273   -.0419704
-    _k_eq_p0 |   1.238087   .0542037    22.84   0.000     1.131847    1.344327
-    _k_eq_p1 |   1.225953   .0548396    22.36   0.000     1.118466    1.333439
-    _k_eq_p2 |    1.28672   .0559499    23.00   0.000     1.177058    1.396383
-    _k_eq_p3 |    1.29051   .0576046    22.40   0.000     1.177604    1.403416
-    _k_eq_p4 |   1.306224   .0496831    26.29   0.000     1.208844    1.403604
-           x |   .0981794   .0019038    51.57   0.000      .094448    .1019108
+    _k_eq_m4 |   .0256578   .0728513     0.35   0.725    -.1171372    .1684528
+    _k_eq_m3 |   .1412207   .0832975     1.70   0.090    -.0220497    .3044912
+    _k_eq_m2 |    .011709   .0842452     0.14   0.889    -.1534191    .1768372
+    _k_eq_p0 |   1.067257   .0849596    12.56   0.000     .9007288    1.233786
+    _k_eq_p1 |   .9990651   .0854725    11.69   0.000     .8315313    1.166599
+    _k_eq_p2 |   .9568757   .0870779    10.99   0.000     .7861953    1.127556
+    _k_eq_p3 |   1.093041   .0907766    12.04   0.000     .9151106    1.270971
+    _k_eq_p4 |    1.04857   .0776927    13.50   0.000     .8962857    1.200855
+         eta |   .2564759   .0045188    56.76   0.000     .2476187    .2653331
              |
            t |
-          2  |   .1753359   .0298314     5.88   0.000      .116866    .2338058
-          3  |    .410234   .0298472    13.74   0.000      .351733     .468735
-          4  |    .550383   .0298702    18.43   0.000      .491837     .608929
-          5  |   .7357846    .029907    24.60   0.000     .6771665    .7944026
-          6  |   .9634408   .0299512    32.17   0.000     .9047359    1.022146
-          7  |   1.157961   .0300088    38.59   0.000     1.099144    1.216779
-          8  |   1.315478   .0300727    43.74   0.000     1.256535    1.374421
-          9  |   1.484158    .030125    49.27   0.000     1.425112    1.543203
-         10  |    1.68046   .0301861    55.67   0.000     1.621295    1.739625
-         11  |   1.855136   .0302528    61.32   0.000      1.79584    1.914431
-         12  |   2.106399   .0303402    69.43   0.000     2.046932    2.165866
-         13  |   2.282967   .0304269    75.03   0.000      2.22333    2.342605
-         14  |    2.42064   .0305226    79.31   0.000     2.360815    2.480465
-         15  |   2.595355   .0306226    84.75   0.000     2.535334    2.655376
-         16  |   2.800021   .0307284    91.12   0.000     2.739792    2.860249
-         17  |   2.960028   .0308338    96.00   0.000     2.899594    3.020463
-         18  |   3.179716   .0308965   102.92   0.000     3.119158    3.240273
-         19  |   3.392269   .0309727   109.52   0.000     3.331562    3.452975
-         20  |   3.568372   .0310256   115.01   0.000     3.507561    3.629182
+          2  |   .1576855   .0447151     3.53   0.000       .07004    .2453311
+          3  |   .3651378   .0447438     8.16   0.000     .2774359    .4528396
+          4  |   .5760221   .0447754    12.86   0.000     .4882584    .6637858
+          5  |   .7759626   .0448233    17.31   0.000     .6881048    .8638203
+          6  |   .9233729   .0448803    20.57   0.000     .8354035    1.011342
+          7  |    1.16208   .0449246    25.87   0.000     1.074024    1.250136
+          8  |   1.364243    .045012    30.31   0.000     1.276015     1.45247
+          9  |   1.592217   .0451041    35.30   0.000     1.503809    1.680626
+         10  |   1.784546   .0452118    39.47   0.000     1.695927    1.873165
+         11  |   1.968032   .0453651    43.38   0.000     1.879112    2.056952
+         12  |   2.187697   .0455114    48.07   0.000     2.098491    2.276904
+         13  |   2.385629   .0456616    52.25   0.000     2.296128     2.47513
+         14  |   2.589202   .0457916    56.54   0.000     2.499446    2.678958
+         15  |   2.778518    .045975    60.44   0.000     2.688403    2.868633
+         16  |   2.942526   .0461168    63.81   0.000     2.852133    3.032919
+         17  |   3.156423   .0462734    68.21   0.000     3.065723    3.247123
+         18  |   3.356814   .0464029    72.34   0.000      3.26586    3.447768
+         19  |   3.632046   .0465307    78.06   0.000     3.540842    3.723251
+         20  |   3.798963    .046631    81.47   0.000     3.707562    3.890364
              |
-       _cons |   .7105101   .0466281    15.24   0.000     .6191184    .8019017
+       _cons |    .145482   .0716609     2.03   0.042     .0050202    .2859438
 ------------------------------------------------------------------------------
-(file _50000.png written in PNG format)
+(note: file _20000.png not found)
+(file _20000.png written in PNG format)
+
+--------------------------------------------
+                      (1)             (2)   
+                  xtevent      xtevent_SA   
+--------------------------------------------
+_k_eq_m4           0.0456          0.0257   
+                 (0.0644)        (0.0729)   
+
+_k_eq_m3            0.145           0.141   
+                 (0.0821)        (0.0833)   
+
+_k_eq_m2           0.0119          0.0117   
+                 (0.0818)        (0.0842)   
+
+_k_eq_p0            1.067***        1.067***
+                 (0.0819)        (0.0850)   
+
+_k_eq_p1            1.001***        0.999***
+                 (0.0828)        (0.0855)   
+
+_k_eq_p2            0.972***        0.957***
+                 (0.0836)        (0.0871)   
+
+_k_eq_p3            1.119***        1.093***
+                 (0.0853)        (0.0908)   
+
+_k_eq_p4            1.013***        1.049***
+                 (0.0656)        (0.0777)   
+--------------------------------------------
+N                   20000           20000   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+******* comparing with a sample size of 200000
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =    200,000
+Absorbed variable: i                            No. of categories =     10,000
+                                                F(  28, 189972)   =   13623.74
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.7932
+                                                Adj R-squared     =     0.7822
+                                                Root MSE          =     1.0028
+
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m4 |   .0326952   .0207714     1.57   0.115    -.0080163    .0734068
+    _k_eq_m3 |   .0695975   .0264009     2.64   0.008     .0178523    .1213427
+    _k_eq_m2 |   .0463186   .0262811     1.76   0.078    -.0051919     .097829
+    _k_eq_p0 |   1.039607   .0263419    39.47   0.000     .9879778    1.091237
+    _k_eq_p1 |   1.050297   .0266426    39.42   0.000     .9980784    1.102516
+    _k_eq_p2 |   1.028361   .0269994    38.09   0.000     .9754424    1.081279
+    _k_eq_p3 |   .9953549   .0274294    36.29   0.000     .9415938    1.049116
+    _k_eq_p4 |   1.042174   .0210109    49.60   0.000     1.000993    1.083355
+         eta |   .2503825   .0014499   172.69   0.000     .2475407    .2532244
+             |
+           t |
+          2  |   .2107322   .0141835    14.86   0.000     .1829328    .2385316
+          3  |    .394382   .0141904    27.79   0.000     .3665692    .4221948
+          4  |   .5863474    .014201    41.29   0.000     .5585137    .6141812
+          5  |   .8021559   .0142191    56.41   0.000     .7742868    .8300251
+          6  |   1.001114   .0142408    70.30   0.000     .9732026    1.029026
+          7  |   1.207765   .0142678    84.65   0.000     1.179801     1.23573
+          8  |   1.400243   .0142963    97.94   0.000     1.372222    1.428263
+          9  |   1.615782   .0143285   112.77   0.000     1.587698    1.643865
+         10  |   1.813624   .0143632   126.27   0.000     1.785473    1.841776
+         11  |   2.013793   .0144042   139.81   0.000     1.985561    2.042025
+         12  |   2.212055   .0144519   153.06   0.000      2.18373     2.24038
+         13  |   2.401568   .0144997   165.63   0.000     2.373149    2.429987
+         14  |   2.608658   .0145503   179.29   0.000      2.58014    2.637176
+         15  |   2.789702   .0146022   191.05   0.000     2.761082    2.818322
+         16  |   3.000254   .0146601   204.65   0.000     2.971521    3.028988
+         17  |   3.190139   .0147145   216.80   0.000     3.161299    3.218979
+         18  |   3.403523   .0147487   230.77   0.000     3.374616     3.43243
+         19  |   3.610267   .0147873   244.15   0.000     3.581284     3.63925
+         20  |   3.788608   .0148173   255.69   0.000     3.759566     3.81765
+             |
+       _cons |    .183165   .0230301     7.95   0.000     .1380264    .2283035
+------------------------------------------------------------------------------
+F test of absorbed indicators: F(9999, 189972) = 21.088       Prob > F = 0.000
+
+No proxy or instruments provided. Implementing OLS estimator
+
+You have specified cohort and control_cohort options. Event-time coefficients will be estimated with the Interactio
+> n Weighted Estimator of Sun and Abraham (2021).
+
+Linear regression, absorbing indicators         Number of obs     =    200,000
+Absorbed variable: i                            No. of categories =     10,000
+                                                F(  28, 189972)   =   13623.74
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.7932
+                                                Adj R-squared     =     0.7822
+                                                Root MSE          =     1.0028
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m4 |   .0411548    .023554     1.75   0.081    -.0050105    .0873201
+    _k_eq_m3 |   .0693328   .0265153     2.61   0.009     .0173634    .1213023
+    _k_eq_m2 |   .0459562   .0264062     1.74   0.082    -.0057993    .0977117
+    _k_eq_p0 |   1.039535   .0264206    39.35   0.000      .987751    1.091318
+    _k_eq_p1 |   1.045205   .0269633    38.76   0.000     .9923575    1.098052
+    _k_eq_p2 |   1.014548   .0276526    36.69   0.000     .9603495    1.068747
+    _k_eq_p3 |    .981007   .0283693    34.58   0.000     .9254039     1.03661
+    _k_eq_p4 |   1.034675   .0247764    41.76   0.000     .9861142    1.083237
+         eta |   .2503825   .0014499   172.69   0.000     .2475407    .2532244
+             |
+           t |
+          2  |   .2107322   .0141835    14.86   0.000     .1829328    .2385316
+          3  |    .394382   .0141904    27.79   0.000     .3665692    .4221948
+          4  |   .5863474    .014201    41.29   0.000     .5585137    .6141812
+          5  |   .8021559   .0142191    56.41   0.000     .7742868    .8300251
+          6  |   1.001114   .0142408    70.30   0.000     .9732026    1.029026
+          7  |   1.207765   .0142678    84.65   0.000     1.179801     1.23573
+          8  |   1.400243   .0142963    97.94   0.000     1.372222    1.428263
+          9  |   1.615782   .0143285   112.77   0.000     1.587698    1.643865
+         10  |   1.813624   .0143632   126.27   0.000     1.785473    1.841776
+         11  |   2.013793   .0144042   139.81   0.000     1.985561    2.042025
+         12  |   2.212055   .0144519   153.06   0.000      2.18373     2.24038
+         13  |   2.401568   .0144997   165.63   0.000     2.373149    2.429987
+         14  |   2.608658   .0145503   179.29   0.000      2.58014    2.637176
+         15  |   2.789702   .0146022   191.05   0.000     2.761082    2.818322
+         16  |   3.000254   .0146601   204.65   0.000     2.971521    3.028988
+         17  |   3.190139   .0147145   216.80   0.000     3.161299    3.218979
+         18  |   3.403523   .0147487   230.77   0.000     3.374616     3.43243
+         19  |   3.610267   .0147873   244.15   0.000     3.581284     3.63925
+         20  |   3.788608   .0148173   255.69   0.000     3.759566     3.81765
+             |
+       _cons |    .183165   .0230301     7.95   0.000     .1380264    .2283035
+------------------------------------------------------------------------------
+(note: file _200000.png not found)
+(file _200000.png written in PNG format)
+
+--------------------------------------------
+                      (1)             (2)   
+                  xtevent      xtevent_SA   
+--------------------------------------------
+_k_eq_m4           0.0327          0.0412   
+                 (0.0208)        (0.0236)   
+
+_k_eq_m3           0.0696**        0.0693** 
+                 (0.0264)        (0.0265)   
+
+_k_eq_m2           0.0463          0.0460   
+                 (0.0263)        (0.0264)   
+
+_k_eq_p0            1.040***        1.040***
+                 (0.0263)        (0.0264)   
+
+_k_eq_p1            1.050***        1.045***
+                 (0.0266)        (0.0270)   
+
+_k_eq_p2            1.028***        1.015***
+                 (0.0270)        (0.0277)   
+
+_k_eq_p3            0.995***        0.981***
+                 (0.0274)        (0.0284)   
+
+_k_eq_p4            1.042***        1.035***
+                 (0.0210)        (0.0248)   
+--------------------------------------------
+N                  200000          200000   
+--------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
 
 . 
 . cap log close
