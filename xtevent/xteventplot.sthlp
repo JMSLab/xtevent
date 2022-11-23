@@ -1,5 +1,5 @@
 {smcl}
-{* *! version .0 Jun 24 2022}{...}
+{* *! version 2.1.1 Aug 12 2022}{...}
 {cmd:help xteventplot}
 {hline}
 
@@ -37,8 +37,8 @@
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
 {synopt:{opt nozero:line}} omit reference line at 0{p_end}
 {synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -2 {p_end}
-{synopt:{opt noprepval}} omit p-vale for pre-trends test{p_end}
-{synopt:{opt nopostpval}} omit p-vale for leveling-off test{p_end}
+{synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
+{synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
 {synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
 {synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
@@ -216,6 +216,11 @@ Impute policy variable without verifying staggered adoption.{p_end}
 {phang2}{cmd:. {stata xteventplot, textboxoption(color(blue) size(large))}}{p_end}
 
 {hline}
+
+{pstd}year variable has many missing observations.{p_end}
+{pstd}Create a time variable that ignores these gaps.{p_end}
+{phang2}{cmd:. {stata "by idcode (year): gen time=_n"}}{p_end}
+{phang2}{cmd:. {stata xtset idcode time}}{p_end}
 
 {pstd}FHS estimator with proxy variables{p_end}
 {phang2}{cmd:. {stata xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work)}}{p_end}

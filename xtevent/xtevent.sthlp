@@ -1,6 +1,6 @@
 
 {smcl}
-{* *! version 2.0 Jun 24 2022}{...}
+{* *! version 2.1.1 Aug 12 2022}{...}
 {cmd:help xtevent}
 {hline}
 
@@ -43,11 +43,11 @@
 {synopt:{opt proxyiv(string)}} instruments for the proxy variable{p_end}
 {synopt:{opt nofe}} omit panel fixed effects {p_end}
 {synopt:{opt note}} omit time fixed effects {p_end}
-{synopt: {opt impute(type, [saveimp])}} impute missing values in policyvar{p_end}
+{synopt: {opt impute(type [, saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
-{synopt:{opt diffavg}} estimate the difference in averages between the post and pre-periods {p_end}
-{synopt:{opt tr:end(#1, [subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
-{synopt:{opt sav:ek(stub)}} save time-to-event, event-time, trend, and interaction variables{p_end}
+{synopt:{opt diff:avg}} estimate the difference in averages between the post and pre-periods {p_end}
+{synopt:{opt tr:end(#1 [, subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
+{synopt:{opt sav:ek(stub [, subopt])}} save time-to-event, event-time, trend, and interaction variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
@@ -157,9 +157,9 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type, [saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
+{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
-{it:policyvar_imputed}. The following imputation types ca be implemented:
+{it:policyvar_imputed}. The following imputation types can be implemented:
 
 {phang2}
 {cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
@@ -183,8 +183,8 @@ or by the adopted-policy state.
 calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
-{opt tr:end(#1, [subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
-effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following can be passed as suboptions:
+{opt tr:end(#1 [, subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
+effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following suboptions can be specified:
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
@@ -194,9 +194,12 @@ trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
-{opt savek(stub)} saves variables for event-time dummies, event-time and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
+{opt savek(stub [, noestimate])} saves variables for event-time dummies, event-time, and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
 variable # periods before the policy change, and {it:stub}_p# for the dummy variable # periods after the policy change. The dummy variable for
-the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend.
+the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The following suboption can be specified:
+
+{phang2}
+{opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the users want to customize their regressions and plots.
 
 {phang}
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
@@ -236,30 +239,32 @@ that two-way clustering is allowed with {help reghdfe}.
 {hline}
 {pstd}Setup{p_end}
 {phang2}{cmd:. {stata webuse nlswork}}{p_end}
-{phang2}{cmd:. {stata xtset idcode year}}{p_end}
+{pstd}year variable has many missing observations.{p_end}
+{pstd}Create a time variable that ignores these gaps.{p_end}
+{phang2}{cmd:. {stata "by idcode (year): gen time=_n"}}{p_end}
+{phang2}{cmd:. {stata xtset idcode time}}{p_end}
 
 {hline}
-{pstd}Basic event study with clustered standard errors.
-Impute policy variable without verifying staggered adoption. {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}}
+{pstd}Basic event study with clustered standard errors. {p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode)}}
 {p_end}
 
 {pstd}Omit fixed effects{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) nofe}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) nofe}}
 {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) nofe note}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) nofe note}}
 {p_end}
 
-{pstd}Save event-time dummies{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange) savek(a)}}
+{pstd}Save event-time dummies without estimating the model{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) savek(a, noe)}}
 {p_end}
 
 {pstd}Change normalization, asymmetric window{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) cluster(idcode) impute(nuchange) w(-3 1) norm(-2)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) cluster(idcode) w(-3 1) norm(-2)}}
 {p_end}
 
 {pstd}Adjust the pre-trend by estimating a linear trend by GMM {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(2) cluster(idcode) impute(nuchange) trend(-2, method(gmm))}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(2) cluster(idcode) trend(-2, method(gmm))}}
 {p_end}
 
 {pstd}Impute outer and inner missing values in the policy variable verifying staggered adoption:{p_end}
@@ -267,19 +272,19 @@ Impute policy variable without verifying staggered adoption. {p_end}
 First, generate a policy variable that follows staggered-adoption.
 {p_end}
 {phang2}
-{cmd:. by idcode (year): egen maxval= max(union)}
+{cmd:. {stata "by idcode (time): egen maxval= max(union)"}}
 {p_end}
 {phang2}
-{cmd:. by idcode (year): gen union2=sum(union) if !missing(union)}
+{cmd:. {stata "by idcode (time): gen union2=sum(union) if !missing(union)"}}
 {p_end}
 {phang2}
 {cmd:. {stata replace union2=1 if union2>1 & !missing(union2)}}
 {p_end}
 {phang2}
-{cmd:. by idcode (year): egen pmean=mean(union2)}
+{cmd:. {stata "by idcode (time): egen pmean=mean(union2)"}}
 {p_end}
 {phang2}
-{cmd:. by idcode (year): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)}
+{cmd:. {stata "by idcode (time): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)"}}
 {p_end}
 {pstd}
 Impute the policy variable that follows staggered-adoption and 
@@ -294,19 +299,18 @@ Compare the imputed and original values for a unit
 {cmd:. {stata list idcode year union2 union2_imputed if idcode==6}}
 {p_end}
 
-
 {hline}
 
 {pstd}FHS estimator with proxy variables{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work)}}
 {p_end}
 
 {pstd}Additional lags and proxys{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work hours) proxyiv(1 2)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work hours) proxyiv(1 2)}}
 {p_end}
 
 {pstd}{help reghdfe} and two-way clustering {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe proxy(wks_work)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode year) reghdfe proxy(wks_work)}}
 {p_end}
 
 {hline}
@@ -423,7 +427,6 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 
 {title:Acknowledgements}
 {pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
-Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Richard Calvo, Emily Wang, Theresa Doppstadt, Xu Wenli, and Matthias Weigand for testing early versions of this 
-command.
-
-
+Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Richard Calvo, Emily Wang, Theresa Doppstadt, Matthias Weigand,
+Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for 
+testing early versions of this command.

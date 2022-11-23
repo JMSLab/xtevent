@@ -1,4 +1,4 @@
-* xtevent.ado 2.1.0 Aug 1 2022
+* xtevent.ado 2.1.1 Aug 12 2022
 
 version 11.2
 
@@ -172,7 +172,7 @@ program define xtevent, eclass
 		if ("`pre'"!="0" & "`pre'"!="") {
 			if `norm'==-1 {
 				loc norm = -`pre'-1
-				di as text _n "You allowed for anticipation effects `pre' periods before the event, so the coefficients were normalized to `norm'. Use options {bf:norm} and {bf:window} to override this"
+				di as text _n "You allowed for anticipation effects `pre' periods before the event, so the coefficient at `norm' was selected to be normalized to zero. Use options {bf:norm} and {bf:window} to override this."
 			}
 		}
 		
@@ -237,6 +237,30 @@ program define xtevent, eclass
 	if "`noestimate'"!="" exit 
 	
 	if `=r(flagerr)'!=1  {
+	
+		loc noestimate=r(noestimate)
+		if "`noestimate'"=="." loc noestimate ""
+		if "`noestimate'"!="" {
+			loc savek = r(savek)
+			*clear previous estimates, so it will not mix them with the new ones
+			ereturn clear 
+		}
+		
+		ereturn scalar lwindow= `lwindow'
+		ereturn scalar rwindow=`rwindow'
+		if "`pre'"!="" {
+			ereturn scalar pre = `pre'
+			ereturn scalar post = `post'
+			ereturn scalar overidpre = `overidpre'
+			ereturn scalar overidpost = `overidpost'
+		}
+		ereturn local cmdline `"xtevent `0'"' /*"*/
+		ereturn local cmd2 "xtevent"
+		ereturn local stub = "`savek'"
+		ereturn local noestimate = "`noestimate'"
+		*don't return the remaining if the user indicated not to estimate  
+		if "`noestimate'"!="" exit
+	
 		mat delta=r(delta)
 		mat Vdelta=r(Vdelta)
 		mat b = r(b)
@@ -287,16 +311,7 @@ program define xtevent, eclass
 		}
 		if "`trend'"!="" ereturn local trend = r(trend)
 		
-		ereturn scalar lwindow= `lwindow'
-		ereturn scalar rwindow=`rwindow'
-		if "`pre'"!="" {
-			ereturn scalar pre = `pre'
-			ereturn scalar post = `post'
-			ereturn scalar overidpre = `overidpre'
-			ereturn scalar overidpost = `overidpost'
-		}
 		ereturn local names=r(names)
-		ereturn local cmdline `"xtevent `0'"' /*"*/
 		loc cmd = r(cmd)
 		ereturn local cmd = r(cmd)
 		ereturn local df = r(df)
@@ -304,10 +319,7 @@ program define xtevent, eclass
 		ereturn local kmiss = r(kmiss)
 		ereturn local y1 = r(y1)
 		ereturn local method = r(method)
-		ereturn local cmd2 "xtevent"
 		ereturn local depvar = r(depvar)
-		
-		if "`savek'"!="" ereturn local stub="`savek'"
 	}
 	else {
 		exit 198

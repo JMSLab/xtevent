@@ -420,7 +420,6 @@ program define _eventols, rclass
 		_estimates hold `est_sun_abraham', copy 
 	}
 		
-		
 		* Return coefficients and variance matrix of the delta k estimates separately
 		mat `bb'=e(b)
 		mat `VV'=e(V)
