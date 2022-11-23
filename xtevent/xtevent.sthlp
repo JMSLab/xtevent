@@ -194,12 +194,16 @@ trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
-{opt savek(stub [, noestimate])} saves variables for event-time dummies, event-time, and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
-variable # periods before the policy change, and {it:stub}_p# for the dummy variable # periods after the policy change. The dummy variable for
-the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The following suboption can be specified:
+{opt savek(stub [, subopt])} saves variables for time-to-event, event-time, trend, and interaction variables. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
+variable # periods before the policy change, and {it:stub}_eq_p# for the dummy variable # periods after the policy change. The dummy variable for
+the policy change time is {it:stub}_eq_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The interaction variables are stored as {it:stub}_m#_c# or {it:stub}_p#_c#, where c# indicates the cohort. The following 
+suboptions can be specified:
 
 {phang2}
 {opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the users want to customize their regressions and plots.
+
+{phang2}
+{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and {opt saveint:eract} cannot be specified simultaneously.
 
 {phang}
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
@@ -428,5 +432,4 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 {title:Acknowledgements}
 {pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
 Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Richard Calvo, Emily Wang, Theresa Doppstadt, Matthias Weigand,
-Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for 
-testing early versions of this command.
+Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.
