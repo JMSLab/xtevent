@@ -45,10 +45,10 @@
 {title:Description}
 
 {pstd}
-{cmd: get_unit_time_effects} estimates group-time fixed effects in a repeated cross-sectional dataset. It produces a Stata data file (.dta file) with the variables, {it:panelvar}, {it:timevar}, and {it:_unittimeeffects}, which contains the 
-group-time effects. Hansen (2007) describes a two-step procedure to obtain the coefficient estimates of covariates that vary at the group level within a repeated cross-sectional framework. The two-step procedure can be used to obtain the
- coefficient estimates of an event-study when the data is repeated cross-sectional. {cmd:get_unit_time_effects} implements the first part of the two-step procedure. Then, {cmd: xtevent} can be used for the second part and obtain the event-study 
- coefficient estimates. See {help xtevent}.{p_end}
+{cmd: get_unit_time_effects} estimates group-time fixed effects in a repeated cross-sectional dataset. It produces a Stata data file (.dta file) with the variables {it:panelvar}, {it:timevar}, and {it:_unittimeeffects}. The variable 
+{it:_unittimeeffects} contains the group-time effects. Hansen (2007) describes a two-step procedure to obtain the coefficient estimates of covariates that vary at the group level within a repeated cross-sectional framework. The two-step procedure 
+can be used to obtain the coefficient estimates of an event-study when the data is repeated cross-sectional. {cmd:get_unit_time_effects} implements the first part of the two-step procedure. Then, {cmd: xtevent} can be used for the second part and
+ obtain the event-study coefficient estimates. See {help xtevent}.{p_end}
 
 {marker options}{...}
 {title:Options}

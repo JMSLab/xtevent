@@ -62,7 +62,7 @@ program define get_unit_time_effects, eclass
 	gettoken depenvar indepvars: varlist
 	
 	*generate unit-time effects
-	* firs step of the two-step estimation procedure for repeated cross-sectional datasets 
+	* first step of the two-step estimation procedure for repeated cross-sectional datasets 
 	* regress dependent variable on controls and unit-time effects
 	
 	*omit regression table
