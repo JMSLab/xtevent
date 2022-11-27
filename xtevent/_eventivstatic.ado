@@ -64,6 +64,10 @@ program define _eventivstatic, rclass
 		else loc z = "`policyvar'"
 	}
 
+	*In the static setting, we cannot define an interval through the -window- option to look for the strongest lead. Therefore, we will check the dataset and look for the greatest possible lead. The maximum number of forwards I can generate equals the number of observed periods -1.
+	qui sum `timevar'
+	loc drange_1=r(max) - r(min) // this equals number of obs periods -1
+
 	* if dataset is repeated cross-sectional, create leads of policyvar at state level
 	if "`repeatedcs'"!=""{
 		qui {
@@ -74,12 +78,12 @@ program define _eventivstatic, rclass
 			keep `panelvar' `timevar' (`z')
 			bysort `panelvar' `timevar' (`z'): keep if _n==1
 			xtset `panelvar' `timevar'
-			forv v=1(1)5{
+			forv v=1(1)`drange_1'{
 				tempvar _fd`v'`z'
-				qui gen double `_fd`v'`z'' = f`v'.d.`z' 
+				gen double `_fd`v'`z'' = f`v'.d.`z' 
 			}
 			save `state_level_leads'
-		
+
 			restore
 
 		*merge on the policyvar as well, so missing values in policyvar within a cell will not get lead values
@@ -109,8 +113,8 @@ program define _eventivstatic, rclass
 		else {
 			di as text _n "proxyiv=select. Selecting lead order of differenced policy variable to use as instrument."
 			loc Fstart = 0
-			* Here I test up to 5
-			forv v=1(1)5 {
+			* originally: Here I test up to 5
+			forv v=1(1)`drange_1'{
 				if "`repeatedcs'"=="" {
 					tempvar _fd`v'`z'
 					qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
