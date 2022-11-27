@@ -227,6 +227,11 @@ xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x) rep
 xteventplot
 xteventplot, overlay(iv)
 
+*static ols
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) static repeatedcs
+*static IV
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) proxy(x) static repeatedcs
+
 *get unit time effects
 get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("effect_file.dta", replace) 
 
