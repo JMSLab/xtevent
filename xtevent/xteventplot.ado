@@ -245,10 +245,11 @@ program define xteventplot
 		}
 		loc kgs = "`kgso' `komit'"
 		
-		mata: kgs=st_local("kgs")
-		mata: kgs=strtoreal(tokens(kgs))
-		mata: kgs2=sort(kgs',1)'
-		mata: kgs=invtokens(strofreal(sort(kgs',1)'))
+		mata: kgs=st_local("kgs") //Obtain strings from and put strings into Stata macros
+		mata: kgs=strtoreal(tokens(kgs)) //returns the contents of s, split into words. returns S converted to real.
+		mata: kgs2=sort(kgs',1)' // sort(X, 1) sorts X on its first column
+		mata: kgs=invtokens(strofreal(sort(kgs',1)')) //Convert real to string. Returns the elements of s, concatenated into a string scalar with the elements separated by spaces.
+
 		mata: st_local("kgs",kgs)
 		
 		loc kmin : word 1 of `kgs'
@@ -358,10 +359,18 @@ program define xteventplot
 					mat `ovcoef' = e(deltaxsc)
 				}
 			}
-			gen double `se' = .
+			gen double `se' = . //it adds temporary variables to the database to be able to plot them
 			gen int `kxaxis'=.
 			foreach k in `kgs' {
-				replace `kxaxis' = `k' + `offset_now' in `i'			
+				*define x-coordinate
+				*x-coordinate plus the offset 
+				if !inlist(`k',`komitcomma') {
+					replace `kxaxis' = `k' + `offset_now' in `i'
+				}
+				else{
+					replace `kxaxis' = `k' in `i' //no offset for the omitted coefs
+				}
+				*define y-coordinate 
 				if inlist(`k',`komitcomma') {
 					replace `coef' = 0 in `i'
 					replace `se' = 0 in `i'
@@ -414,7 +423,7 @@ program define xteventplot
 			* Confidence intervals
 			
 			
-			tokenize `noci'
+			tokenize `noci' //cc: but this tokenize is in conflict with a previous one?
 			if "``eq''"=="noci"{
 				loc cigraph`eq' ""
 			}
@@ -458,7 +467,7 @@ program define xteventplot
 						di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
 					}
 					loc level=c(level)/100
-					mata: supt(`suptreps',"`se'",`level')
+					mata: supt(`suptreps',"`se'",`level') //cc: compute supt
 					tempvar ulsupt llsupt
 					gen double `ulsupt' = `coef' + q*`se'
 					gen double `llsupt' = `coef' - q*`se'
@@ -617,6 +626,7 @@ program define xteventplot
 			}
 		else loc note ""
 		
+		*plot linear trend 
 		if "`=e(trend)'"=="trend" & "`overlay'"=="trend" { 
 			mat mattrendy = e(mattrendy) 
 			mat mattrendx = e(mattrendx)
@@ -640,15 +650,16 @@ program define xteventplot
 		* Overlay static plots lines, other overlays plot scatter
 		if "`overlay'"=="static" loc cmdov`eq' "line `coef2' `kxaxis', `staticovplotopts' || scatter `coef' `kxaxis'"
 		else loc cmdov`eq' "scatter `coef' `coef2' `kxaxis'"
+		
 	}
-	
+	************ ends iteration on each model **************
 	
 	* Plot
-	if "`options'"=="noci" loc options ""
+	if "`options'"=="noci" loc options "" //cc: to check
 	if "`options'"=="nosupt" loc options ""
 	
 	tokenize `eqlist'
-	qui estimates restore `1'
+	qui estimates restore `1' //cc: to check
 	if "`proxy'"!="" {
 		loc y1plot : di %9.4g `=e(x1)'
 		loc y1plot=strtrim("`y1plot'")
@@ -668,9 +679,82 @@ program define xteventplot
 	if "`minus1label'"=="nominus1label" loc ylab ""
 	else loc ylab "ylab(#5 0 `y1plot')"
 	
+	
+	**** define default appearance for each model
+	*here we should call a parser for the repeated option -ciplotopts-
+	*this parser should define ciplotopts1 ciplotopts2 ciplotopts3...
+	*ciplotopts
+	forvalues eq = 1/`eq_n'{
+		if "`ciplotopts1'"==""{
+			loc ciplotopts1 color(navy) 
+		}
+		else if "`ciplotopts2'"==""{
+			loc ciplotopts2 color(maroon) 
+		}
+		else if "`ciplotopts3'"==""{
+			loc ciplotopts3 color(forest_green) 
+		}
+		else if "`ciplotopts4'"==""{
+			loc ciplotopts4 color(dkorange) 
+		}
+		else if "`ciplotopts5'"==""{
+			loc ciplotopts5 color(teal) 
+		}
+		else if "`ciplotopts6'"==""{
+			loc ciplotopts6 color(cranberry) 
+		}
+	}
+	
+	*suptciplotopts
+	forvalues eq = 1/`eq_n'{
+		if "`suptciplotopts1'"==""{
+			loc suptciplotopts1 color(navy) 
+		}
+		else if "`suptciplotopts2'"==""{
+			loc suptciplotopts2 color(maroon) 
+		}
+		else if "`suptciplotopts3'"==""{
+			loc suptciplotopts3 color(forest_green) 
+		}
+		else if "`suptciplotopts4'"==""{
+			loc suptciplotopts4 color(dkorange) 
+		}
+		else if "`suptciplotopts5'"==""{
+			loc suptciplotopts5 color(teal) 
+		}
+		else if "`suptciplotopts6'"==""{
+			loc suptciplotopts6 color(cranberry) 
+		}
+	}
+	
+	*scatterplotopts
+	*here should go a parser for ech scatterplotopts
+	*we should have defined scatterplotopts1 scatterplotopts2 ...
+	forvalues eq = 1/`eq_n'{
+		if "`scatterplotopts1'"==""{
+			loc scatterplotopts1 color(navy) msymbol(circle)
+		}
+		else if "`scatterplotopts2'"==""{
+			loc scatterplotopts2 color(maroon) msymbol(diamond)
+		}
+		else if "`scatterplotopts3'"==""{
+			loc scatterplotopts3 color(forest_green) msymbol(triangle)
+		}
+		else if "`scatterplotopts4'"==""{
+			loc scatterplotopts4 color(dkorange) msymbol(square)
+		}
+		else if "`scatterplotopts5'"==""{
+			loc scatterplotopts5 color(teal) msymbol(circle_hollow)
+		}
+		else if "`scatterplotopts6'"==""{
+			loc scatterplotopts6 color(cranberry) msymbol(diamond_hollow)
+		}
+	}
+	
+	
 	loc graph ""
 	forvalues eq = 1/`eq_n'{
-		loc graph `graph' (`smgraph' `smplotopts') (`cigraph`eq'' `ciplotopts') (`cigraphsupt`eq'' `suptciplotopts') (`cmdov`eq'' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts') (`addplots') (`trendplot' `trendplotopts') (,`zeroline' `options' `legend')
+		loc graph `graph' (`smgraph' `smplotopts') (`cigraph`eq'' `ciplotopts`eq'') (`cigraphsupt`eq'' `suptciplotopts`eq'') (`cmdov`eq'' , xtitle("") ytitle("") `xaxis' `ylab' `note' `scatterplotopts`eq'') (`addplots') (`trendplot' `trendplotopts') (,`zeroline' `options' `legend')
 	}
 	twoway `graph'
 	
