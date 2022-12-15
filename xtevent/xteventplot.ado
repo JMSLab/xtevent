@@ -685,48 +685,68 @@ program define xteventplot
 	*this parser should define ciplotopts1 ciplotopts2 ciplotopts3...
 	*ciplotopts
 	forvalues eq = 1/`eq_n'{
-		if "`ciplotopts1'"==""{
-			loc ciplotopts1 color(navy) 
-		}
-		else if "`ciplotopts2'"==""{
-			loc ciplotopts2 color(maroon) 
-		}
-		else if "`ciplotopts3'"==""{
-			loc ciplotopts3 color(forest_green) 
-		}
-		else if "`ciplotopts4'"==""{
-			loc ciplotopts4 color(dkorange) 
-		}
-		else if "`ciplotopts5'"==""{
-			loc ciplotopts5 color(teal) 
-		}
-		else if "`ciplotopts6'"==""{
-			loc ciplotopts6 color(cranberry) 
+		check_color_msymbol "`ciplotopts`eq''"
+		loc check_color=r(check_color)
+		loc check_msymbol=r(check_msymbol)
+		if "`check_color'"=="." loc check_color ""
+		if "`check_msymbol'"=="." loc check_msymbol ""
+		loc check_color`eq' = "`check_color'"
+		loc check_msymbol`eq' = "`check_msymbol'"
+		
+		if "`check_color`eq''"=="0"{
+			if `eq'==1{
+				loc ciplotopts`eq' `ciplotopts`eq'' color(navy) 
+			}
+			if `eq'==2{
+				loc ciplotopts`eq' `ciplotopts`eq'' color(maroon) 
+			}
+			if `eq'==3{
+				loc ciplotopts`eq' `ciplotopts`eq'' color(forest_green) 
+			}
+			if `eq'==4{
+				loc ciplotopts`eq' `ciplotopts`eq'' color(dkorange) 
+			}
+			if `eq'==5{
+				loc ciplotopts`eq' `ciplotopts`eq'' color(teal) 
+			}
+			if `eq'==6{
+				loc ciplotopts`eq' `ciplotopts`eq'' color(cranberry) 
+			}
 		}
 	}
 	
 	*suptciplotopts
 	forvalues eq = 1/`eq_n'{
-		if "`suptciplotopts1'"==""{
-			loc suptciplotopts1 color(navy) 
-		}
-		else if "`suptciplotopts2'"==""{
-			loc suptciplotopts2 color(maroon) 
-		}
-		else if "`suptciplotopts3'"==""{
-			loc suptciplotopts3 color(forest_green) 
-		}
-		else if "`suptciplotopts4'"==""{
-			loc suptciplotopts4 color(dkorange) 
-		}
-		else if "`suptciplotopts5'"==""{
-			loc suptciplotopts5 color(teal) 
-		}
-		else if "`suptciplotopts6'"==""{
-			loc suptciplotopts6 color(cranberry) 
+		check_color_msymbol "`suptciplotopts`eq''"
+		loc check_color=r(check_color)
+		loc check_msymbol=r(check_msymbol)
+		if "`check_color'"=="." loc check_color ""
+		if "`check_msymbol'"=="." loc check_msymbol ""
+		loc check_color`eq' `check_color'
+		loc check_msymbol`eq' `check_msymbol'
+		
+		if "`check_color`eq''"=="0"{
+			if `eq'==1{
+				loc suptciplotopts`eq' `suptciplotopts`eq'' color(navy) 
+			}
+			if `eq'==2{
+				loc suptciplotopts`eq' `suptciplotopts`eq'' color(maroon) 
+			}
+			if `eq'==3{
+				loc suptciplotopts`eq' `suptciplotopts`eq'' color(forest_green) 
+			}
+			if `eq'==4{
+				loc suptciplotopts`eq' `suptciplotopts`eq'' color(dkorange) 
+			}
+			if `eq'==5{
+				loc suptciplotopts`eq' `suptciplotopts`eq'' color(teal) 
+			}
+			if `eq'==6{
+				loc suptciplotopts`eq' `suptciplotopts`eq'' color(cranberry) 
+			}
 		}
 	}
-	
+
 	*scatterplotopts
 	*here should go a parser for ech scatterplotopts
 	*we should have defined scatterplotopts1 scatterplotopts2 ...
@@ -823,6 +843,17 @@ program define parseimp, rclass
 	syntax [anything] , [saveimp]
 	return local imptype "`anything'"
 	return local saveimpl "`saveimp'"
+end	
+
+*program to check whether it contains color and msymbol options 
+cap program drop check_color_msymbol
+program define check_color_msymbol, rclass
+	syntax [anything] , [*]
+	
+	loc check_color=strmatch("`anything'","color(*)")
+	return local check_color = "`check_color'"
+	loc check_msymbol=strmatch("`anything'","msymbol(*)")
+	return local check_msymbol = "`check_msymbol'"
 end	
 
 
