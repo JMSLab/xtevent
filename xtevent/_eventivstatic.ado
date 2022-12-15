@@ -80,7 +80,7 @@ program define _eventivstatic, rclass
 			xtset `panelvar' `timevar'
 			forv v=1(1)`drange_1'{
 				tempvar _fd`v'`z'
-				gen double `_fd`v'`z'' = f`v'.d.`z' 
+				qui gen double `_fd`v'`z'' = f`v'.d.`z' 
 			}
 			save `state_level_leads'
 
