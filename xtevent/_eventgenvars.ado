@@ -121,14 +121,14 @@ program define _eventgenvars, rclass
 	*find minimum valid time (time where there is a no-missing observation)
 	tempvar zmint zmint2 zminv zminv2 zmaxt zmaxt2 zmaxv zmaxv2
 	qui{
-		by `panelvar' (`timevar'): egen long `zmint'=min(`timevar') if !missing(`z') & `touse'	
+		by `panelvar' (`timevar'): egen long `zmint'=min(`timevar') if !missing(`z') 
 		by `panelvar' (`timevar'): egen long `zmint2'=min(`zmint')
 		*find the corresponding minimum valid value
 		by `panelvar' (`timevar'): gen double `zminv'=`z' if `timevar'==`zmint2' 
 		by `panelvar' (`timevar'): egen double `zminv2'=min(`zminv')
 
 		*find maximum valid time
-		by `panelvar' (`timevar'): egen long `zmaxt'=max(`timevar') if !missing(`z') & `touse'
+		by `panelvar' (`timevar'): egen long `zmaxt'=max(`timevar') if !missing(`z') 
 		by `panelvar' (`timevar'): egen long `zmaxt2'=max(`zmaxt')
 		*find the corresponding maximum valid value
 		by `panelvar' (`timevar'): gen double `zmaxv'=`z' if `timevar'==`zmaxt2' 
@@ -148,15 +148,15 @@ program define _eventgenvars, rclass
 	if ("`impute'"=="stag" | "`impute'"=="instag") {
 	
 		tempvar zwd zwu seq
-		qui gen double `zwd'=`z' if `touse'
-		qui by `panelvar' (`timevar'): replace `zwd'=`zwd'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
-		qui gen double `zwu'=`z' if `touse'
+		qui gen double `zwd'=`z' 
+		qui by `panelvar' (`timevar'): replace `zwd'=`zwd'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
+		qui gen double `zwu'=`z' 
 		sort `panelvar' `timevar'
 		qui by `panelvar': gen int `seq' = -_n
 		sort `panelvar' `seq'
-		qui by `panelvar': replace `zwu'=`zwu'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
+		qui by `panelvar': replace `zwu'=`zwu'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
 		sort `panelvar' `timevar'
-		cap assert `zwd'==`zwu' if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
+		cap assert `zwd'==`zwu' if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
 		if _rc{
 			di "Event time is unknown for some units due to missing values in policyvar."
 		}
@@ -165,9 +165,9 @@ program define _eventgenvars, rclass
 	***************** verify whether policyvar is binary *******************
 	
 	****** Check if z is binary
-	cap assert inlist(`z',0,1,.) if `touse'
+	cap assert inlist(`z',0,1,.) 
 	if _rc {
-		qui su `z' if `touse'
+		qui su `z' 
 		loc rminz=`=r(min)'
 		loc rmaxz=`=r(max)'
 		cap assert inlist(`z',`rminz',`rmaxz',.)
@@ -201,7 +201,7 @@ program define _eventgenvars, rclass
 		*where there are missings, impute the previous value
 		qui by `panelvar' (`timevar'): replace `zr'=`zr'[_n-1] if missing(`zr') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
 		
-		qui by `panelvar' (`timevar'): gen byte `l1'= (F1.`zr'>=`zr') if !missing(`zr') & !missing(F1.`zr') & `touse'
+		qui by `panelvar' (`timevar'): gen byte `l1'= (F1.`zr'>=`zr') if !missing(`zr') & !missing(F1.`zr') 
 		cap assert `l1'==1 if !missing(`l1')
 		if ! _rc{
 			loc norever 1
@@ -226,10 +226,10 @@ program define _eventgenvars, rclass
 		*first filter: all units satisfy the bounds condition? 
 		if `bin'==1 & `norever'==1 {
 			*verify the lower-bound value
-			cap assert `z'==`rminz' if `minzt'==`timevar' & `touse'
+			cap assert `z'==`rminz' if `minzt'==`timevar' 
 			* if the lower-bound value is zero, then test the upper-bound
 			if !_rc{
-				cap assert `z'==`rmaxz' if `maxzt'==`timevar' & `touse'
+				cap assert `z'==`rmaxz' if `maxzt'==`timevar' 
 				if !_rc loc bounds 1
 			} 
 		}
@@ -239,12 +239,12 @@ program define _eventgenvars, rclass
 		
 		tempvar ilb iub sb sbmin
 		qui{
-			by `panelvar' (`timevar'): gen byte `ilb'=(`z'==`rminz') if `minzt'==`timevar' & `touse'
-			by `panelvar' (`timevar'): gen byte `iub'=(`z'==`rmaxz') if `maxzt'==`timevar' & `touse'
+			by `panelvar' (`timevar'): gen byte `ilb'=(`z'==`rminz') if `minzt'==`timevar' 
+			by `panelvar' (`timevar'): gen byte `iub'=(`z'==`rmaxz') if `maxzt'==`timevar' 
 			egen byte `sb'=rowtotal(`ilb' `iub') if (`minzt'==`timevar' | `maxzt'==`timevar')
 		
 			*sbmin is an indicator of the units that satisfied the first filter 
-			by `panelvar' (`timevar'): egen byte `sbmin'=min(`sb') if `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
+			by `panelvar' (`timevar'): egen byte `sbmin'=min(`sb') if `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
 		}
 		cap assert inlist(`z',`rminz',`rmaxz') if `sbmin'==0
 		if !_rc loc bounds 1
@@ -308,7 +308,7 @@ program define _eventgenvars, rclass
 			if `klevel'<0 { 
 				loc plus = "m"
 				qui {
-					by `panelvar' (`timevar'): gen double _k_eq_`plus'`absk'=F`absk'.`zd' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
+					by `panelvar' (`timevar'): gen double _k_eq_`plus'`absk'=F`absk'.`zd' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) 
 					la var _k_eq_`plus'`absk' "Event-time = - `absk'"
 					*this to impute zeros and complete the observed range
 					tempvar minp minp2 maxp maxp2
@@ -317,14 +317,14 @@ program define _eventgenvars, rclass
 						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
 						by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
 						by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
-						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) 
 					}
 				}
 			}		
 			else {
 				loc plus "p" 
 				qui {
-					by `panelvar' (`timevar'): gen double _k_eq_`plus'`absk'=L`absk'.`zd' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
+					by `panelvar' (`timevar'): gen double _k_eq_`plus'`absk'=L`absk'.`zd' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) 
 					la var _k_eq_`plus'`absk' "Event-time = + `absk'"
 					*this to impute zeros and complete the observed range 
 					cap drop `minp' `minp2' `maxp' `maxp2' 
@@ -333,7 +333,7 @@ program define _eventgenvars, rclass
 						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
 						by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
 						by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
-						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) 
 					}
 				}
 			}
@@ -360,7 +360,7 @@ program define _eventgenvars, rclass
 		
 					
 		* Error check for window outside event time range
-		qui sum __k if `touse'
+		qui sum __k 
 		if `=-`lwindow'+1' > abs(r(min)) | `=`rwindow'+1' > abs(r(max)) {
 			di as err _n "Window outside event-time range"
 			qui drop _k*
@@ -378,27 +378,27 @@ program define _eventgenvars, rclass
 		if "`impute'"!="" { 
 			qui {
 				* Left
-				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse' 
+				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) 
 				*find maximum valid time for left endpoint
 				tempvar maxl maxl2
 				by `panelvar' (`timevar'): egen long `maxl'=max(`timevar') if !missing(_k_eq_m`=-`lwindow'+1')
 				by `panelvar' (`timevar'): egen long `maxl2'=max(`maxl')
 				*replace with zeros (the last observed for the endpoint)
-				replace _k_eq_m`=-`lwindow'+1' = _k_eq_m`=-`lwindow'+1'[_n-1] if _k_eq_m`=-`lwindow'+1' == . & (`timevar'>`maxl2') & (`timevar'<=`maxz2') & `touse'
+				replace _k_eq_m`=-`lwindow'+1' = _k_eq_m`=-`lwindow'+1'[_n-1] if _k_eq_m`=-`lwindow'+1' == . & (`timevar'>`maxl2') & (`timevar'<=`maxz2') 
 				order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
 				
 				* Right
 				tempvar seq3
-				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
+				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) 
 				*find minimun valid time for right endpoint 
 				tempvar minr minr2 
-				by `panelvar' (`timevar'): egen long `minr'=min(`timevar') if !missing(_k_eq_p`=`rwindow'+1') & `touse'
+				by `panelvar' (`timevar'): egen long `minr'=min(`timevar') if !missing(_k_eq_p`=`rwindow'+1') 
 				by `panelvar' (`timevar'): egen long `minr2'=min(`minr')
 				*replace missing values in the upper-right corner			
 				sort `panelvar' `timevar'
 				by `panelvar': gen int `seq3' = -_n
 				sort `panelvar' `seq3'
-				by `panelvar': replace _k_eq_p`=`rwindow'+1'=_k_eq_p`=`rwindow'+1'[_n-1] if (`timevar'>=`minz2') & (`timevar'<`minr2') & `touse'
+				by `panelvar': replace _k_eq_p`=`rwindow'+1'=_k_eq_p`=`rwindow'+1'[_n-1] if (`timevar'>=`minz2') & (`timevar'<`minr2') 
 				sort `panelvar' `timevar'
 				order __k, after(_k_eq_p`=`rwindow'+1')			
 			}	
@@ -407,10 +407,10 @@ program define _eventgenvars, rclass
 		else {
 			qui {
 				* Left
-				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
+				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) 
 				order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
 				* Right
-				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'			
+				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) 		
 				order __k, after(_k_eq_p`=`rwindow'+1')
 			}
 		}
@@ -423,26 +423,26 @@ program define _eventgenvars, rclass
 		
 		* If z is binary, check if event-time is missing
 		if `bin' & `norever' {
-			cap assert __k !=. if `touse'
+			cap assert __k !=. 
 			* If it is, check for which units
 			if _rc {
 				tempvar etmis etmismax minz
 				qui {
-					gen byte `etmis' = (__k==.) & `touse'
-					by `panelvar' : egen byte `etmismax' = max(`etmis') if `touse'
-					by `panelvar' : egen double `mz' = max(`z') if `touse'
-					by `panelvar' : egen double `minz' = min(`z') if `touse'
+					gen byte `etmis' = (__k==.) 
+					by `panelvar' : egen byte `etmismax' = max(`etmis') 
+					by `panelvar' : egen double `mz' = max(`z') 
+					by `panelvar' : egen double `minz' = min(`z') 
 				}
 				* Exclude units with missing event-time
 				foreach x of varlist _k_eq* {
-					qui replace `x' = . if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'
+					qui replace `x' = . if `etmismax'==1 & `mz'>0 & `minz'==0 
 				}
-				qui replace __k = . if `etmismax'==1 & `touse'
-				qui levelsof `panelvar' if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse', loc(mis)
+				qui replace __k = . if `etmismax'==1 
+				qui levelsof `panelvar' if `etmismax'==1 & `mz'>0 & `minz'==0 , loc(mis)
 				foreach j in `mis' {
 					di as txt _n "Unit `j' not used because of ambiguous event-time due to missing values in policyvar."
 				}
-				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'			
+				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 			
 			}
 		}	
 		
@@ -458,10 +458,10 @@ program define _eventgenvars, rclass
 		loc included: list local included - toexc
 		
 		* Group k
-		qui gen long `kg' = __k if `touse'
+		qui gen long `kg' = __k 
 		* Group if outside window
-		qui replace `kg' = `=`lwindow'-1' if __k < `=`lwindow'' & `touse'
-		qui replace `kg' = `=`rwindow'+1' if __k >= `rwindow' & `touse'
+		qui replace `kg' = `=`lwindow'-1' if __k < `=`lwindow'' 
+		qui replace `kg' = `=`rwindow'+1' if __k >= `rwindow' 
 		qui levelsof `kg', loc(kgs)
 		
 		* If extrapolating a linear trend, exclude some of the event time dummies
@@ -474,10 +474,10 @@ program define _eventgenvars, rclass
 			}
 		
 			* Generate the trend		
-			qui gen int _ttrend = __k  if `touse'	
-			qui replace _ttrend = 0 if !inrange(_ttrend,`lwindow',`=`rwindow'') & `touse'
+			qui gen int _ttrend = __k  	
+			qui replace _ttrend = 0 if !inrange(_ttrend,`lwindow',`=`rwindow'') 
 			* qui replace _ttrend = 0 if _ttrend<`=`trend'' & `touse'
-			qui replace _ttrend = 0 if mi(_ttrend) & `touse'
+			qui replace _ttrend = 0 if mi(_ttrend) 
 			la var _ttrend trend
 			
 			
