@@ -224,7 +224,7 @@ unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
 or type "ssc install avar" from inside Stata.
 
 {phang}
-{opt control_cohort(varname)} specifies the binary variable that identifies the control_cohort. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
+{opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
  proposed by Sun and Abraham (2021). {cmd:control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install
 or type "ssc install avar" from inside Stata.
 
