@@ -74,7 +74,7 @@ See {help xteventtest} for hypothesis testing after estimation and {help xtevent
 {pstd}
 {cmd: xtevent} estimates the effect of a policy variable of interest on a dependent variable using a panel event
 study design. Additional control variables can be included in {it:varlist}. The command allows for estimation when a pre-trend is present using
-the instrumental variables estimator of Freyaldenhoven et al. (2019). It also allows estimation in settings with heterogeneous effects by cohort using the  Interaction Weighted Estimator of Sun and Abraham (2021).{p_end}
+the instrumental variables estimator of Freyaldenhoven et al. (2019). It also allows estimation in settings with heterogeneous effects by cohort using the Interaction Weighted Estimator of Sun and Abraham (2021).{p_end}
 
 
 {marker options}{...}
