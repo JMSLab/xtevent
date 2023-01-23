@@ -235,7 +235,7 @@ program define _eventols, rclass
 		// The scaling factor is 1/N for N the obs of cross-sectional units
 		// But here estimates are on the panel, which is why it is 1/NT instead
 		// Should cancel out for balanced panel, but unbalanced panel is a TODO
-		// as of Jan 23, 2023, Sun and Abraham have not updated this section code.
+		// as of Jan 23, 2023, Sun and Abraham have not updated this code section.
 		//According to the expression for the asymptotic variance in the proof of proposition 6 (https://arxiv.org/pdf/1804.05785v2.pdf#page=50), the scaling factor is 1/N.
 		
 		**** step 1 
