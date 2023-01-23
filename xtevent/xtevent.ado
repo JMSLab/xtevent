@@ -29,11 +29,13 @@ program define xtevent, eclass
 	proxyiv(string) /* Instruments. For FHS set ins equal to leads of the policy */
 	proxy (varlist numeric) /* Proxy variable */		
 	TRend(string) /*trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
-	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */
+	SAVek(string) /* Generate the time-to-event dummies, trend, and cohort-relative time interactions and keep them in the dataset */
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
+	cohort(varname) /*categorial variable to indicate cohort in SA estimation*/ 
+	control_cohort(varname) /* dummy variable to indicate cohort to be used as control in SA estimation*/
 	plot /* Produce plot */
 	*
 	/*
@@ -43,7 +45,8 @@ program define xtevent, eclass
 	note /* No time effects */
 	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
-		
+	cohort(varname) /* categorical variable indicating cohort */
+	control_cohort(varname) /* dummy variable indicating the control cohort */ 
 	*/
 	]
 	;
@@ -123,7 +126,7 @@ program define xtevent, eclass
 			}
 		}
 		if "`proxy'"!="" {
-			foreach p in ivreghdfe ivreg2 {
+			foreach p in ivreghdfe ivreg2 ranktest avar {
 				cap which `p'
 				if _rc {
 					di as err _n "option {bf:reghdfe} and IV estimation requires {cmd: `p'} to be installed"
@@ -132,10 +135,19 @@ program define xtevent, eclass
 			}
 		}
 	}
-	
+	if ("`cohort'" != "" & "`control_cohort'" == "") | ("`cohort'" == "" & "`control_cohort'" != "")  {
+		di as err _n "options {bf:cohort} and {bf:control_cohort} must be specified simultaneously"
+		exit 199
+	}
+	if "`cohort'"!="" & "`control_cohort'"!=""  {
+		cap which avar 
+		if _rc {
+			di as err _n "Sun-and-Abraham estimation requires {cmd: avar} to be installed"
+			exit 199
+		}
+	}
 	
 		
-	
 	
 	marksample touse
 	
@@ -194,7 +206,7 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') cohort(`cohort') control_cohort(`control_cohort') `options' 
 			if _rc {
 				errpostest
 			}
@@ -229,8 +241,12 @@ program define xtevent, eclass
 			}
 		}
 	}
-	 
-			
+	
+	*don't try returning matrices and macros if noestimate is specified 
+	loc noestimate = r(noestimate)
+	if "`noestimate'"=="." loc noestimate ""
+	if "`noestimate'"!="" exit 
+	
 	if `=r(flagerr)'!=1  {
 	
 		loc noestimate=r(noestimate)
@@ -278,6 +294,18 @@ program define xtevent, eclass
 			if `=r(x1)'!=. ereturn local x1 = r(x1)
 			
 		}
+		loc sun_abraham = r(sun_abraham)
+		if "`sun_abraham'"=="." loc sun_abraham ""
+		if "`sun_abraham'"!="" {
+			mat b_interact = r(b_interact)
+			mat V_interact = r(V_interact)
+			mat ff_w = r(ff_w)
+			mat Sigma_ff = r(Sigma_ff)
+			ereturn matrix b_interact = b_interact
+			ereturn matrix V_interact = V_interact
+			ereturn matrix ff_w = ff_w
+			ereturn matrix Sigma_ff = Sigma_ff
+		}
 		
 		loc saveov = r(saveov)
 		if "`saveov'"=="." loc saveov ""
@@ -318,6 +346,7 @@ program define cleanup
 	cap drop _ttrend
 	cap drop __k	
 	cap drop _f*
+	cap drop _interact*
 	cap _estimates clear
 end
 

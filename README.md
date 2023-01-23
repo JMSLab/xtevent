@@ -119,8 +119,21 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 			          
 *reghdfe and two-way clustering
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode year) reghdfe ///
-			proxy(wks_work)
+            pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe ///
+            proxy(wks_work)
+            
+*Sun and Abraham Estimator
+*generate the variable that indicates cohort
+gen timet=year if union==1
+by idcode: egen time_of_treat=min(timet)
+*generate the variable that indicates the control cohort. 
+*we use the never treated units as the control cohort. 
+gen never_treat=time_of_treat==.
+*estimate the event-time coefficients with the Sun-and-Abraham Estimator.
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
+            policyvar(union) window(3) impute(nuchange) vce(cluster idcode) ///
+            reghdfe cohort(time_of_treat) control_cohort(never_treat) 
+
 ```
 
 #### xteventplot
