@@ -99,6 +99,15 @@ program define _eventols, rclass
 		di as err _n "Suboption {bf:saveint} can only be specified if options {bf:cohort} and {bf:control_cohort} have been specified as well."
 		exit 301
 	}
+	* Check for vars named _interact
+	if "`saveint'"!=""{
+		cap unab old_interact_vars : `savek'_interact*
+		if !_rc {
+			di as err _n "You have variable names with the {bf:`savek'_interact} prefix. {bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation."
+			di as err _n "Please rename or drop these variables before proceeding."
+			exit 110
+		}
+	}
 	*gen & kvars
 	if ("`gen'"!="" & "`kvars'"=="") |  ("`gen'"=="" & "`kvars'"!="") {
 		di as err _n "Options -nogen- and -kvars- must be specified together"
