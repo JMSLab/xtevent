@@ -202,7 +202,7 @@ program define _eventols, rclass
 		foreach yy of local cohort_list {
 			tempvar cohort_ind resid`yy'
 			qui gen `cohort_ind'  = (`cohort' == `yy') 
-			qui regress `cohort_ind' `nvarlist'  if `touse' & `control_cohort' == 0 [`weight'`exp']  , nocons
+			qui _regress `cohort_ind' `nvarlist'  if `touse' & `control_cohort' == 0 [`weight'`exp']  , nocons
 			mat `bb' = e(b) 
 			matrix `ff_w'  = nullmat(`ff_w') \ `bb' 
 			*di "`yy'"
