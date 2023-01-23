@@ -191,15 +191,15 @@ graph drop g3
 
 graph drop _all
 
-*Interaction Weighted Estimator (Sun and Abraham, 2021) 
+*Sun and Abraham Estimator (2021) 
 *Generate the variable that indicates cohort
 gen timet=t if z==1
 by i: egen time_of_treat=min(timet)
 *Generate the variable that indicates the control cohort. We use the never treated units as the control cohort. 
 gen never_treat=time_of_treat==.
-*Estimate the event-time coefficients with the IW Estimator.
+*Estimate the event-time coefficients with the Sun-and-Abraham Estimator.
 xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) 
-*Use reghdfe as the underlying estimation command, this produces identical estimations as with EventStudyInteract.
+*Use reghdfe as the underlying estimation command
 xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) reghdfe
 
 *Overlay trend plot
