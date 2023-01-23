@@ -34,6 +34,8 @@ program define xtevent, eclass
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
+	cohort(varname) /*categorial variable to indicate cohort in SA estimation*/ 
+	control_cohort(varname) /* dummy variable to indicate cohort to be used as control in SA estimation*/
 	plot /* Produce plot */
 	*
 	/*
@@ -124,7 +126,7 @@ program define xtevent, eclass
 			}
 		}
 		if "`proxy'"!="" {
-			foreach p in ivreghdfe ivreg2 {
+			foreach p in ivreghdfe ivreg2 ranktest avar {
 				cap which `p'
 				if _rc {
 					di as err _n "option {bf:reghdfe} and IV estimation requires {cmd: `p'} to be installed"
@@ -133,10 +135,19 @@ program define xtevent, eclass
 			}
 		}
 	}
-	
+	if ("`cohort'" != "" & "`control_cohort'" == "") | ("`cohort'" == "" & "`control_cohort'" != "")  {
+		di as err _n "options {bf:cohort} and {bf:control_cohort} must be specified simultaneously"
+		exit 199
+	}
+	if "`cohort'"!="" & "`control_cohort'"!=""  {
+		cap which avar 
+		if _rc {
+			di as err _n "Sun-and-Abraham estimation requires {cmd: avar} to be installed"
+			exit 199
+		}
+	}
 	
 		
-	
 	
 	marksample touse
 	
@@ -195,7 +206,7 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') cohort(`cohort') control_cohort(`control_cohort') `options' 
 			if _rc {
 				errpostest
 			}
