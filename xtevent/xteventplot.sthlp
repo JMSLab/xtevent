@@ -1,5 +1,5 @@
 {smcl}
-{* *! version .0 Jun 24 2022}{...}
+{* *! version 2.1.1 Aug 12 2022}{...}
 {cmd:help xteventplot}
 {hline}
 
@@ -37,8 +37,8 @@
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
 {synopt:{opt nozero:line}} omit reference line at 0{p_end}
 {synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -2 {p_end}
-{synopt:{opt noprepval}} omit p-vale for pre-trends test{p_end}
-{synopt:{opt nopostpval}} omit p-vale for leveling-off test{p_end}
+{synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
+{synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
 {synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
 {synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
@@ -187,38 +187,49 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
 
 {hline}
 {pstd}Setup{p_end}
-{phang2}{cmd:. webuse nlswork}{p_end}
-{phang2}{cmd:. xtset idcode year}{p_end}
+{phang2}{cmd:. {stata webuse nlswork}}{p_end}
+{phang2}{cmd:. {stata xtset idcode year}}{p_end}
 
 {hline}
-{pstd}Basic event study with clustered standard errors{p_end}
-{phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode)}
+
+{pstd}Add an extra effect if union equals 1 {p_end}
+{phang2}{cmd:. {stata gen ln_wage2=ln_wage}}{p_end}
+{phang2}{cmd:. {stata replace ln_wage2=ln_wage2+0.5 if union==1}}{p_end}
+
+{pstd}Basic event study with clustered standard errors.
+Impute policy variable without verifying staggered adoption.{p_end}
+{phang2}{cmd:. {stata xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}}
 {p_end}
 
 {pstd}Plot{p_end}
-{phang2}{cmd:. xteventplot}{p_end}
+{phang2}{cmd:. {stata xteventplot}}{p_end}
 
 {pstd}Supress confidence intervals or sup-t confidence intervals{p_end}
-{phang2}{cmd:. xteventplot, noci}{p_end}
-{phang2}{cmd:. xteventplot, nosupt}{p_end}
+{phang2}{cmd:. {stata xteventplot, noci}}{p_end}
+{phang2}{cmd:. {stata xteventplot, nosupt}}{p_end}
 
 {pstd}Plot smoothest path in confidence region{p_end}
-{phang2}{cmd:. xteventplot, smpath(line)}{p_end}
-{phang2}{cmd:. xteventplot, smpath(line, technique(nr 10 bfgs 10))}{p_end}
+{phang2}{cmd:. {stata xteventplot, smpath(line)}}{p_end}
+{phang2}{cmd:. {stata xteventplot, smpath(line, technique(nr 10 bfgs 10))}}{p_end}
 
 {pstd}Adjust textbox options for the p-values of the pre-trend and leveling-off tests{p_end}
-{phang2}{cmd:. xteventplot, textboxoption(color(blue) size(large))}{p_end}
+{phang2}{cmd:. {stata xteventplot, textboxoption(color(blue) size(large))}}{p_end}
 
 {hline}
 
+{pstd}year variable has many missing observations.{p_end}
+{pstd}Create a time variable that ignores these gaps.{p_end}
+{phang2}{cmd:. {stata "by idcode (year): gen time=_n"}}{p_end}
+{phang2}{cmd:. {stata xtset idcode time}}{p_end}
+
 {pstd}FHS estimator with proxy variables{p_end}
-{phang2}{cmd:. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work)}{p_end}
+{phang2}{cmd:. {stata xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work)}}{p_end}
 
 {pstd}Dependent variable, proxy variable, and overlay plots{p_end}
-{phang2}{cmd:. xteventplot, y}{p_end}
-{phang2}{cmd:. xteventplot, proxy}{p_end}
-{phang2}{cmd:. xteventplot, overlay(iv)}{p_end}
-{phang2}{cmd:. xteventplot}{p_end}
+{phang2}{cmd:. {stata xteventplot, y}}{p_end}
+{phang2}{cmd:. {stata xteventplot, proxy}}{p_end}
+{phang2}{cmd:. {stata xteventplot, overlay(iv)}}{p_end}
+{phang2}{cmd:. {stata xteventplot}}{p_end}
 
 {title:Authors}
 
@@ -235,4 +246,6 @@ overlay plot. These options are only active if {opt overlay(trend)} is specified
            
 {pstd}For support and to report bugs please email Jorge Pérez Pérez, Banco de México.{break} 
        jorgepp@banxico.org.mx  
+
+{pstd}{cmd:xtevent} can also be found on {browse "https://github.com/JMSLab/xtevent":Github}.
 	   

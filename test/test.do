@@ -90,6 +90,12 @@ des a_eq*, s
 des a_evtime, s
 drop a*
 
+* Test savek with suboption noestimate
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(a, noe)
+des a_eq*, s
+des a_evtime, s
+drop a*
+
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b)
 
 * Test factor variables in varlist
@@ -184,6 +190,17 @@ graph drop g2
 graph drop g3
 
 graph drop _all
+
+*Sun and Abraham Estimator (2021) 
+*Generate the variable that indicates cohort
+gen timet=t if z==1
+by i: egen time_of_treat=min(timet)
+*Generate the variable that indicates the control cohort. We use the never treated units as the control cohort. 
+gen never_treat=time_of_treat==.
+*Estimate the event-time coefficients with the Sun-and-Abraham Estimator.
+xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) 
+*Use reghdfe as the underlying estimation command
+xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) reghdfe
 
 *Overlay trend plot
 xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(gmm) saveov)
@@ -365,6 +382,12 @@ cap gen f1z=f1.z
 cap noi xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(f1z)
 cap drop f1z
 */
+
+*Generate an instrument for the proxy. This instrument is collinear with the event-time dummies.
+gen lead1=f1.d.z 
+*expect an error message: instrument is collinear  
+*xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) proxyiv(lead1)
+drop lead1
 
 * Other leads
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(4) proxy(x) proxyiv(2) plot
