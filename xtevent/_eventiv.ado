@@ -145,6 +145,7 @@ program define _eventiv, rclass
 		if _rc loc ++rc
 		loc ++ivwords
 	}
+	
 	* Three possible types of lists: all numbers for leads, all vars for external instruments, or mixed
 	* All numbers
 	if `rc' == 0 {
@@ -340,7 +341,7 @@ program define _eventiv, rclass
 				loc cmd "xtivreg"
 				loc ffe "fe"
 			}
-			*translate standar error specification:
+			*translate standard error specification:
 			*analyze inclusion of cluster or robust in options
 			parse_es ,`options'
 			foreach orig in cl_orig rob_orig vce_orig other_opts{
@@ -475,10 +476,10 @@ program define _eventiv, rclass
 				
 				ivreghdfe `varlist' (`proxy' = `leadivs' `varivs') `included' [`weight'`exp'] if `touse', `abs' `noabsorb' `options_wcve' `vceop_r' `vceop_c'
 			}
-	}
+		}
 	
-    *clear xtset if repeatedcs and xtivreg, otherwise error message because timevar not setted
-	  if ("`repeatedcs'"!="" & "`cmd'"=="xtivreg") qui xtset, clear
+		*clear xtset if repeatedcs and xtivreg, otherwise error message because timevar not setted
+		if ("`repeatedcs'"!="" & "`cmd'"=="xtivreg") qui xtset, clear
 		
 		* Return coefficients and variance matrix of the delta k estimates separately
 		mat `bb'=e(b)
@@ -500,71 +501,72 @@ program define _eventiv, rclass
 			if `df'==. loc df=e(Fdf2)
 		}
 	
-	loc kmax=`=`rwindow'+1'
-	loc kmin=`=`lwindow'-1'
+		loc kmax=`=`rwindow'+1'
+		loc kmin=`=`lwindow'-1'
+		
+		tempvar esample
+		gen byte `esample' = e(sample)
 	
-	tempvar esample
-	gen byte `esample' = e(sample)
+		
+		* Plots	
+		
+		* Calculate mean before change in policy for 2nd axis in plot
+		* This needs to be relative to normalization
+		tempvar temp_k
+		loc absnorm=abs(`norm0')
+		qui gen `temp_k'=_k_eq_m`absnorm' 
+		
+		tokenize `varlist'
+		qui su `1' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly
+		loc y1 = r(mean)
+		loc depvar "`1'"	
 	
-	
-	* Plots	
-	
-	* Calculate mean before change in policy for 2nd axis in plot
-	* This needs to be relative to normalization
-	tempvar temp_k
-	loc absnorm=abs(`norm0')
-	qui gen `temp_k'=_k_eq_m`absnorm' 
-	
-	tokenize `varlist'
-	qui su `1' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly
-	loc y1 = r(mean)
-	loc depvar "`1'"	
-	
-	*  Calculate mean proxy before change in policy for 2nd axis in plot
-	if "`proxy'"!="" {
-		loc nproxy: word count `proxy'
-		if `nproxy' ==1 {
-			qui su `proxy' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly
-			loc x1 = r(mean)
+		*  Calculate mean proxy before change in policy for 2nd axis in plot
+		if "`proxy'"!="" {
+			loc nproxy: word count `proxy'
+			if `nproxy' ==1 {
+				qui su `proxy' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly
+				loc x1 = r(mean)
 			}
 			else loc x1 = .
 		}
 		
 
-	* Variables for overlay plots
-	
-	* Need the ols estimates for y and x
-	* Do not exclude vars other than m1
-	*loc toexc = "_k_eq_m1"
-	*unab included2: _k_eq_*
-	*loc included2 : list included2 - toexc
-	
-	_estimates hold main
-	
-	qui _eventols `varlist' [`weight'`exp'] if `touse' , panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0') impute(`impute')
-	mat `deltaov' = r(delta)
-	mat `Vdeltaov' = r(Vdelta)
-	*mat `deltay' = `bby'[1,${names}]
-	*mat `Vdeltay' = `VVy'[${names},${names}]
-	qui _eventols `proxy' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0') impute(`impute')
-	mat `deltax' = r(delta)
-	mat `Vdeltax' = r(Vdelta)		
-	*mat `deltax' = `bb'[1,${names}]
-	* mat `Vdeltax' = `VV'[${names},${names}]
-	* Scaling factor
-	loc ivnormcomma = strtrim("`ivnorm'")
-	loc ivnorms : list sizeof ivnormcomma
-	loc ivnormcomma : subinstr local ivnormcomma " " ",", all
-	if `ivnorms'>1 loc scfactlead = -max(`ivnormcomma')
-	else loc scfactlead = -`ivnormcomma'
-	mat Mfn = `deltaov'[1,"_k_eq_m`scfactlead'"]	
-	mat Mfd = `deltax'[1,"_k_eq_m`scfactlead'"]
-	loc fn = Mfn[1,1]
-	loc fd = Mfd[1,1]
-	loc factor = `fn'/`fd'
-	* Scale x estimates by factor
-	mat `deltaxsc' = `factor'*`deltax'	
+		* Variables for overlay plots
 		
+		* Need the ols estimates for y and x
+		* Do not exclude vars other than m1
+		*loc toexc = "_k_eq_m1"
+		*unab included2: _k_eq_*
+		*loc included2 : list included2 - toexc
+		
+		_estimates hold main
+		
+		qui _eventols `varlist' [`weight'`exp'] if `touse' , panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0') impute(`impute')
+		mat `deltaov' = r(delta)
+		mat `Vdeltaov' = r(Vdelta)
+		*mat `deltay' = `bby'[1,${names}]
+		*mat `Vdeltay' = `VVy'[${names},${names}]
+		qui _eventols `proxy' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `fe' `te' nogen nodrop kvars(_k) norm(`norm0') impute(`impute')
+		mat `deltax' = r(delta)
+		mat `Vdeltax' = r(Vdelta)		
+		*mat `deltax' = `bb'[1,${names}]
+		* mat `Vdeltax' = `VV'[${names},${names}]
+		* Scaling factor
+		loc ivnormcomma = strtrim("`ivnorm'")
+		loc ivnorms : list sizeof ivnormcomma
+		loc ivnormcomma : subinstr local ivnormcomma " " ",", all
+		if `ivnorms'>1 loc scfactlead = -max(`ivnormcomma')
+		else loc scfactlead = -`ivnormcomma'
+		mat Mfn = `deltaov'[1,"_k_eq_m`scfactlead'"]	
+		mat Mfd = `deltax'[1,"_k_eq_m`scfactlead'"]
+		loc fn = Mfn[1,1]
+		loc fd = Mfd[1,1]
+		loc factor = `fn'/`fd'
+		* Scale x estimates by factor
+		mat `deltaxsc' = `factor'*`deltax'	
+	}
+	
 	* Drop variables
 	if "`savek'" == "" {
 		cap confirm var _k_eq_p0
