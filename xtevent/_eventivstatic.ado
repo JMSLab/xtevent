@@ -54,12 +54,15 @@ program define _eventivstatic, rclass
 		*if imputation succeeded:
 		if "`impute'"!="" {
 			if "`saveimp'"=="" {
-				tempvar zimp
-				qui gen double `zimp'=`rr'
-				lab var `zimp' "`policyvar'_imputed"
-				loc z "`zimp'"
-			}
-			else loc z = "`policyvar'_imputed"
+				cap confirm variable `policyvar'_imputed
+				if !_rc {
+					di as err _n "`policyvar'_imputed already exists. Please rename it or delete it before proceeding."
+					exit 110 				
+				}
+				gen `policyvar'_imputed = `rr'			
+			}			
+			loc z = "`policyvar'_imputed"			
+			else 
 		}
 		else loc z = "`policyvar'"
 	}
@@ -295,6 +298,7 @@ program define _eventivstatic, rclass
 			drop _fd`v'`z'
 		}
 	}
+	if "`saveimp'"=="" drop `policyvar'_imputed
 	
 	tokenize `varlist'
 	loc depvar "`1'"
@@ -308,5 +312,7 @@ program define _eventivstatic, rclass
 	return local names = "`names'"	
 	return local cmd = "`cmd'"
 	return local depvar = "`depvar'"
+	
+	
 		
 end
