@@ -21,7 +21,7 @@ program define get_unit_time_effects, eclass
 	
 	marksample touse
 	
-	tempvar predicted goup_interact
+	tempvar predicted
 		
 	* Check for a variable named _unittimeeffects
 	cap unab effvar : _unittimeeffects
@@ -68,8 +68,14 @@ program define get_unit_time_effects, eclass
 	*omit regression table
 	if "`nooutput'"!="" loc q quietly
 	
-	qui egen `goup_interact'=group(`panelvar' `timevar') 
-	`q' areg `depenvar' `indepvars' [`weight'`exp'] if `touse', absorb(`goup_interact') `options'
+	cap confirm variable unittimeinteraction
+	if !_rc {
+		di as err _n "Variable unittimeinteraction already exists. Please delete it or rename it before proceeding"
+		exit 110
+	}
+	
+	qui egen unittimeinteraction=group(`panelvar' `timevar') 
+	`q' areg `depenvar' `indepvars' [`weight'`exp'] if `touse', absorb(unittimeinteraction) `options'
 	qui predict `predicted', d	//calculates d_absorbvar, the individual coefficients for the absorbed variable.
 
 	*create dta file necessary for step 2
@@ -77,6 +83,7 @@ program define get_unit_time_effects, eclass
 	qui gen _unittimeeffects = `predicted'
 	qui bysort `panelvar' `timevar': keep if _n==1 //or collapse?: collapse (mean) _unittimeeffects [`weight'`exp'] if `touse', by(`panelvar' `timevar')
 	qui keep `panelvar' `timevar' _unittimeeffects
+	
 	save "`filename'", `replace'
 	*go back to the original dataset 
 	if "`clear'"=="" restore
