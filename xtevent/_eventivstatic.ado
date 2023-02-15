@@ -15,6 +15,7 @@ program define _eventivstatic, rclass
 	reghdfe /* Use reghdfe for estimation */
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	impute(string)
+	REPeatedcs /*data is repeated cross-sectional*/
 	STatic
 	*
 	]
@@ -44,7 +45,7 @@ program define _eventivstatic, rclass
 		tempvar rr
 		qui gen double `rr'=.
 		
-	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static' rr(`rr')
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
 		
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
@@ -53,16 +54,46 @@ program define _eventivstatic, rclass
 		*if imputation succeeded:
 		if "`impute'"!="" {
 			if "`saveimp'"=="" {
-				tempvar zimp
-				qui gen double `zimp'=`rr'
-				lab var `zimp' "`policyvar'_imputed"
-				loc z "`zimp'"
-			}
-			else loc z = "`policyvar'_imputed"
+				cap confirm variable `policyvar'_imputed
+				if !_rc {
+					di as err _n "`policyvar'_imputed already exists. Please rename it or delete it before proceeding."
+					exit 110 				
+				}
+				gen `policyvar'_imputed = `rr'			
+			}			
+			loc z = "`policyvar'_imputed"			
+			else 
 		}
 		else loc z = "`policyvar'"
 	}
 
+	*In the static setting, we cannot define an interval through the -window- option to look for the strongest lead. Therefore, we will check the dataset and look for the greatest possible lead. The maximum number of forwards I can generate equals the number of observed periods -1.
+	qui sum `timevar'
+	loc drange_1=r(max) - r(min) // this equals number of obs periods -1
+
+	* if dataset is repeated cross-sectional, create leads of policyvar at state level
+	if "`repeatedcs'"!=""{
+		qui {
+			preserve 
+			tempfile state_level_leads
+		
+			keep if `touse'
+			keep `panelvar' `timevar' (`z')
+			bysort `panelvar' `timevar' (`z'): keep if _n==1
+			xtset `panelvar' `timevar'
+			forv v=1(1)`drange_1'{
+				tempvar _fd`v'`z'
+				qui gen double `_fd`v'`z'' = f`v'.d.`z' 
+			}
+			save `state_level_leads'
+
+			restore
+
+		*merge on the policyvar as well, so missing values in policyvar within a cell will not get lead values
+			merge m:1 `panelvar' `timevar' `z' using `state_level_leads', update nogen
+		}
+	}
+	
 	loc leads : word count `proxy'
 	if "`proxyiv'"=="" & `leads'==1 loc proxyiv "select"
 	
@@ -85,10 +116,12 @@ program define _eventivstatic, rclass
 		else {
 			di as text _n "proxyiv=select. Selecting lead order of differenced policy variable to use as instrument."
 			loc Fstart = 0
-			* Here I test up to 5
-			forv v=1(1)5 {
-				tempvar _fd`v'`z'
-				qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
+			* originally: Here I test up to 5
+			forv v=1(1)`drange_1'{
+				if "`repeatedcs'"=="" {
+					tempvar _fd`v'`z'
+					qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
+				}
 				cap qui reg `proxy' `_fd`v'`z'' [`weight'`exp'] if `touse'
 				if !_rc loc Floop = e(F)
 				if `Floop' > `Fstart' {
@@ -111,8 +144,15 @@ program define _eventivstatic, rclass
 	if `rc' == 0 {
 		loc insvars ""
 		foreach v in `proxyiv' {
-			qui gen double _f`v'`z' = f`v'.`z' if `touse'			
-			loc insvars "`insvars' _f`v'`z'"
+			if "`repeatedcs'"!=""{
+				qui gen double _fd`v'`z' = `_fd`v'`z'' if `touse'
+			}
+			else{
+				qui gen double _fd`v'`z' = f`v'.d.`z' if `touse'
+			}
+			*qui gen double _f`v'`z' = f`v'.`z' if `touse'			
+			*loc insvars "`insvars' _f`v'`z'"
+			loc insvars "`insvars' _fd`v'`z'"
 		}
 		loc instype = "numlist"
 	}
@@ -136,6 +176,7 @@ program define _eventivstatic, rclass
 		else {
 			loc cmd "xtivreg"
 			loc ffe "fe"
+			if "`repeatedcs'"!="" qui xtset `panelvar' //xtivreg requires panelvar to be setted 
 		}		
 		`cmd' `varlist' (`proxy' = `insvars') `z' `tte' [`weight'`exp'] if `touse' , `ffe' `options'
 	}
@@ -241,6 +282,8 @@ program define _eventivstatic, rclass
 
 	}	
 	
+	*clear xtset if repeatedcs and xtivreg, otherwise error message because timevar not setted
+	if ("`repeatedcs'"!="" & "`cmd'"=="xtivreg") qui xtset, clear
 	
 	mat `bb' = e(b)
 	mat `VV' = e(V)
@@ -251,9 +294,11 @@ program define _eventivstatic, rclass
 	
 	if "`instype'"=="numlist" {
 		foreach v in `proxyiv' {
-			drop _f`v'`z' 
+			*drop _f`v'`z'
+			drop _fd`v'`z'
 		}
 	}
+	if "`saveimp'"=="" drop `policyvar'_imputed
 	
 	tokenize `varlist'
 	loc depvar "`1'"
@@ -267,5 +312,7 @@ program define _eventivstatic, rclass
 	return local names = "`names'"	
 	return local cmd = "`cmd'"
 	return local depvar = "`depvar'"
+	
+	
 		
 end

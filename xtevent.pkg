@@ -19,6 +19,9 @@ f ./xtevent/_eventiv.ado
 f ./xtevent/_eventivstatic.ado
 f ./xtevent/_eventols.ado
 f ./xtevent/_eventolsstatic.ado
+f ./xtevent/get_unit_time_effects.ado
+f ./xtevent/get_unit_time_effects.sthlp
+f ./xtevent/install.txt
 f ./xtevent/xtevent.ado
 f ./xtevent/xtevent.sthlp
 f ./xtevent/xteventplot.ado

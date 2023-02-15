@@ -20,8 +20,12 @@ program define _eventols, rclass
 	norm(integer -1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
-  addabsorb(string) /* Absorb additional variables in reghdfe */
-  DIFFavg /* Obtain regular DiD estimate implied by the model */
+	addabsorb(string) /* Absorb additional variables in reghdfe */
+	DIFFavg /* Obtain regular DiD estimate implied by the model */
+	cohort(varname) /* categorical variable indicating cohort */
+	control_cohort(varname) /* dummy variable indicating the control cohort */
+  REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
+
 	*
 	]
 	;
@@ -32,17 +36,17 @@ program define _eventols, rclass
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
 	* bb - regression coefficients
-	tempvar esample
+	tempvar esample	
 	
+
 	**** parsers
 	*parse savek 
 	if "`savek'"!="" parsesavek `savek'
-	loc savek = r(savekl)
-	if "`savek'"=="." loc savek ""
-	return loc savek = "`savek'"
-	loc noestimate = r(noestimatel)
-	if "`noestimate'"=="." loc noestimate ""
-	return loc noestimate = "`noestimate'"
+	foreach ll in savek noestimate saveint{
+		loc `ll' = r(`ll'l)
+		if "``ll''"=="." loc `ll' ""
+		return loc `ll' = "``ll''"
+	}
 	
 	*error messages for incorrect specification of noestimate 
 	if "`noestimate'"!="" & "`diffavg'"!="" {
@@ -53,7 +57,8 @@ program define _eventols, rclass
 		di as err _n "{bf:noestimate} and {bf:trend} not allowed simultaneously"
 		exit 301
 	}
-	
+
+
 	*parse trend
 	if "`trend'"!="" parsetrend `trend'
 	loc trcoef = r(trcoef)
@@ -88,7 +93,26 @@ program define _eventols, rclass
 		else loc ttrend ""
 	}
 	
-	
+	* error messages for sun_abraham
+	loc sun_abraham ""
+	if "`cohort'"!="" & "`control_cohort'"!="" {
+		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)."
+		loc sun_abraham "sun_abraham"
+	}
+	if "`saveint'"!="" & "`sun_abraham'"==""{
+		di as err _n "Suboption {bf:saveint} can only be specified if options {bf:cohort} and {bf:control_cohort} have been specified as well."
+		exit 301
+	}
+	* Check for vars named _interact
+	if "`saveint'"!=""{
+		cap unab old_interact_vars : `savek'_interact*
+		if !_rc {
+			di as err _n "You have variable names with the {bf:`savek'_interact} prefix. {bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation."
+			di as err _n "Please rename or drop these variables before proceeding."
+			exit 110
+		}
+	}
+	*gen & kvars
 	if ("`gen'"!="" & "`kvars'"=="") |  ("`gen'"=="" & "`kvars'"!="") {
 		di as err _n "Options -nogen- and -kvars- must be specified together"
 		exit 301
@@ -104,7 +128,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
@@ -159,9 +183,92 @@ program define _eventols, rclass
 		}
 	}
 	else loc indepvars ""
+		
+	******** SA *******
+	if "`sun_abraham'"!=""{
+		* Parse the dependent variable
+		local lhs = "`depenvar'"
+		local rel_time_list = "`included'"
+		
+		* Convert the varlist of relative time indicators to nvarlist 
+		local nvarlist "" // copies of relative time indicators with control cohort set to zero
+		local dvarlist "" // for display
+		foreach l of varlist `rel_time_list' {
+			local dvarlist "`dvarlist' `l'"
+			tempname n`l'
+			qui gen `n`l'' = `l'
+			qui replace `n`l'' = 0 if  `control_cohort' == 1 
+			local nvarlist "`nvarlist' `n`l''" 
+		}	
+
+		* Get cohort count  and count of relative time
+		qui levelsof `cohort' if  `control_cohort' == 0, local(cohort_list) 
+		local nrel_times: word count `nvarlist' 
+		local ncohort: word count `cohort_list'  
+		
+		**** step 2 
+		* Initiate empty matrix for weights 
+		tempname bb ff_w
+		
+		* Loop over cohort and get cohort shares for relative times
+		local nresidlist ""
+		foreach yy of local cohort_list {
+			tempvar cohort_ind resid`yy'
+			qui gen `cohort_ind'  = (`cohort' == `yy') 
+			qui _regress `cohort_ind' `nvarlist'  if `touse' & `control_cohort' == 0 [`weight'`exp']  , nocons
+			mat `bb' = e(b) 
+			matrix `ff_w'  = nullmat(`ff_w') \ `bb' 
+			*di "`yy'"
+			*mat li `ff_w'
+			qui predict double `resid`yy'', resid 
+			local nresidlist "`nresidlist' `resid`yy''" //list of variables of residuals 
+		}
+		
+		* Get VCV estimate for the cohort shares using avar
+		* In case users have not set relative time indicators to zero for control cohort
+		* Manually restrict the sample to non-control cohort
+		tempname XX Sxx Sxxi S KSxxi Sigma_ff
+		qui mat accum `XX' = `nvarlist' if  `touse' & `control_cohort' == 0 [`weight'`exp'], nocons
+		mat `Sxx' = `XX'*1/r(N) 
+		mat `Sxxi' = syminv(`Sxx') 
+		qui avar (`nresidlist') (`nvarlist')  if `touse' & `control_cohort' == 0 [`weight'`exp'], nocons robust
+		mat `S' = r(S) 
+		mat `KSxxi' = I(`ncohort')#`Sxxi' 
+		mat `Sigma_ff' = `KSxxi'*`S'*`KSxxi'*1/r(N) 
+		// Note that the normalization is slightly different from the paper
+		// The scaling factor is 1/N for N the obs of cross-sectional units
+		// But here estimates are on the panel, which is why it is 1/NT instead
+		// Should cancel out for balanced panel, but unbalanced panel is a TODO
+		// as of Jan 23, 2023, Sun and Abraham have not updated this code section.
+		//According to the expression for the asymptotic variance in the proof of proposition 6 (https://arxiv.org/pdf/1804.05785v2.pdf#page=50), the scaling factor is 1/N.
+		
+		**** step 1 
+		* Prepare interaction terms for the interacted regression
+		local cohort_rel_varlist "" // hold the temp varnames	
+		foreach l of varlist `rel_time_list' { 
+			foreach yy of local cohort_list {  
+				tempvar n`n`l''_`yy'
+				qui gen `n`n`l''_`yy''  = (`cohort' == `yy') * `n`l' '
+				// TODO: might be more efficient to use the c. operator if format w/o missing
+				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
+				if "`saveint'"!=""{
+					loc lnumber=substr("`l'",7,2)
+					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
+				}
+			}
+		}
+		local bcohort_rel_varlist "" // hold the interaction varnames
+		foreach l of varlist `rel_time_list'  { 
+			foreach yy of local cohort_list {
+					local bcohort_rel_varlist "`bcohort_rel_varlist' `l'_x_`yy'" 
+			}
+		}
+		* Estimate the interacted regression as an xtevent regression:
+	}
+	
 	
 	***** Main regression
-	
+	tempname reg_base
 	
 	if "`noestimate'"==""{ 
 		
@@ -169,7 +276,7 @@ program define _eventols, rclass
 		else loc te "i.`t'"
 		
 		* If gmm trend run regression before adjustment quietly
-		if "`methodt'"=="gmm" loc q "quietly" 
+		if ("`methodt'"=="gmm" | "`sun_abraham'"!="") loc q "quietly" 
 		else loc q ""
 			
 		if "`reghdfe'"=="" {
@@ -181,7 +288,12 @@ program define _eventols, rclass
 				loc abs "absorb(`i')"
 				loc cmd "areg"
 			}
+		
 			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
+			_estimates hold `reg_base', copy
+			if "`sun_abraham'"!=""{
+				qui `cmd' `depenvar' `cohort_rel_varlist' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
+			}			
 		}
 		else {
 			loc cmd "reghdfe"
@@ -220,14 +332,114 @@ program define _eventols, rclass
 				loc abs "absorb(`i' `t' `addabsorb')"	
 			}
 			`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			_estimates hold `reg_base', copy
+			if "`sun_abraham'"!=""{
+				qui reghdfe `depenvar' `cohort_rel_varlist' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			}
 		}
+		
+	*** SA: combine cohort shares and output from the interacted regression 	
+	if "`sun_abraham'"!=""{	
+		tempname evt_bb b evt_VV V
+		local bcohort_rel_varlist "`bcohort_rel_varlist' `covariates'" // TODO: does not catch the constant term if reghdfe includes a constant. 
+		mat `b' = e(b) 
+		mata st_matrix("`V'",diagonal(st_matrix("e(V)"))') 
+		* Convert the delta estimate vector to a matrix where each column is a relative time
+		local end = 0
+		forval i = 1/`nrel_times' { 
+			local start = `end'+1 
+			local end = `start'+`ncohort'-1
+			mat `b'`i' = `b'[.,`start'..`end']  
+			mat `evt_bb'  = nullmat(`evt_bb') \ `b'`i' 
+			mat `V'`i' = `V'[.,`start'..`end'] 
+			mat `evt_VV'  = nullmat(`evt_VV') \ `V'`i'
+
+		}
+		mat `evt_bb' = `evt_bb'' 
+		mat `evt_VV' = `evt_VV''
+
+		* Take weighted average for IW estimators
+		tempname w delta b_iw nc nr
+		mata: `w' = st_matrix("`ff_w'") 
+		mata: `delta' = st_matrix("`evt_bb'") 
+		mata: `b_iw' = colsum(`w':* `delta') 
+		mata: st_matrix("`b_iw'", `b_iw')
+		mata: `nc' = rows(`w') 
+		mata: `nr' = cols(`w') 
+
+		* Ptwise variance from cohort share estimation and interacted regression
+		tempname VV  wlong V_iw V_iw_diag 
+		
+		* VCV from the interacted regression
+		mata: `VV' = st_matrix("e(V)")
+		mata: `VV' = `VV'[1..`nr'*`nc',1..`nr'*`nc'] // in case reghdfe reports _cons
+		mata: `wlong' = `w'':*J(1,`nc',e(1,`nr')') // create a "Toeplitz" matrix convolution
+		forval i=2/`nrel_times' {
+			mata: `wlong' = (`wlong', `w'':*J(1,`nc',e(`i',`nr')'))
+		}
+		mata: `V_iw' = `wlong'*`VV'*`wlong''
+		* VCV from cohort share estimation
+		tempname Vshare Vshare_evt share_idx Sigma_l
+		mata: `Vshare' = st_matrix("`Sigma_ff'")
+		mata: `Sigma_l' = J(0,0,.)
+		mata: `share_idx' = range(0,(`nc'-1)*`nr',`nr')
+		forval i=1/`nrel_times' {
+			forval j=1/`i' {
+				mata: `Vshare_evt' = `Vshare'[`share_idx':+`i', `share_idx':+`j']
+				mata: `V_iw'[`i',`j'] = `V_iw'[`i',`j'] + (`delta'[,`i'])'*`Vshare_evt'*(`delta'[,`j'])
+	// 			mata: `Sigma_l' = blockdiag(`Sigma_l',`Vshare_evt')
+			}
+		}
+		mata: `V_iw' = makesymmetric(`V_iw')
+	// 	mata: `V_iw' = `V_iw''
+	// 	mata: st_matrix("`Sigma_l'", `Sigma_l')
+		mata: st_matrix("`V_iw'", `V_iw')
+		
+		mata: `V_iw_diag' = diag(`V_iw')
+		mata: st_matrix("`V_iw_diag'", `V_iw_diag')
+		mata: mata drop `b_iw' `VV' `nc' `nr' `w' `wlong' `Vshare' `share_idx' `delta' `Vshare_evt' `Sigma_l' `V_iw' `V_iw_diag' 
+		
+		matrix colnames `b_iw' =  `dvarlist'
+		matrix colnames `V_iw' =  `dvarlist'
+		matrix rownames `V_iw' =  `dvarlist'
+		
+		matrix rownames `ff_w' =  `cohort_list'
+		matrix colnames `ff_w' =  `dvarlist'
+		matrix rownames `Sigma_ff' =  `cohort_list'
+		matrix colnames `Sigma_ff' =  `cohort_list'
+
+		matrix colnames `evt_bb' =  `dvarlist'
+		matrix rownames `evt_bb' =  `cohort_list'
+		matrix colnames `evt_VV' =  `dvarlist'
+		matrix rownames `evt_VV' =  `cohort_list'
+
+		*insert SA's estimations into base regresion
+		tempname b_sa_adj v_sa_adj est_sun_abraham
+		_estimates unhold `reg_base'
+		mat `b_sa_adj'=e(b)
+		mat `v_sa_adj'=e(V)
+
+		loc deltanames : colnames(`b_iw')
+		foreach i in `deltanames' {
+			mat `b_sa_adj'[1,colnumb("`b_sa_adj'","`i'")]=`b_iw'[1,"`i'"]
+			foreach j in `deltanames' {
+			mat `v_sa_adj'[rownumb("`v_sa_adj'","`j'"),colnumb("`v_sa_adj'","`i'")]= `V_iw'["`j'","`i'"]	
+			}
+		}
+
+		repostdelta `b_sa_adj' `v_sa_adj'
+		* Display results	
+		if "`methodt'"=="gmm" loc qq "quietly" 
+		`qq' _coef_table_header
+		`qq' _coef_table , bmatrix(e(b)) vmatrix(e(V))
+		_estimates hold `est_sun_abraham', copy 
+}
 		
 		* Return coefficients and variance matrix of the delta k estimates separately
 		mat `bb'=e(b)
 		mat `VV'=e(V)
 		mat `delta' = `bb'[1,`names']
 		mat `Vdelta' = `VV'[`names',`names']
-		
 		loc df = e(df_r)
 		
 		gen byte `esample' = e(sample)
@@ -341,11 +553,14 @@ program define _eventols, rclass
 		loc included2: list local included2 - toexc
 		*estimate the contrafactual: no adjusting by trend. only exclude event-time dummy -1
 		*trend excludes from trend (e.g. -3) to -1
-		if "`reghdfe'"== "" {
-			qui _regress `varlist' `included2' `te' [`weight'`exp'] if `touse', `abs' `options'
-		}
+		if "`sun_abraham'"!="" _estimates unhold `est_sun_abraham' //call the SA estimations that have not been corrected by trend
 		else {
-			qui reghdfe `varlist' `included2' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			if "`reghdfe'"== "" {
+				qui _regress `varlist' `included2' `te' [`weight'`exp'] if `touse', `abs' `options'
+			}
+			else {
+				qui reghdfe `varlist' `included2' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+			}
 		}
 		loc j=1
 		loc names2 ""
@@ -382,6 +597,11 @@ program define _eventols, rclass
 		_estimates unhold mainols 
 	}
 	
+	*save a temporary copy of the event-time dummy corresponding to the normalized period before dropping that dummy variable
+	tempvar temp_k
+	loc absnorm=abs(`norm')
+	qui gen `temp_k'=_k_eq_m`absnorm' 
+	
 	* Drop variables
 	if "`savek'" == "" & "`drop'"!="nodrop" {
 		cap confirm var _k_eq_p0
@@ -389,23 +609,26 @@ program define _eventols, rclass
 		cap confirm var __k
 		if !_rc qui drop __k
 		if "`methodt'"=="ols" qui drop _ttrend
+		if "`saveint'"!="" qui drop _interact*
 	}
 	else if "`savek'" != "" & "`drop'"!="nodrop"  {
 		ren __k `savek'_evtime
 		ren _k_eq* `savek'_eq*
-		if "`methodt'"=="ols" ren _ttrend `savek'_trend	
+
+		if "`methodt'"=="ols" ren _ttrend `savek'_trend
+		if "`saveint'"!="" ren _interact* `savek'_interact*
 	}
 	
 	*skip the rest of the program if the user indicated not to estimate
+	return local noestimate "`noestimate'"
 	if "`noestimate'"!="" exit 
 	
 	* Calculate mean before change in policy for 2nd axis in plot
 	* This needs to be relative to normalization
-	loc absnorm=abs(`norm')
-	
+
 	tokenize `varlist'
 	loc depvar "`1'"
-	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
+	qui su `1' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly 
 	loc y1 = r(mean)
 
 	* Returns
@@ -422,6 +645,13 @@ program define _eventols, rclass
 	return local kmiss = "`kmiss'"
 	return local y1 = `y1'
 	return local depvar = "`depvar'"
+	if "`sun_abraham'"!=""{
+		return matrix b_interact `evt_bb' //interactions: cohort-relative time effects
+		return matrix V_interact `evt_VV' // variance of the interactions
+		return matrix ff_w `ff_w' //cohort shares
+		return matrix Sigma_ff `Sigma_ff' //variance estimate of the cohort share estimators
+		return loc sun_abraham = "sun_abraham"
+	}
 	if "`saveov'"!="" {
 		return matrix deltaov = `deltaov' //user:delta coefs from unadjusted regression. excludes only norm=-1
 		return matrix Vdeltaov = `Vdeltaov'
@@ -537,14 +767,13 @@ program define parsetrend, rclass
 end	
 
 *program to parse savek
+cap program drop parsesavek
 program define parsesavek, rclass
 
-	syntax [anything] , [NOEstimate]
+	syntax [anything] , [NOEstimate SAVEINTeract]
 		
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
+	return local saveintl "`saveinteract'"
 end	
-
-
-
 
