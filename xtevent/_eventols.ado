@@ -24,6 +24,8 @@ program define _eventols, rclass
 	DIFFavg /* Obtain regular DiD estimate implied by the model */
 	cohort(varname) /* categorical variable indicating cohort */
 	control_cohort(varname) /* dummy variable indicating the control cohort */
+  REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
+
 	*
 	]
 	;
@@ -34,8 +36,9 @@ program define _eventols, rclass
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
 	* bb - regression coefficients
-	tempvar esample
+	tempvar esample	
 	
+
 	**** parsers
 	*parse savek 
 	if "`savek'"!="" parsesavek `savek'
@@ -54,7 +57,8 @@ program define _eventols, rclass
 		di as err _n "{bf:noestimate} and {bf:trend} not allowed simultaneously"
 		exit 301
 	}
-	
+
+
 	*parse trend
 	if "`trend'"!="" parsetrend `trend'
 	loc trcoef = r(trcoef)
@@ -124,7 +128,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr')
+		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
@@ -284,7 +288,7 @@ program define _eventols, rclass
 				loc abs "absorb(`i')"
 				loc cmd "areg"
 			}
-			
+		
 			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
 			_estimates hold `reg_base', copy
 			if "`sun_abraham'"!=""{
@@ -429,14 +433,13 @@ program define _eventols, rclass
 		`qq' _coef_table_header
 		`qq' _coef_table , bmatrix(e(b)) vmatrix(e(V))
 		_estimates hold `est_sun_abraham', copy 
-	}
+}
 		
 		* Return coefficients and variance matrix of the delta k estimates separately
 		mat `bb'=e(b)
 		mat `VV'=e(V)
 		mat `delta' = `bb'[1,`names']
 		mat `Vdelta' = `VV'[`names',`names']
-
 		loc df = e(df_r)
 		
 		gen byte `esample' = e(sample)
@@ -594,6 +597,11 @@ program define _eventols, rclass
 		_estimates unhold mainols 
 	}
 	
+	*save a temporary copy of the event-time dummy corresponding to the normalized period before dropping that dummy variable
+	tempvar temp_k
+	loc absnorm=abs(`norm')
+	qui gen `temp_k'=_k_eq_m`absnorm' 
+	
 	* Drop variables
 	if "`savek'" == "" & "`drop'"!="nodrop" {
 		cap confirm var _k_eq_p0
@@ -606,6 +614,7 @@ program define _eventols, rclass
 	else if "`savek'" != "" & "`drop'"!="nodrop"  {
 		ren __k `savek'_evtime
 		ren _k_eq* `savek'_eq*
+
 		if "`methodt'"=="ols" ren _ttrend `savek'_trend
 		if "`saveint'"!="" ren _interact* `savek'_interact*
 	}
@@ -616,11 +625,10 @@ program define _eventols, rclass
 	
 	* Calculate mean before change in policy for 2nd axis in plot
 	* This needs to be relative to normalization
-	loc absnorm=abs(`norm')
-	
+
 	tokenize `varlist'
 	loc depvar "`1'"
-	qui su `1' if f`absnorm'.d.`z'!=0 & f`absnorm'.d.`z'!=. & `esample', meanonly
+	qui su `1' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly 
 	loc y1 = r(mean)
 
 	* Returns
@@ -768,3 +776,4 @@ program define parsesavek, rclass
 	return local noestimatel "`noestimate'"
 	return local saveintl "`saveinteract'"
 end	
+

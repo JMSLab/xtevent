@@ -34,6 +34,7 @@ program define xtevent, eclass
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 	cohort(varname) /*categorial variable to indicate cohort in SA estimation*/ 
 	control_cohort(varname) /* dummy variable to indicate cohort to be used as control in SA estimation*/
 	plot /* Produce plot */
@@ -45,8 +46,6 @@ program define xtevent, eclass
 	note /* No time effects */
 	Kvars(string) /* Use previously generated dummies */
 	impute(string) /* impute policyvar */
-	cohort(varname) /* categorical variable indicating cohort */
-	control_cohort(varname) /* dummy variable indicating the control cohort */ 
 	*/
 	]
 	;
@@ -135,6 +134,12 @@ program define xtevent, eclass
 			}
 		}
 	}
+	
+	*inform panel variables in case of data is repeated cross-sectional
+	if "`repeatedcs'"!=""{
+		di as txt _n "Option {bf:repeatedcs} was specified. Using {bf:`panelvar'} as the panel variable and {bf:`timevar'} as the time variable."
+	}
+
 	if ("`cohort'" != "" & "`control_cohort'" == "") | ("`cohort'" == "" & "`control_cohort'" != "")  {
 		di as err _n "options {bf:cohort} and {bf:control_cohort} must be specified simultaneously"
 		exit 199
@@ -146,7 +151,6 @@ program define xtevent, eclass
 			exit 199
 		}
 	}
-	
 		
 	
 	marksample touse
@@ -206,14 +210,14 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') cohort(`cohort') control_cohort(`control_cohort') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' cohort(`cohort') control_cohort(`control_cohort') `options' 
 			if _rc {
 				errpostest
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
-			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `options' 		
+			cap noi _eventiv `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
 			if _rc {
 				errpostest
 			}
@@ -226,7 +230,7 @@ program define xtevent, eclass
 		di as txt _n "Plotting options ignored"
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `options' `static'
+			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' `static'
 			if _rc {
 				errpostest
 			}
@@ -235,7 +239,7 @@ program define xtevent, eclass
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			
-			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `options' `static'
+			cap noi _eventivstatic `varlist' [`weight'`exp'] if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' `static'
 			if _rc {
 				errpostest
 			}

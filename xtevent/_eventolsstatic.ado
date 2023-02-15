@@ -15,6 +15,7 @@ program define _eventolsstatic, rclass
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	impute(string) /*impute policyvar */
 	STatic /* Estimate static model */
+	REPeatedcs /*data is repeated cross-sectional*/
 	*
 	]
 	;
@@ -34,7 +35,7 @@ program define _eventolsstatic, rclass
 		tempvar rr
 		qui gen double `rr'=.
 
-	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `static' rr(`rr')
+	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
 	
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
@@ -43,12 +44,15 @@ program define _eventolsstatic, rclass
 		*if imputation succeeded:
 		if "`impute'"!="" {
 			if "`saveimp'"=="" {
-				tempvar zimp
-				qui gen double `zimp'=`rr'
-				lab var `zimp' "`policyvar'_imputed"
-				loc z="`zimp'"
-			}
-			else loc z = "`policyvar'_imputed"
+				cap confirm variable `policyvar'_imputed
+				if !_rc {
+					di as err _n "`policyvar'_imputed already exists. Please rename it or delete it before proceeding."
+					exit 110
+				}
+				gen `policyvar'_imputed = `rr'			
+			}			
+			loc z = "`policyvar'_imputed"			
+			else 
 		}
 		else loc z = "`policyvar'"
 	}
@@ -121,6 +125,8 @@ program define _eventolsstatic, rclass
 	return matrix Vdelta = `Vdelta'
 	return local cmd = "`cmd'"
 	return local depvar = "`depvar'"
+	
+	if "`saveimp'"=="" drop `policyvar'_imputed
 	
 end
 

@@ -23,7 +23,7 @@ program define _eventgenvars, rclass
 	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
 	trcoef(real 0) /*inferior limit to start the trend*/
 	methodt(string) /* method for the trend computation*/
-	
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional datasets*/
 
 	
 	]	
@@ -38,7 +38,7 @@ program define _eventgenvars, rclass
 	* kg grouped event time variable, grouping dummies outside window
 	
 	loc z = "`policyvar'"
-
+	
 	if "`static'"==""{
 		* Get span of calendar time
 		qui su `timevar' if `touse', d
@@ -115,10 +115,39 @@ program define _eventgenvars, rclass
 			exit 110
 		}
 	}
-
+	
+	*** repeated cross section databases
+	if "`repeatedcs'"!=""{
+	
+		*checks:
+		*same value of policyvar in a (policyvar, time) cell
+		tempvar maxpol minpol 
+		qui bysort `panelvar' `timevar': egen `maxpol'=max(`policyvar') if `touse' //it ignores missing values
+		qui by `panelvar' `timevar': egen `minpol'=min(`policyvar') if `touse'
+		cap assert `maxpol'==`minpol'
+		if _rc { 
+			di as err _n "{bf:Policyvar} is not constant within some (`panelvar', `timevar') cells."
+			exit 110
+		}
+		
+		*missing values 
+		cap assert !missing(`policyvar') if `touse'
+		if _rc & "`rr'"=="" { //use rr to avoid showing twice the error message in the case of IV
+			di "{bf:Policyvar} has missing values within some (`panelvar', `timevar') cells. These observations will be ignored."
+		}
+	
+		*proceed with generation of event-time dummies in the repeated cs setting
+		preserve 
+		qui keep `panelvar' `timevar' `policyvar' `touse' `rr'
+		*sorting by policyvar guarantees not choosing a missing value 
+		qui keep if `touse'
+		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z if `touse', by(state t)
+	}
+	
 	********************* find first and last observed values *********************
-
+	
 	*find minimum valid time (time where there is a no-missing observation)
+	qui xtset `panelvar' `timevar'
 	tempvar zmint zmint2 zminv zminv2 zmaxt zmaxt2 zmaxv zmaxv2
 	qui{
 		by `panelvar' (`timevar'): egen long `zmint'=min(`timevar') if !missing(`z') & `touse'	
@@ -283,6 +312,8 @@ program define _eventgenvars, rclass
 	}
 
 ****************************** event-time dummies ***********************
+	*If impute is specified in the IV setting, note that the following code section is not executed in the first call to _eventgenvars because in the call the option static is added 
+	
 	if "`static'"==""{
 		qui xtset `panelvar' `timevar', noquery
 		
@@ -446,7 +477,6 @@ program define _eventgenvars, rclass
 			}
 		}	
 		
-			
 		* Set omitted variable.
 		unab included : _k*
 		loc toexc ""
@@ -531,6 +561,34 @@ program define _eventgenvars, rclass
 	return local saveimp= "`saveimp'"
 	*temporary variable equal to imputed policyvar (for _eventiv.ado)
 	if "`rr'"!="" qui replace `rr'=`zn2'
+	
+	*close de process for the repeated cross-sectional dataset
+	if "`repeatedcs'"!=""{
+		*check if trend and imputed policyvar should be merged to the individual-level dataset
+		*In the IV setting, note that the following variables will not be created in the first call to _eventgenvars because the code that generates them was not executed
+		loc _ttrend_include ""
+		cap confirm var _ttrend
+		if !_rc loc _ttrend_include "_ttrend"
+		loc imputed_include ""
+		cap confirm var `policyvar'_imputed
+		if !_rc loc imputed_include "`policyvar'_imputed"
+		loc kvarss ""
+		cap confirm var __k 
+		if !_rc loc kvarss "_k* __k"
+
+		keep `panelvar' `timevar' `policyvar' `kvarss' `_ttrend_include' `imputed_include' `rr'
+		tempfile state_level
+		qui save `state_level'
+		*close the process with the state level dataset 
+		restore
+		
+		*merge back to the individual level dataset 
+		*merge also on the policyvar, so missing values in policyvar within a cell, will not get event-time dummy values 
+		qui merge m:1 `panelvar' `timevar' `policyvar' using `state_level', update nogen
+		*sort `panelvar' `timevar'
+		if "`kvarss'"!="" order `imputed_include' `kvarss' `_ttrend_include', after(`policyvar')
+		xtset, clear //otherwise next time you run it: error, repeated time variable (in the repeated cross-sectional setting timevar cannot be setted)
+	}
 end
 
 
@@ -544,7 +602,3 @@ program define parseimpute, rclass
 	return local impute "`anything'"
 	return local saveimp "`saveimp'"
 end	
-
-
-	
-	
