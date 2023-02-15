@@ -77,6 +77,7 @@ program define get_unit_time_effects, eclass
 	qui egen unittimeinteraction=group(`panelvar' `timevar') 
 	`q' areg `depenvar' `indepvars' [`weight'`exp'] if `touse', absorb(unittimeinteraction) `options'
 	qui predict `predicted', d	//calculates d_absorbvar, the individual coefficients for the absorbed variable.
+	drop unittimeinteraction
 
 	*create dta file necessary for step 2
 	if "`clear'"=="" preserve
