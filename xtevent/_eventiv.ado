@@ -329,6 +329,13 @@ program define _eventiv, rclass
 	
 	**** Main regression
 	
+	** In the repeated cross section case with fixed effects, cannot use xtivreg, so default to reghdfe
+	
+	if "`repeatedcs'"!="" & "`fe'"!="nofe" {		
+		loc reghdfe = "reghdfe"
+		di as text _n "Using {cmd:reghdfe} for fixed effects estimation with repeated cross-sectional data."
+	}
+	
 	if "`noestimate'"==""{
 		if "`reghdfe'"=="" {
 			

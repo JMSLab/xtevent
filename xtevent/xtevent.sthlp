@@ -188,8 +188,7 @@ calculates its standard error with {help lincom}. {opt diffavg} is not allowed w
 effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following suboptions can be specified:
 
 {phang2}
-{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
-trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
+{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
 
 {phang2}
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
@@ -216,13 +215,12 @@ option requires {help reghdfe} and {help ftools} to be installed. For IV estimat
 Note that standard errors may be different and singleton clusters may be dropped using {help reghdfe}. See Correia (2017).
 
 {phang}
-{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time and
-unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
+{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time and unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
 
 {phang}
 {opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which 
-{opt policyvar} changes, while the observations in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional dataset, which involves using {cmd:get_unit_time_effects} 
-first, and then {cmd:xtevent}. See {help get_unit_time_effects}.
+{opt policyvar} changes, while the observations in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional dataset, which involves using
+{cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See {help get_unit_time_effects}. For fixed-effects estimation, {opt repeatedcs} enables {opt reghdfe}.
 
 {phang}
 {opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
