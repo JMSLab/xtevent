@@ -32,6 +32,9 @@ program define _eventols, rclass
 	#d cr
 	
 	marksample touse
+	
+	* For eventgenvars, ignore missings in varlist
+	mark tousegen `if' `in'
 		
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
@@ -128,7 +131,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
