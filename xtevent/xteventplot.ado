@@ -442,8 +442,8 @@ program define xteventplot
 		}			
 		
 		_return restore smpathparse			
-		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.)	
-	
+		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.)		
+		
 		mata: st_numscalar("maxedout",maxedout)		
 
 		if !maxedout {
@@ -885,18 +885,20 @@ mata
 					real scalar convergedp,
 					real scalar maxedout,
 					real matrix param,
-					real matrix WB)
+					real matrix WB,
+					real matrix Wcrit)
 	{
 		real matrix Vhatinv, F, a, delta, pos
-		real scalar normalization, Wcrit, W0, order, maxiter, maxorder
+		real scalar normalization, W0, order, maxiter, maxorder, pn
 		string scalar tech
 		
 		Vhatinv = pinv(Vhat)
 		pos = dhat:==0
 		normalization=selectindex(pos)
 		maxorder = st_numscalar(Maxorder)
+		pn = rows(normalization)
 		
-		Wcrit=invchi2(rows(dhat),1-alpha)		
+		Wcrit=invchi2(rows(dhat)-pn,1-alpha)		
 		
 		findorder(trfit=.,W0=.,order=.,F=.,a=.,dhat,Vhatinv,normalization,maxorder,Wcrit)
 		if (order==0) {
@@ -912,7 +914,7 @@ mata
 			delta=dhat
 		
 			Anorm = F[normalization,.]
-			pn = rows(normalization)
+			
 				
 			maxiter = st_numscalar(Maxiter)
 		
