@@ -929,7 +929,7 @@ mata
 			}
 			
 			param=F*aresult
-			WB = (dhat-trfit)'*Vhatinv*(dhat-trfit)
+			WB = (dhat-param)'*Vhatinv*(dhat-param)
 		}
 			
 	}
