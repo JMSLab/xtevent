@@ -79,7 +79,7 @@ program define xteventtest, rclass
 		}
 		else {
 			loc overidpre=e(overidpre)
-			loc overidpost=e(overidpost)
+			loc overidpost=e(overidpost)+1
 		}
 	}
 		
