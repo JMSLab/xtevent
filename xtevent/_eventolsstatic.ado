@@ -126,7 +126,7 @@ program define _eventolsstatic, rclass
 	return local cmd = "`cmd'"
 	return local depvar = "`depvar'"
 	
-	if "`saveimp'"=="" drop `policyvar'_imputed
+	if "`impute'"!="" & "`saveimp'"=="" drop `policyvar'_imputed
 	
 end
 
