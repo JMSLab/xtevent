@@ -301,7 +301,7 @@ program define _eventivstatic, rclass
 			drop _fd`v'`z'
 		}
 	}
-	if "`saveimp'"=="" drop `policyvar'_imputed
+	if "`impute'"!="" & "`saveimp'"=="" drop `policyvar'_imputed
 	
 	tokenize `varlist'
 	loc depvar "`1'"
