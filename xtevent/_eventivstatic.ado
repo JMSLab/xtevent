@@ -24,12 +24,12 @@ program define _eventivstatic, rclass
 	
 	marksample touse
 	
-	* For eventgenvars, ignore missings in varlist
-	mark tousegen `if' `in'
-	
-	tempvar kg
+	tempvar kg tousegen
 	* kg grouped event time, grouping outside window
 	
+	* For eventgenvars, ignore missings in varlist
+	mark `tousegen' `if' `in'
+		
 	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 deltay Vdeltay deltax Vdeltax deltaxsc bby bbx VVy VVx 
 	* bb delta coefficients
 	* VV variance of delta coefficients

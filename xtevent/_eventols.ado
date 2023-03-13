@@ -33,13 +33,14 @@ program define _eventols, rclass
 	
 	marksample touse
 	
-	* For eventgenvars, ignore missings in varlist
-	mark tousegen `if' `in'
 		
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
 	* bb - regression coefficients
-	tempvar esample	
+	tempvar esample	tousegen
+	
+	* For eventgenvars, ignore missings in varlist
+	mark `tousegen' `if' `in'
 	
 
 	**** parsers

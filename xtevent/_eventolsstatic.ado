@@ -23,10 +23,10 @@ program define _eventolsstatic, rclass
 	
 	marksample touse
 	
-	* For eventgenvars, ignore missings in varlist
-	mark tousegen `if' `in'
+	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 tousegen
 	
-	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2
+	* For eventgenvars, ignore missings in varlist
+	mark `tousegen' `if' `in'	
 	
 	loc i = "`panelvar'"
 	loc t = "`timevar'"

@@ -30,7 +30,7 @@ program define _eventgenvars, rclass
 	;
 	#d cr	
 	
-	tempvar mz kg
+	tempvar mz kg touse
 	
 	mark `touse' `if' `in'	
 	
