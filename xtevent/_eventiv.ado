@@ -29,14 +29,17 @@ program define _eventiv, rclass
 	#d cr
 	
 	marksample touse
-	
-	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 deltaov Vdeltaov deltax Vdeltax deltaxsc bby bbx VVy VVx 
+		
+	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 deltaov Vdeltaov deltax Vdeltax deltaxsc bby bbx VVy VVx tousegen
 	* bb delta coefficients
 	* VV variance of delta coefficients
 	* bb2 delta coefficients for overlay plot
 	* VV2 variance of delta coefficients for overlay plot
 	* delta2 included cefficientes in overlaty plot
 	* VVdelta2 variance of included delta coefficients in overlay plot
+	
+	* For eventgenvars, ignore missings in varlist
+	mark `tousegen' `if' `in'
 	
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
@@ -60,7 +63,7 @@ program define _eventiv, rclass
 		qui gen double `rr'=.
 
 		*call _eventgenvars
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
 
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
