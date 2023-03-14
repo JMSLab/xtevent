@@ -386,7 +386,7 @@ program define xteventplot
 	
 	if `"`smpath'"'!="" {	
 		* "
-		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'"
+		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'%"
 		parsesmpath `smpath'
 		loc postwindow = r(postwindow)	
 		loc maxorderinput=r(maxorder) 
@@ -442,7 +442,7 @@ program define xteventplot
 		}			
 		
 		_return restore smpathparse			
-		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.,Wcrit=.)		
+		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.,Wcrit=.,orderout=.)		
 		
 		mata: st_numscalar("maxedout",maxedout)		
 
@@ -458,32 +458,38 @@ program define xteventplot
 			mata: st_numscalar("errorcodem",errorcodem)
 			mata: st_numscalar("errorcodep",errorcodep)
 			
-			if (errorcodem!=. & errorcodem !=0) | (errorcodep!=. & errorcodep !=0) {				
-				if (errorcodem == 8 | errorcodep ==8) {
+			if (errorcodem!=. & errorcodem !=0 & errorcodep!=. & errorcodep !=0) {				
+				if (errorcodem == 8 & errorcodep ==8) {
 					* This one is common so separate warning
 					di "Warning: Smoothest path optimization found a flat region."
 				}
 				else {
 					loc errorcodem = errorcodem
 					loc errorcodep = errorcodep
-					di "Warning: Smoothest path optimization returned an error code. Results for the smoothest path are approximate. Try changing the optimization options"
-					di in smcl "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
+					di _n "The optimization to calculate the smoothest path returned an error code."
+					di "Smoothest path won't be displayed."
+					di "Try changing the optimization options."
+					di in smcl _n "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
 					di in smcl "Error code = `errorcodep'. See {help mf_optimize##r_error} to see what that means."
 				}
 			}
-			mata: mata drop p `fidget'		
-				
-			if "`plottype'"=="scatter" {
-				loc smgraph "scatter `smline' `kxaxis', pstyle(p2)"
+			else {
+				if "`plottype'"=="scatter" {
+					loc smgraph "scatter `smline' `kxaxis', pstyle(p2)"
+				}
+				else if  "`plottype'"=="line" {
+					loc smgraph "line `smline' `kxaxis', pstyle(p1line)"
+				}
 			}
-			else if  "`plottype'"=="line" {
-				loc smgraph "line `smline' `kxaxis', pstyle(p1line)"
-			}			
+			
+			mata: mata drop p `fidget'			
+						
 		}
 		else { 
 			di as txt _n "Could not find a polynomial with order<=maxorder through the Wald confidence region."
 			loc smgraph ""			
-		}		
+		}
+		
 			
 		mata: mata drop dhat Vhat Vhat0 convergedm convergedp errorcodem errorcodep param maxedout 	
 	}
@@ -584,7 +590,7 @@ end
 cap program drop parsesmpath
 program define parsesmpath, rclass
 
-	syntax [anything] , [maxiter(integer 100) technique(string) postwindow(real 0) maxorder(integer 10)]
+	syntax [anything] , [maxiter(integer 100) TECHnique(string) postwindow(real 0) maxorder(integer 10)]
 	
 	return local plottype "`anything'"	
 	return scalar maxiter=`maxiter'
@@ -594,7 +600,7 @@ program define parsesmpath, rclass
 		exit 301
 	}
 	return scalar postwindow = `postwindow'
-	if "`technique'"=="" loc technique "dfp"
+	if "`technique'"=="" loc technique "nr 5 bfgs"
 	return local technique "`technique'"
 	return scalar maxorder = `maxorder'
 end	
@@ -785,11 +791,11 @@ mata
 		S = optimize_init()
 		optimize_init_evaluator(S,&b2m())
 		optimize_init_which(S,"min")
-		optimize_init_params(S,a[1..order-1,1]')
 		optimize_init_argument(S,1,i)
 		optimize_init_technique(S,tech)
+		optimize_init_params(S,a[1..order-1,1]')		
 		optimize_init_conv_maxiter(S,maxiter)
-		optimize_init_conv_nrtol(S,1e-3)
+		optimize_init_conv_nrtol(S,1e-6)
 		optimize_init_singularHmethod(S, "hybrid")
 		(void) _optimize(S)
 		rc = optimize_result_errorcode(S) 
@@ -886,7 +892,8 @@ mata
 					real scalar maxedout,
 					real matrix param,
 					real matrix WB,
-					real matrix Wcrit)
+					real matrix Wcrit,
+					real scalar orderout)
 	{
 		real matrix Vhatinv, F, a, delta, pos
 		real scalar normalization, W0, order, maxiter, maxorder, pn
@@ -933,6 +940,8 @@ mata
 			param=F*aresult
 			WB = (dhat-param)'*Vhatinv*(dhat-param)
 		}
+		
+		orderout = order
 			
 	}
 		
