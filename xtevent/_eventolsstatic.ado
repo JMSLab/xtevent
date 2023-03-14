@@ -23,7 +23,10 @@ program define _eventolsstatic, rclass
 	
 	marksample touse
 	
-	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2
+	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 tousegen
+	
+	* For eventgenvars, ignore missings in varlist
+	mark `tousegen' `if' `in'	
 	
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
@@ -35,7 +38,7 @@ program define _eventolsstatic, rclass
 		tempvar rr
 		qui gen double `rr'=.
 
-	_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
+	_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
 	
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
