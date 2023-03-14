@@ -386,7 +386,7 @@ program define xteventplot
 	
 	if `"`smpath'"'!="" {	
 		* "
-		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'"
+		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'%"
 		parsesmpath `smpath'
 		loc postwindow = r(postwindow)	
 		loc maxorderinput=r(maxorder) 
@@ -466,20 +466,24 @@ program define xteventplot
 				else {
 					loc errorcodem = errorcodem
 					loc errorcodep = errorcodep
-					di "Warning: Smoothest path optimization returned an error code. Results for the smoothest path are approximate. Try changing the optimization options"
-					di in smcl "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
+					di _n "The optimization to calculate the smoothest path returned an error code."
+					di "Smoothest path won't be displayed."
+					di "Try changing the optimization options."
+					di in smcl _n "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
 					di in smcl "Error code = `errorcodep'. See {help mf_optimize##r_error} to see what that means."
 				}
 			}
-			mata: mata drop p `fidget'
-	
-				
-			if "`plottype'"=="scatter" {
-				loc smgraph "scatter `smline' `kxaxis', pstyle(p2)"
+			else {
+				if "`plottype'"=="scatter" {
+					loc smgraph "scatter `smline' `kxaxis', pstyle(p2)"
+				}
+				else if  "`plottype'"=="line" {
+					loc smgraph "line `smline' `kxaxis', pstyle(p1line)"
+				}
 			}
-			else if  "`plottype'"=="line" {
-				loc smgraph "line `smline' `kxaxis', pstyle(p1line)"
-			}			
+			
+			mata: mata drop p `fidget'			
+						
 		}
 		else { 
 			di as txt _n "Could not find a polynomial with order<=maxorder through the Wald confidence region."
