@@ -23,22 +23,22 @@ program define _eventgenvars, rclass
 	rr(name) /*return imputed policyvar as temporary variable. For use of _eventiv*/
 	trcoef(real 0) /*inferior limit to start the trend*/
 	methodt(string) /* method for the trend computation*/
-	
+	REPeatedcs /*indicate that the input data is a repeated cross-sectional datasets*/
 
 	
 	]	
 	;
 	#d cr	
 	
-	tempvar mz kg
+	tempvar mz kg touse
 	
-	marksample touse
+	mark `touse' `if' `in'	
 	
 	* mz maximum of policy outside window
 	* kg grouped event time variable, grouping dummies outside window
 	
 	loc z = "`policyvar'"
-
+	
 	if "`static'"==""{
 		* Get span of calendar time
 		qui su `timevar' if `touse', d
@@ -115,13 +115,42 @@ program define _eventgenvars, rclass
 			exit 110
 		}
 	}
-
+	
+	*** repeated cross section databases
+	if "`repeatedcs'"!=""{
+	
+		*checks:
+		*same value of policyvar in a (policyvar, time) cell
+		tempvar maxpol minpol 
+		qui bysort `panelvar' `timevar': egen `maxpol'=max(`policyvar') if `touse' //it ignores missing values
+		qui by `panelvar' `timevar': egen `minpol'=min(`policyvar') if `touse'
+		cap assert `maxpol'==`minpol'
+		if _rc { 
+			di as err _n "{bf:Policyvar} is not constant within some (`panelvar', `timevar') cells."
+			exit 110
+		}
+		
+		*missing values 
+		cap assert !missing(`policyvar') if `touse'
+		if _rc & "`rr'"=="" { //use rr to avoid showing twice the error message in the case of IV
+			di "{bf:Policyvar} has missing values within some (`panelvar', `timevar') cells. These observations will be ignored."
+		}
+	
+		*proceed with generation of event-time dummies in the repeated cs setting
+		preserve 
+		qui keep `panelvar' `timevar' `policyvar' `touse' `rr'
+		*sorting by policyvar guarantees not choosing a missing value 
+		qui keep if `touse'
+		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z if `touse', by(state t)
+	}
+	
 	********************* find first and last observed values *********************
-
+	
 	*find minimum valid time (time where there is a no-missing observation)
+	qui xtset `panelvar' `timevar'
 	tempvar zmint zmint2 zminv zminv2 zmaxt zmaxt2 zmaxv zmaxv2
 	qui{
-		by `panelvar' (`timevar'): egen long `zmint'=min(`timevar') if !missing(`z') & `touse'	
+		by `panelvar' (`timevar'): egen long `zmint'=min(`timevar') if !missing(`z') & `touse' 
 		by `panelvar' (`timevar'): egen long `zmint2'=min(`zmint')
 		*find the corresponding minimum valid value
 		by `panelvar' (`timevar'): gen double `zminv'=`z' if `timevar'==`zmint2' 
@@ -152,7 +181,7 @@ program define _eventgenvars, rclass
 		qui by `panelvar' (`timevar'): replace `zwd'=`zwd'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
 		qui gen double `zwu'=`z' if `touse'
 		sort `panelvar' `timevar'
-		qui by `panelvar': gen int `seq' = -_n
+		qui by `panelvar': gen int `seq' = -_n if `touse'
 		sort `panelvar' `seq'
 		qui by `panelvar': replace `zwu'=`zwu'[_n-1] if missing(`z') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
 		sort `panelvar' `timevar'
@@ -199,7 +228,7 @@ program define _eventgenvars, rclass
 		tempvar zr zn l1
 		qui gen double `zr'=`z'
 		*where there are missings, impute the previous value
-		qui by `panelvar' (`timevar'): replace `zr'=`zr'[_n-1] if missing(`zr') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' 
+		qui by `panelvar' (`timevar'): replace `zr'=`zr'[_n-1] if missing(`zr') & `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
 		
 		qui by `panelvar' (`timevar'): gen byte `l1'= (F1.`zr'>=`zr') if !missing(`zr') & !missing(F1.`zr') & `touse'
 		cap assert `l1'==1 if !missing(`l1')
@@ -219,7 +248,7 @@ program define _eventgenvars, rclass
 		qui{
 			gen byte `notmiss'=!missing(`z')
 			
-			by `panelvar' (`timevar'): gen long `zt'=`timevar' if `notmiss'==1 
+			by `panelvar' (`timevar'): gen long `zt'=`timevar' if `notmiss'==1 & `touse'
 			by `panelvar' (`timevar'): egen long `maxzt'=max(`zt') 
 			by `panelvar' (`timevar'): egen long `minzt'=min(`zt')
 		}
@@ -283,6 +312,8 @@ program define _eventgenvars, rclass
 	}
 
 ****************************** event-time dummies ***********************
+	*If impute is specified in the IV setting, note that the following code section is not executed in the first call to _eventgenvars because in the call the option static is added 
+	
 	if "`static'"==""{
 		qui xtset `panelvar' `timevar', noquery
 		
@@ -317,7 +348,7 @@ program define _eventgenvars, rclass
 						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
 						by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
 						by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
-						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) & `touse'
 					}
 				}
 			}		
@@ -333,7 +364,7 @@ program define _eventgenvars, rclass
 						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
 						by `panelvar' (`timevar'): egen long `maxp'=max(`timevar') if !missing(_k_eq_`plus'`absk')
 						by `panelvar' (`timevar'): egen long `maxp2'=max(`maxp')
-						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) &  `touse'
+						by `panelvar' (`timevar'): replace _k_eq_`plus'`absk'=0 if missing(_k_eq_`plus'`absk') & ((`timevar' < `minp2') & (`timevar' >= `minz2')) | ((`timevar' > `maxp2') & (`timevar' <= `maxz2')) & `touse'
 					}
 				}
 			}
@@ -384,7 +415,7 @@ program define _eventgenvars, rclass
 				by `panelvar' (`timevar'): egen long `maxl'=max(`timevar') if !missing(_k_eq_m`=-`lwindow'+1')
 				by `panelvar' (`timevar'): egen long `maxl2'=max(`maxl')
 				*replace with zeros (the last observed for the endpoint)
-				replace _k_eq_m`=-`lwindow'+1' = _k_eq_m`=-`lwindow'+1'[_n-1] if _k_eq_m`=-`lwindow'+1' == . & (`timevar'>`maxl2') & (`timevar'<=`maxz2') & `touse'
+				replace _k_eq_m`=-`lwindow'+1' = _k_eq_m`=-`lwindow'+1'[_n-1] if _k_eq_m`=-`lwindow'+1' == . & (`timevar'>`maxl2') & (`timevar'<=`maxz2') & `touse' 
 				order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
 				
 				* Right
@@ -407,10 +438,10 @@ program define _eventgenvars, rclass
 		else {
 			qui {
 				* Left
-				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
+				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse' 
 				order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
 				* Right
-				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'			
+				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse' 		
 				order __k, after(_k_eq_p`=`rwindow'+1')
 			}
 		}
@@ -438,15 +469,14 @@ program define _eventgenvars, rclass
 					qui replace `x' = . if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'
 				}
 				qui replace __k = . if `etmismax'==1 & `touse'
-				qui levelsof `panelvar' if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse', loc(mis)
+				qui levelsof `panelvar' if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse' , loc(mis)
 				foreach j in `mis' {
 					di as txt _n "Unit `j' not used because of ambiguous event-time due to missing values in policyvar."
 				}
-				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'			
+				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse' 			
 			}
 		}	
 		
-			
 		* Set omitted variable.
 		unab included : _k*
 		loc toexc ""
@@ -461,7 +491,7 @@ program define _eventgenvars, rclass
 		qui gen long `kg' = __k if `touse'
 		* Group if outside window
 		qui replace `kg' = `=`lwindow'-1' if __k < `=`lwindow'' & `touse'
-		qui replace `kg' = `=`rwindow'+1' if __k >= `rwindow' & `touse'
+		qui replace `kg' = `=`rwindow'+1' if __k >= `rwindow'  & `touse'
 		qui levelsof `kg', loc(kgs)
 		
 		* If extrapolating a linear trend, exclude some of the event time dummies
@@ -474,7 +504,7 @@ program define _eventgenvars, rclass
 			}
 		
 			* Generate the trend		
-			qui gen int _ttrend = __k  if `touse'	
+			qui gen int _ttrend = __k if `touse'
 			qui replace _ttrend = 0 if !inrange(_ttrend,`lwindow',`=`rwindow'') & `touse'
 			* qui replace _ttrend = 0 if _ttrend<`=`trend'' & `touse'
 			qui replace _ttrend = 0 if mi(_ttrend) & `touse'
@@ -531,6 +561,34 @@ program define _eventgenvars, rclass
 	return local saveimp= "`saveimp'"
 	*temporary variable equal to imputed policyvar (for _eventiv.ado)
 	if "`rr'"!="" qui replace `rr'=`zn2'
+	
+	*close de process for the repeated cross-sectional dataset
+	if "`repeatedcs'"!=""{
+		*check if trend and imputed policyvar should be merged to the individual-level dataset
+		*In the IV setting, note that the following variables will not be created in the first call to _eventgenvars because the code that generates them was not executed
+		loc _ttrend_include ""
+		cap confirm var _ttrend
+		if !_rc loc _ttrend_include "_ttrend"
+		loc imputed_include ""
+		cap confirm var `policyvar'_imputed
+		if !_rc loc imputed_include "`policyvar'_imputed"
+		loc kvarss ""
+		cap confirm var __k 
+		if !_rc loc kvarss "_k* __k"
+
+		keep `panelvar' `timevar' `policyvar' `kvarss' `_ttrend_include' `imputed_include' `rr'
+		tempfile state_level
+		qui save `state_level'
+		*close the process with the state level dataset 
+		restore
+		
+		*merge back to the individual level dataset 
+		*merge also on the policyvar, so missing values in policyvar within a cell, will not get event-time dummy values 
+		qui merge m:1 `panelvar' `timevar' `policyvar' using `state_level', update nogen
+		*sort `panelvar' `timevar'
+		if "`kvarss'"!="" order `imputed_include' `kvarss' `_ttrend_include', after(`policyvar')
+		xtset, clear //otherwise next time you run it: error, repeated time variable (in the repeated cross-sectional setting timevar cannot be setted)
+	}
 end
 
 
@@ -544,7 +602,3 @@ program define parseimpute, rclass
 	return local impute "`anything'"
 	return local saveimp "`saveimp'"
 end	
-
-
-	
-	

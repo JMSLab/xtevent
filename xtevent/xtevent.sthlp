@@ -47,10 +47,13 @@
 {synopt:{opt st:atic}} estimate static model {p_end}
 {synopt:{opt diff:avg}} estimate the difference in averages between the post and pre-periods {p_end}
 {synopt:{opt tr:end(#1 [, subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
-{synopt:{opt sav:ek(stub [, noestimate])}} save time-to-event, event-time and trend variables{p_end}
+{synopt:{opt sav:ek(stub [, subopt])}} save time-to-event, event-time, trend, and interaction variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
+{synopt:{opt rep:eatedcs}} indicate that the dataset in memory is repeated cross-sectional{p_end}
+{synopt:{opt cohort(varname)}} variable that identifies the cohorts{p_end}
+{synopt:{opt control_cohort(varname)}} variable that identifies the control cohort{p_end}
 {synopt:{opt plot}} display plot. See {help xteventplot}.{p_end} 
 {synopt:{it: additional_options}} additional options to be passed to estimation command{p_end}
 {synoptline}
@@ -72,7 +75,7 @@ See {help xteventtest} for hypothesis testing after estimation and {help xtevent
 {pstd}
 {cmd: xtevent} estimates the effect of a policy variable of interest on a dependent variable using a panel event
 study design. Additional control variables can be included in {it:varlist}. The command allows for estimation when a pre-trend is present using
-the instrumental variables estimator of Freyaldenhoven et al. (2019). {p_end}
+the instrumental variables estimator of Freyaldenhoven et al. (2019). It also allows estimation in settings with heterogeneous effects by cohort using the Interaction Weighted Estimator of Sun and Abraham (2021).{p_end}
 
 
 {marker options}{...}
@@ -185,19 +188,22 @@ calculates its standard error with {help lincom}. {opt diffavg} is not allowed w
 effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following suboptions can be specified:
 
 {phang2}
-{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear 
-trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
+{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
 
 {phang2}
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
-{opt savek(stub [, noestimate])} saves variables for event-time dummies, event-time, and trends. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
-variable # periods before the policy change, and {it:stub}_p# for the dummy variable # periods after the policy change. The dummy variable for
-the policy change time is {it:stub}_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The following suboption can be specified:
+{opt savek(stub [, subopt])} saves variables for time-to-event, event-time, trend, and interaction variables. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
+variable # periods before the policy change, and {it:stub}_eq_p# for the dummy variable # periods after the policy change. The dummy variable for
+the policy change time is {it:stub}_eq_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The interaction variables are stored as {it:stub}_m#_c# or {it:stub}_p#_c#, where c# indicates the cohort. The following 
+suboptions can be specified:
 
 {phang2}
 {opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the users want to customize their regressions and plots.
+
+{phang2}
+{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and {opt saveint:eract} cannot be specified simultaneously.
 
 {phang}
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
@@ -209,8 +215,22 @@ option requires {help reghdfe} and {help ftools} to be installed. For IV estimat
 Note that standard errors may be different and singleton clusters may be dropped using {help reghdfe}. See Correia (2017).
 
 {phang}
-{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd xtevent} includes time and
-unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
+{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time and unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
+
+{phang}
+{opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which 
+{opt policyvar} changes, while the observations in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional dataset, which involves using
+{cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See {help get_unit_time_effects}. For fixed-effects estimation, {opt repeatedcs} enables {opt reghdfe}.
+
+{phang}
+{opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
+ proposed by Sun and Abraham (2021). {opt cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install
+or type "ssc install avar" from inside Stata.
+
+{phang}
+{opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
+ proposed by Sun and Abraham (2021). {opt control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install
+or type "ssc install avar" from inside Stata.
 
 {phang}
 {opt plot} displays a default event study plot with 95% and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
@@ -303,6 +323,26 @@ Compare the imputed and original values for a unit
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode year) reghdfe proxy(wks_work)}}
 {p_end}
 
+{hline}
+
+{pstd}Interaction Weighted Estimator proposed by Sun and Abraham (2021). {p_end}
+{pstd}First, we need to create the control and control cohort variables.{p_end}
+{pstd}Generate the variable that indicates cohort.{p_end}
+{phang2}{cmd:. {stata gen timet=year if union==1}}
+{p_end}
+{phang2}{cmd:. {stata "by idcode: egen time_of_treat=min(timet)"}}
+{p_end}
+
+{pstd}Generate the variable that indicates the control cohort. We use the never treated units as the control cohort. {p_end}
+{phang2}{cmd:. {stata gen never_treat=time_of_treat==.}}
+{p_end}
+
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union) window(3) impute(nuchange) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat)}}
+{p_end}
+
+{pstd}Indicate the {bf:reghdfe} option to use the same underlying estimation command as with {help EventStudyInteract}. This produces identical estimations as with {help EventStudyInteract}.{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union) window(3) impute(nuchange) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat) reghdfe}}
+{p_end}
 
 {marker saved}{...}
 {title:Saved Results}
@@ -348,6 +388,10 @@ Compare the imputed and original values for a unit
 {synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of event study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
+{synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(ff_w)}} Each column vector contains estimates of cohort shares underlying the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(V_interact)}} each column vector contains variance estimate of the cohort-specific effect estimator for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(b_interact)}} each column vector contains estimates of cohort-specific effect for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
 
 
 {synoptset 20 tabbed}{...}
@@ -362,8 +406,8 @@ Compare the imputed and original values for a unit
        chansen1@chicagobooth.edu
 {pstd}Jorge Pérez Pérez, Banco de México{p_end}
        jorgepp@banxico.org.mx
-{pstd}Jesse Shapiro, Brown University{p_end}
-       jesse_shapiro_1@brown.edu	   
+{pstd}Jesse Shapiro, Harvard University and NBER{p_end}
+       jesse_shapiro@fas.harvard.edu	   
            
 {title:Support}    
            
@@ -388,8 +432,10 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 {pstd}Montiel Olea, J.L.  and Plagborg-Møller, M. (2019) "Simultaneous confidence bands: Theory, implementation, and an application to SVARs".
 {it:Journal of Applied Econometrics}, 34: 1– 17.
 
+{pstd}Sun, L.  and Abraham, S. (2021) "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects".
+{it:Journal of Econometrics}, 225 (2): 175-199.
+
 {title:Acknowledgements}
 {pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
-Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Matthias Weigand, Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.
-
-
+Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Richard Calvo, Emily Wang, Theresa Doppstadt, Matthias Weigand,
+Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.

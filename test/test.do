@@ -35,12 +35,15 @@ xtevent y eta, policyvar(z) timevar(z) window(5)
 * Testing noci, nosupt, nozeroline, nominus1label
 xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, noci
-xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, nosupt
-xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, nozeroline
-xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, nominus1label
+
+* Test combinations
+xteventplot, noci nozeroline
+xteventplot, noci nominus1label
+xteventplot, nosupt nozeroline
+xteventplot, nosupt nominus1label
 
 * A common axis plot with labels
 gen y2 = y + 5
@@ -96,12 +99,14 @@ des a_eq*, s
 des a_evtime, s
 drop a*
 
+* Test different prefix
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b)
 
 * Test factor variables in varlist
 cap gen pois=rpoisson(5)
 xtevent y eta i.pois, panelvar(i) timevar(t) policyvar(z) window(5) plot
 cap drop pois
+
 * Test time series variables in varlist
 
 xtevent y l.eta , panelvar(i) timevar(t) policyvar(z) window(5) plot
@@ -115,13 +120,16 @@ xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(-4 2) plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-1) plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-2) plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-6) plot
+* Should fail
 * xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-7) plot
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(1) plot 
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(5) plot 
-
+* Should fail
+* xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(7) plot
 graph drop _all
 
 * Test exclusion of unbalanced units with ambiguous eventtime
+
 gen z2 = z
 replace z2 = . if i==1 & t==7 
 xtevent y eta, policyvar(z2) window(5) 
@@ -140,7 +148,7 @@ xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe ro
 xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(robust cluster i)
 
 /*
-*Test other standar-error specifications (not allowed)
+*Test other standard-error specifications (not allowed)
 xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(bootstrap) //will show an error message
 */
 
@@ -185,11 +193,19 @@ xteventplot, name(g3)
 
 graph combine g1 g2 g3, rows(2)
 
-graph drop g1
-graph drop g2
-graph drop g3
-
 graph drop _all
+
+*Sun and Abraham Estimator (2021) 
+*Generate cohort indicator
+* This works because of staggered adoption
+gen timet=t if z==1
+by i: egen time_of_treat=min(timet)
+*Generate control cohort indicator. We use the never treated units as the control cohort. 
+gen never_treat=time_of_treat==.
+*Estimate the event-time coefficients with the Sun-and-Abraham Estimator.
+xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) 
+*Use reghdfe as the underlying estimation command
+xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) reghdfe
 
 *Overlay trend plot
 xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(gmm) saveov)
@@ -222,7 +238,38 @@ xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(5)
 xteventplot, textboxoption(color(blue) size(large))
 drop y2
 
+******** Repeated cross-sectional data 
+use "small_repeated_cross_sectional_example31.dta", clear
+xtset, clear
+*OLS, impute and trend adjustment
+xtevent y, panelvar(state) t(t) policyvar(z) window(5) trend(-3, method(ols)) impute(instag) repeatedcs 
+xteventplot
+*IV
+xtevent y, panelvar(state) t(t) policyvar(z) window(5) impute(stag) proxy(x) repeatedcs 
+xteventplot
+xteventplot, overlay(iv)
+
+*static ols
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) static repeatedcs
+*static IV
+xtevent y, panelvar(state) t(t) policyvar(z) impute(stag) proxy(x) static repeatedcs
+
+*get unit time effects
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("effect_file.dta", replace) 
+
+*get_unit_time_effects + xtevent 
+get_unit_time_effects y u eta, panelvar(state) timevar(t) saving("effect_file.dta", replace) 
+bysort state t (z): keep if _n==1
+keep state t z
+merge m:1 state t using "effect_file.dta"
+drop _merge
+xtevent _unittimeeffects, panelvar(state) t(t) policyvar(z) window(5) 
+xteventplot
+
 *------------------------ 2.2: Replicate 2b and test basic funcionality without controls ----------------------------------
+
+* load panel dataset
+use "example31.dta", clear
 
 xtevent y , panelvar(i) timevar(t) policyvar(z) window(5) plot
 
@@ -241,14 +288,9 @@ xtevent y eta, policyvar(z) timevar(z) window(5)
 * Testing noci, nosupt, nozeroline, nominus1label
 xtevent y , policyvar(z) timevar(t) window(5)
 xteventplot, noci
-xtevent y , policyvar(z) timevar(t) window(5)
 xteventplot, nosupt
-xtevent y , policyvar(z) timevar(t) window(5)
 xteventplot, nozeroline
-xtevent y , policyvar(z) timevar(t) window(5)
 xteventplot, nominus1label
-
-
 
 * Test if/in
 xtevent y if i<100, panelvar(i) timevar(t) policyvar(z) window(5) plot
