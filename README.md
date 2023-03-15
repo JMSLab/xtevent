@@ -15,7 +15,7 @@
 
 * **Version 2.2.0 (15mar2023)**:
     - Add `cohort` and `control_cohort` to obtain estimates using [Sun and Abraham's (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) method.
-    - Add `repeatedcs`option to estimate event-studies in repeated cross-section settings.
+    - Add `repeatedcs`option and `get_unit_time_effects`command to estimate event-studies in repeated cross-section settings.
     - Add `noestimate` option to `savek()` to generate event-time dummies without estimating the regression model.
     - Enable clustered and robust standard erros for IV estimation without `reghdfe`.
     - Fixed bugs present in version 2.1.1.    
