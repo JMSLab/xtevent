@@ -217,6 +217,11 @@ Impute policy variable without verifying staggered adoption.{p_end}
 
 {hline}
 
+{pstd}year variable has many missing observations.{p_end}
+{pstd}Create a time variable that ignores these gaps.{p_end}
+{phang2}{cmd:. {stata "by idcode (year): gen time=_n"}}{p_end}
+{phang2}{cmd:. {stata xtset idcode time}}{p_end}
+
 {pstd}FHS estimator with proxy variables{p_end}
 {phang2}{cmd:. {stata xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) impute(nuchange) proxy(wks_work)}}{p_end}
 

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>impute_option_description</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+<style>
+/* CSS for Markstat 2.0 using Pandoc 2.0 */
+body{padding:14px 28px; max-width:45em;}
+body, table {font-family: Helvetica, Arial, Sans-serif; font-size: 14px;}
+h1, h2, h3, h4 {font-weight: normal; color: #3366cc}
+h1 {font-size: 200%;}
+h2 {font-size: 150%;}
+h3 {font-size: 120%;}
+h4 {font-size: 100%; font-weight:bold}
+img.center {display:block; margin-left:auto; margin-right:auto}
+.small{font-size:8pt;}
+a {color: black;}
+a:visited {color: #808080;}
+a.plain {text-decoration:none;}
+a.plain:hover {text-decoration:underline;}
+.em {font-weight:bold;}
+pre, code {font-family: "lucida console", monospace;}
+pre.stata {font-size:13px; line-height:13px;}
+pre {padding:8px; border:1px solid #c0c0c0; border-radius:8px; background-color:#fdfdfd;}
+code {color:#3366cc; background-color:#fafafa;}
+pre code { color:black; background-color:white}
+/* Added for Pandoc */
+figure > img, div.figure > img {display:block; margin:auto}
+figcaption, p.caption {text-align:center; font-weight:bold; color:#3366cc;}
+h1.title {text-align:center; margin-bottom:0}
+p.author, h2.author {font-style:italic; text-align:center;margin-top:4px;margin-bottom:0}
+p.date, h3.date {text-align:center;margin-top:4px; margin-bottom:0}
+/* Tables*/
+table { margin:auto; border-collapse:collapse; }
+table caption { margin-bottom:1ex;}
+td {padding:0 0 0 0} /* override */
+table:not([class]) th { padding:4px 6px } 
+table:not([class]) td { padding:4px 6px } 
+table:not([class]) thead tr:first-child th {border-top:1px solid black; padding-top:6px}
+table:not([class]) thead tr:last-child  th {padding-bottom:6px}
+table:not([class]) tbody tr:first-child td {border-top:1px solid black; padding-top:6px}
+table:not([class]) tbody tr:last-child  td {padding-bottom:6px;}
+table:not([class]) tbody:last-child tr:last-child td {border-bottom:1px solid black;}
+</style>
+</head>
+<body>
+<h1 id="impute-option">Impute option</h1>
+<p><strong>impute(type, [saveimp])</strong> imputes missing values in
+<em>policyvar</em> and uses the imputed variable as the independent
+policy variable in estimation. <strong>type</strong> determines the
+imputation rule. The suboption <strong>saveimp</strong> adds the new
+variable to the database as <em>policyvar_imputed</em>. The following
+imputation types are available:</p>
+<ul>
+<li><p><strong>impute(nuchange)</strong> imputes missing values in
+<em>policyvar</em> under an assumption of <em>no unobserved
+changes</em>. It assumes that for each unit: i) The policy variable’s
+value is the same as the first observed value in periods before the
+first observed value, and ii) The policy variable’s value is the same as
+the last observed value in periods after the last observed
+value</p></li>
+<li><p><strong>impute(stag)</strong> imputes missing values in the
+<em>policyvar</em> under an assumption of no unobserved changes and
+staggered adoption. <em>policyvar</em> must satisfy staggered-adoption
+assumptions for all units: i) <em>policyvar</em> must be binaryl; ii)
+once <em>policyvar</em> reaches the adopted-policy state, it never
+reverts to the unadopted-policy state; iii) the first-observed value
+must be the unadopted-policy-state value, and the last-observed value
+must be the adopted-policy-state value, and iv) all <em>policyvar</em>
+values in the observed data range must be either adopted-policy-state
+values or unadopted-policy-state values.</p></li>
+<li><p><strong>impute(instag)</strong> imputes missing values in the
+<em>policyvar</em> under staggered adoption assumptions and additionally
+imputes missing values inside the observed data range: <em>xtevent</em>
+imputes a missing value or a group of them only if they are both
+preceded and followed by values corresponding to the unadopted-policy
+state or the adopted-policy state.</p></li>
+</ul>
+<h2 id="examples">Examples</h2>
+<p>We want to estimate the dynamic effects of being a union member on
+the wage. We will use the National Longitudinal Survey data from Stata’s
+example datasets.</p>
+<pre class='stata'>. webuse nlswork, clear
+(National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
+</pre>
+<p>This dataset has many missing observations. For the sake of the
+example, we will create a time variable that ignores these gaps.</p>
+<pre class='stata'>. by idcode (year): gen time=_n
+
+. xtset idcode time
+       panel variable:  idcode (unbalanced)
+        time variable:  time, 1 to 15
+                delta:  1 unit
+</pre>
+<p>The <em>policyvar</em> <em>union</em> reverts to the
+unadopted-policy-state for several units. We generate a
+<em>policyvar</em> that follows staggered adoption.</p>
+<pre class='stata'>. by idcode (time): gen union2=sum(union)
+
+. replace union2=1 if union2>1 
+(4,177 real changes made)
+
+. order time union union2, after(year)
+</pre>
+<p>Now we add some missing values to the <em>policyvar</em> for this
+example and display how the <em>policyvar</em> looks for unit 2.</p>
+<pre class='stata'>. replace union2=. if idcode==2 &amp; inlist(time, 1,8,9,11,12)
+(5 real changes made, 5 to missing)
+
+. list idcode time union2 if idcode==2, noobs
+
+  ┌────────────────────────┐
+  │ idcode   time   union2 │
+  ├────────────────────────┤
+  │      2      1        . │
+  │      2      2        0 │
+  │      2      3        0 │
+  │      2      4        0 │
+  │      2      5        1 │
+  ├────────────────────────┤
+  │      2      6        1 │
+  │      2      7        1 │
+  │      2      8        . │
+  │      2      9        . │
+  │      2     10        1 │
+  ├────────────────────────┤
+  │      2     11        . │
+  │      2     12        . │
+  └────────────────────────┘
+</pre>
+<h4 id="nuchange">nuchange</h4>
+<p>First, we estimate an event-study where we impute outer missing
+values in the <em>policyvar</em> without verifying staggered adoption,
+i.e., according to <strong>nuchange</strong>. We also want to add the
+new <em>policyvar</em> to the database. We can do this using the
+<strong>saveimp</strong> suboption.</p>
+<pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>     policyvar(union2) window(3) impute(nuchange, saveimp)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =     23,533
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20735)   =     177.64
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6211
+                                                Root MSE          =     0.2872
+
+────────────────────┬────────────────────────────────────────────────────────────────
+            ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+────────────────────┼────────────────────────────────────────────────────────────────
+           _k_eq_m4 │   -.044991   .0129656    -3.47   0.001    -.0704046   -.0195773
+           _k_eq_m3 │   -.056602   .0146577    -3.86   0.000    -.0853324   -.0278717
+           _k_eq_m2 │  -.0421076   .0132848    -3.17   0.002    -.0681469   -.0160683
+           _k_eq_p0 │    .089006   .0126565     7.03   0.000     .0641984    .1138137
+           _k_eq_p1 │   .0816302   .0130645     6.25   0.000     .0560227    .1072377
+           _k_eq_p2 │   .0805316   .0137205     5.87   0.000     .0536383    .1074249
+           _k_eq_p3 │   .0636236   .0146177     4.35   0.000     .0349717    .0922754
+           _k_eq_p4 │   .0299571   .0131044     2.29   0.022     .0042715    .0556428
+                age │   .0200429   .0039789     5.04   0.000      .012244    .0278418
+                    │
+        c.age#c.age │  -.0005227   .0000592    -8.83   0.000    -.0006388   -.0004067
+                    │
+            ttl_exp │   .0491641   .0035992    13.66   0.000     .0421095    .0562188
+                    │
+c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.0001903
+                    │
+             tenure │    .009586   .0009319    10.29   0.000     .0077594    .0114126
+                    │
+               time │
+                 2  │   .0560126   .0085424     6.56   0.000     .0392688    .0727564
+                 3  │   .0575009   .0102856     5.59   0.000     .0373404    .0776614
+                 4  │   .0602892   .0126124     4.78   0.000     .0355678    .0850106
+                 5  │   .0485475   .0152863     3.18   0.001     .0185852    .0785099
+                 6  │   .0484402   .0181939     2.66   0.008     .0127786    .0841017
+                 7  │   .0293352   .0212178     1.38   0.167    -.0122535    .0709238
+                 8  │     .02131   .0241125     0.88   0.377    -.0259524    .0685723
+                 9  │   .0151379   .0269115     0.56   0.574    -.0376107    .0678866
+                10  │   -.001417   .0298443    -0.05   0.962    -.0599142    .0570803
+                11  │  -.0124587    .032712    -0.38   0.703    -.0765768    .0516593
+                12  │   -.017273   .0355159    -0.49   0.627     -.086887    .0523411
+                13  │  -.0346884   .0388956    -0.89   0.372    -.1109267    .0415499
+                14  │  -.0097704   .0431507    -0.23   0.821    -.0943492    .0748084
+                15  │  -.0288539   .0509617    -0.57   0.571    -.1287429    .0710351
+                    │
+              _cons │   1.221635   .0606818    20.13   0.000     1.102694    1.340576
+────────────────────┴────────────────────────────────────────────────────────────────
+F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
+</pre>
+<p>Compare the original <em>policyvar</em> and the imputed
+<em>policyvar</em> for unit 2.</p>
+<pre class='stata'>. list idcode time union2 union2_imputed if idcode==2, noobs
+
+  ┌───────────────────────────────────┐
+  │ idcode   time   union2   union2~d │
+  ├───────────────────────────────────┤
+  │      2      1        .          0 │
+  │      2      2        0          0 │
+  │      2      3        0          0 │
+  │      2      4        0          0 │
+  │      2      5        1          1 │
+  ├───────────────────────────────────┤
+  │      2      6        1          1 │
+  │      2      7        1          1 │
+  │      2      8        .          . │
+  │      2      9        .          . │
+  │      2     10        1          1 │
+  ├───────────────────────────────────┤
+  │      2     11        .          1 │
+  │      2     12        .          1 │
+  └───────────────────────────────────┘
+</pre>
+<p>Drop the imputed <em>policyvar</em>.</p>
+<pre class='stata'>. drop union2_imputed
+</pre>
+<h4 id="stag">stag</h4>
+<p>Now, we estimate an event-study imputing outer missing values in the
+<em>policyvar</em> verifying staggered adoption, i.e., according to
+<strong>stag</strong>, and save the imputed <em>policyvar</em>.</p>
+<pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>             policyvar(union2) window(3) impute(stag, saveimp)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =     23,533
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20735)   =     177.64
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6211
+                                                Root MSE          =     0.2872
+
+────────────────────┬────────────────────────────────────────────────────────────────
+            ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+────────────────────┼────────────────────────────────────────────────────────────────
+           _k_eq_m4 │   -.044991   .0129656    -3.47   0.001    -.0704046   -.0195773
+           _k_eq_m3 │   -.056602   .0146577    -3.86   0.000    -.0853324   -.0278717
+           _k_eq_m2 │  -.0421076   .0132848    -3.17   0.002    -.0681469   -.0160683
+           _k_eq_p0 │    .089006   .0126565     7.03   0.000     .0641984    .1138137
+           _k_eq_p1 │   .0816302   .0130645     6.25   0.000     .0560227    .1072377
+           _k_eq_p2 │   .0805316   .0137205     5.87   0.000     .0536383    .1074249
+           _k_eq_p3 │   .0636236   .0146177     4.35   0.000     .0349717    .0922754
+           _k_eq_p4 │   .0299571   .0131044     2.29   0.022     .0042715    .0556428
+                age │   .0200429   .0039789     5.04   0.000      .012244    .0278418
+                    │
+        c.age#c.age │  -.0005227   .0000592    -8.83   0.000    -.0006388   -.0004067
+                    │
+            ttl_exp │   .0491641   .0035992    13.66   0.000     .0421095    .0562188
+                    │
+c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.0001903
+                    │
+             tenure │    .009586   .0009319    10.29   0.000     .0077594    .0114126
+                    │
+               time │
+                 2  │   .0560126   .0085424     6.56   0.000     .0392688    .0727564
+                 3  │   .0575009   .0102856     5.59   0.000     .0373404    .0776614
+                 4  │   .0602892   .0126124     4.78   0.000     .0355678    .0850106
+                 5  │   .0485475   .0152863     3.18   0.001     .0185852    .0785099
+                 6  │   .0484402   .0181939     2.66   0.008     .0127786    .0841017
+                 7  │   .0293352   .0212178     1.38   0.167    -.0122535    .0709238
+                 8  │     .02131   .0241125     0.88   0.377    -.0259524    .0685723
+                 9  │   .0151379   .0269115     0.56   0.574    -.0376107    .0678866
+                10  │   -.001417   .0298443    -0.05   0.962    -.0599142    .0570803
+                11  │  -.0124587    .032712    -0.38   0.703    -.0765768    .0516593
+                12  │   -.017273   .0355159    -0.49   0.627     -.086887    .0523411
+                13  │  -.0346884   .0388956    -0.89   0.372    -.1109267    .0415499
+                14  │  -.0097704   .0431507    -0.23   0.821    -.0943492    .0748084
+                15  │  -.0288539   .0509617    -0.57   0.571    -.1287429    .0710351
+                    │
+              _cons │   1.221635   .0606818    20.13   0.000     1.102694    1.340576
+────────────────────┴────────────────────────────────────────────────────────────────
+F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
+</pre>
+<p>Compare the original <em>policyvar</em> and the imputed
+<em>policyvar</em> for unit 2.</p>
+<pre class='stata'>. list idcode time union2 union2_imputed if idcode==2, noobs
+
+  ┌───────────────────────────────────┐
+  │ idcode   time   union2   union2~d │
+  ├───────────────────────────────────┤
+  │      2      1        .          0 │
+  │      2      2        0          0 │
+  │      2      3        0          0 │
+  │      2      4        0          0 │
+  │      2      5        1          1 │
+  ├───────────────────────────────────┤
+  │      2      6        1          1 │
+  │      2      7        1          1 │
+  │      2      8        .          . │
+  │      2      9        .          . │
+  │      2     10        1          1 │
+  ├───────────────────────────────────┤
+  │      2     11        .          1 │
+  │      2     12        .          1 │
+  └───────────────────────────────────┘
+</pre>
+<p>Drop the imputed <em>policyvar</em>.</p>
+<pre class='stata'>. drop union2_imputed
+</pre>
+<h4 id="instag">instag</h4>
+<p>Last, we estimate an event-study imputing outer and inner missing
+values in the <em>policyvar</em> verifying staggered adoption, i.e.,
+according to <strong>instag</strong>, and save the imputed
+<em>policyvar</em>.</p>
+<pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>     policyvar(union2) window(3) impute(instag, saveimp)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =     23,541
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20743)   =     177.82
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6212
+                                                Root MSE          =     0.2872
+
+────────────────────┬────────────────────────────────────────────────────────────────
+            ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+────────────────────┼────────────────────────────────────────────────────────────────
+           _k_eq_m4 │  -.0449924   .0129631    -3.47   0.001    -.0704011   -.0195837
+           _k_eq_m3 │  -.0565855   .0146546    -3.86   0.000    -.0853096   -.0278614
+           _k_eq_m2 │  -.0421016   .0132823    -3.17   0.002    -.0681359   -.0160673
+           _k_eq_p0 │    .089023   .0126502     7.04   0.000     .0642277    .1138183
+           _k_eq_p1 │   .0815659   .0130576     6.25   0.000     .0559719    .1071598
+           _k_eq_p2 │   .0804259   .0137127     5.87   0.000      .053548    .1073037
+           _k_eq_p3 │   .0635638   .0146083     4.35   0.000     .0349305    .0921971
+           _k_eq_p4 │   .0299474   .0130957     2.29   0.022     .0042789    .0556159
+                age │   .0200353   .0039778     5.04   0.000     .0122385    .0278322
+                    │
+        c.age#c.age │  -.0005226   .0000592    -8.83   0.000    -.0006386   -.0004065
+                    │
+            ttl_exp │   .0491603   .0035979    13.66   0.000     .0421082    .0562125
+                    │
+c.ttl_exp#c.ttl_exp │  -.0004479   .0001315    -3.41   0.001    -.0007057   -.0001902
+                    │
+             tenure │   .0095845   .0009314    10.29   0.000     .0077588    .0114102
+                    │
+               time │
+                 2  │   .0560166   .0085406     6.56   0.000     .0392763    .0727568
+                 3  │   .0575122   .0102831     5.59   0.000     .0373564     .077668
+                 4  │   .0603109   .0126093     4.78   0.000     .0355958    .0850261
+                 5  │   .0485817   .0152818     3.18   0.001     .0186282    .0785352
+                 6  │   .0484417   .0181883     2.66   0.008     .0127912    .0840921
+                 7  │   .0293154   .0212118     1.38   0.167    -.0122613    .0708922
+                 8  │    .021307   .0241059     0.88   0.377    -.0259425    .0685565
+                 9  │   .0151769   .0269039     0.56   0.573    -.0375569    .0679106
+                10  │  -.0014045   .0298363    -0.05   0.962     -.059886    .0570769
+                11  │  -.0124446   .0327037    -0.38   0.704    -.0765463    .0516572
+                12  │  -.0173009    .035506    -0.49   0.626    -.0868955    .0522938
+                13  │  -.0346925   .0388867    -0.89   0.372    -.1109135    .0415284
+                14  │  -.0097838   .0431413    -0.23   0.821    -.0943442    .0747766
+                15  │  -.0288719   .0509512    -0.57   0.571    -.1287403    .0709964
+                    │
+              _cons │   1.221736   .0606651    20.14   0.000     1.102827    1.340644
+────────────────────┴────────────────────────────────────────────────────────────────
+F test of absorbed indicators: F(2770, 20743) = 9.924         Prob > F = 0.000
+</pre>
+<p>Compare the original <em>policyvar</em> and the imputed
+<em>policyvar</em> for unit 2.</p>
+<pre class='stata'>. list idcode time union2 union2_imputed if idcode==2, noobs
+
+  ┌───────────────────────────────────┐
+  │ idcode   time   union2   union2~d │
+  ├───────────────────────────────────┤
+  │      2      1        .          0 │
+  │      2      2        0          0 │
+  │      2      3        0          0 │
+  │      2      4        0          0 │
+  │      2      5        1          1 │
+  ├───────────────────────────────────┤
+  │      2      6        1          1 │
+  │      2      7        1          1 │
+  │      2      8        .          1 │
+  │      2      9        .          1 │
+  │      2     10        1          1 │
+  ├───────────────────────────────────┤
+  │      2     11        .          1 │
+  │      2     12        .          1 │
+  └───────────────────────────────────┘
+</pre>
+<h2 id="how-the-imputation-works-on-the-event-time-dummies">How the
+imputation works on the event-time dummies</h2>
+<p>Now we display how the imputation works on the event-time dummies.
+First, we differentiate the <em>policyvar</em>.</p>
+<pre class='stata'>. gen union2_d=d.union2
+(4,717 missing values generated)
+</pre>
+<p>Estimate an event study without imputing the <em>policyvar</em> and
+save the event-time dummies by the <em>savek</em> option.</p>
+<pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+>     policyvar(union2) window(3) savek(vv)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =      5,672
+Absorbed variable: idcode                       No. of categories =      1,600
+                                                F(  20,   4052)   =      16.82
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.8030
+                                                Adj R-squared     =     0.7243
+                                                Root MSE          =     0.2162
+
+────────────────────┬────────────────────────────────────────────────────────────────
+            ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+────────────────────┼────────────────────────────────────────────────────────────────
+           _k_eq_m4 │  -.0486214   .0268491    -1.81   0.070    -.1012604    .0040177
+           _k_eq_m3 │  -.0501976   .0245746    -2.04   0.041    -.0983773   -.0020179
+           _k_eq_m2 │   -.052895   .0219346    -2.41   0.016     -.095899   -.0098911
+           _k_eq_p0 │   .0405804   .0215074     1.89   0.059     -.001586    .0827468
+           _k_eq_p1 │   .0206119    .022553     0.91   0.361    -.0236043    .0648281
+           _k_eq_p2 │   .0282941   .0244515     1.16   0.247    -.0196443    .0762325
+           _k_eq_p3 │   .0152028   .0273227     0.56   0.578    -.0383647    .0687703
+           _k_eq_p4 │  -.0092743   .0298438    -0.31   0.756    -.0677845    .0492359
+                age │  -.0080527   .0146572    -0.55   0.583    -.0367888    .0206835
+                    │
+        c.age#c.age │  -.0002118   .0002247    -0.94   0.346    -.0006524    .0002287
+                    │
+            ttl_exp │    .040395   .0105632     3.82   0.000     .0196853    .0611047
+                    │
+c.ttl_exp#c.ttl_exp │  -.0006165   .0004356    -1.42   0.157    -.0014706    .0002375
+                    │
+             tenure │   .0074825   .0018953     3.95   0.000     .0037666    .0111984
+                    │
+               time │
+                 6  │   .0274323   .0136636     2.01   0.045     .0006441    .0542204
+                 7  │   .0364149   .0241351     1.51   0.131    -.0109032     .083733
+                 8  │   .0677196     .03455     1.96   0.050    -.0000174    .1354565
+                 9  │   .0935328   .0442389     2.11   0.035     .0068002    .1802655
+                10  │   .0944863   .0554168     1.71   0.088     -.014161    .2031336
+                11  │   .1177996   .0662023     1.78   0.075    -.0119933    .2475924
+                12  │    .134973   .0756575     1.78   0.074    -.0133573    .2833033
+                    │
+              _cons │   1.864822   .2456629     7.59   0.000     1.383187    2.346456
+────────────────────┴────────────────────────────────────────────────────────────────
+F test of absorbed indicators: F(1599, 4052) = 8.310          Prob > F = 0.000
+</pre>
+<p>Now, we display the event-time dummies for a unit. We can verify that
+this set of event-time dummies corresponds to different leads of the
+differentiated <em>policyvar</em> (see equation 2 in <a
+href="https://www.nber.org/papers/w29170">Freyaldenhoven et
+al. (2021)</a>).</p>
+<pre class='stata'>. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
+
+  ┌───────────────────────────────────────────────────────────────────────────────┐
+  │ idcode   time   union2   union2_d   vv_eq_m4   vv_eq_m3   vv_eq_m2   vv_eq_m1 │
+  ├───────────────────────────────────────────────────────────────────────────────┤
+  │     24      1        0          .          1          0          0          0 │
+  │     24      2        0          0          1          0          0          0 │
+  │     24      3        0          0          1          0          0          0 │
+  │     24      4        0          0          1          0          0          0 │
+  │     24      5        0          0          1          0          0          0 │
+  ├───────────────────────────────────────────────────────────────────────────────┤
+  │     24      6        0          0          1          0          0          0 │
+  │     24      7        0          0          0          1          0          0 │
+  │     24      8        0          0          0          0          1          0 │
+  │     24      9        0          0          0          0          0          1 │
+  │     24     10        1          1          0          0          0          0 │
+  ├───────────────────────────────────────────────────────────────────────────────┤
+  │     24     11        1          0          0          0          0          0 │
+  │     24     12        1          0          0          0          0          0 │
+  │     24     13        1          0          .          .          0          0 │
+  │     24     14        1          0          .          .          .          0 │
+  │     24     15        1          0          .          .          .          . │
+  └───────────────────────────────────────────────────────────────────────────────┘
+</pre>
+<p>Drop the event-time dummies.</p>
+<pre class='stata'>. drop vv*
+</pre>
+<p>Estimate the same model, but with imputation according to
+<strong>stag</strong>.</p>
+<pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+> policyvar(union2) window(3) savek(vv) impute(stag)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =     23,533
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20735)   =     177.64
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6211
+                                                Root MSE          =     0.2872
+
+────────────────────┬────────────────────────────────────────────────────────────────
+            ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+────────────────────┼────────────────────────────────────────────────────────────────
+           _k_eq_m4 │   -.044991   .0129656    -3.47   0.001    -.0704046   -.0195773
+           _k_eq_m3 │   -.056602   .0146577    -3.86   0.000    -.0853324   -.0278717
+           _k_eq_m2 │  -.0421076   .0132848    -3.17   0.002    -.0681469   -.0160683
+           _k_eq_p0 │    .089006   .0126565     7.03   0.000     .0641984    .1138137
+           _k_eq_p1 │   .0816302   .0130645     6.25   0.000     .0560227    .1072377
+           _k_eq_p2 │   .0805316   .0137205     5.87   0.000     .0536383    .1074249
+           _k_eq_p3 │   .0636236   .0146177     4.35   0.000     .0349717    .0922754
+           _k_eq_p4 │   .0299571   .0131044     2.29   0.022     .0042715    .0556428
+                age │   .0200429   .0039789     5.04   0.000      .012244    .0278418
+                    │
+        c.age#c.age │  -.0005227   .0000592    -8.83   0.000    -.0006388   -.0004067
+                    │
+            ttl_exp │   .0491641   .0035992    13.66   0.000     .0421095    .0562188
+                    │
+c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.0001903
+                    │
+             tenure │    .009586   .0009319    10.29   0.000     .0077594    .0114126
+                    │
+               time │
+                 2  │   .0560126   .0085424     6.56   0.000     .0392688    .0727564
+                 3  │   .0575009   .0102856     5.59   0.000     .0373404    .0776614
+                 4  │   .0602892   .0126124     4.78   0.000     .0355678    .0850106
+                 5  │   .0485475   .0152863     3.18   0.001     .0185852    .0785099
+                 6  │   .0484402   .0181939     2.66   0.008     .0127786    .0841017
+                 7  │   .0293352   .0212178     1.38   0.167    -.0122535    .0709238
+                 8  │     .02131   .0241125     0.88   0.377    -.0259524    .0685723
+                 9  │   .0151379   .0269115     0.56   0.574    -.0376107    .0678866
+                10  │   -.001417   .0298443    -0.05   0.962    -.0599142    .0570803
+                11  │  -.0124587    .032712    -0.38   0.703    -.0765768    .0516593
+                12  │   -.017273   .0355159    -0.49   0.627     -.086887    .0523411
+                13  │  -.0346884   .0388956    -0.89   0.372    -.1109267    .0415499
+                14  │  -.0097704   .0431507    -0.23   0.821    -.0943492    .0748084
+                15  │  -.0288539   .0509617    -0.57   0.571    -.1287429    .0710351
+                    │
+              _cons │   1.221635   .0606818    20.13   0.000     1.102694    1.340576
+────────────────────┴────────────────────────────────────────────────────────────────
+F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
+</pre>
+<p>Now, we display the event-time dummies for the same unit. We can
+verify that <em>xtevent</em> imputed event-time dummies despite the
+<em>policyvar</em> not having missing values in its observed data range.
+This imputation happens because the imputation works on both the
+observed and the unobserved data range of the <em>policyvar</em>.</p>
+<pre class='stata'>. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
+
+  ┌───────────────────────────────────────────────────────────────────────────────┐
+  │ idcode   time   union2   union2_d   vv_eq_m4   vv_eq_m3   vv_eq_m2   vv_eq_m1 │
+  ├───────────────────────────────────────────────────────────────────────────────┤
+  │     24      1        0          .          1          0          0          0 │
+  │     24      2        0          0          1          0          0          0 │
+  │     24      3        0          0          1          0          0          0 │
+  │     24      4        0          0          1          0          0          0 │
+  │     24      5        0          0          1          0          0          0 │
+  ├───────────────────────────────────────────────────────────────────────────────┤
+  │     24      6        0          0          1          0          0          0 │
+  │     24      7        0          0          0          1          0          0 │
+  │     24      8        0          0          0          0          1          0 │
+  │     24      9        0          0          0          0          0          1 │
+  │     24     10        1          1          0          0          0          0 │
+  ├───────────────────────────────────────────────────────────────────────────────┤
+  │     24     11        1          0          0          0          0          0 │
+  │     24     12        1          0          0          0          0          0 │
+  │     24     13        1          0          0          0          0          0 │
+  │     24     14        1          0          0          0          0          0 │
+  │     24     15        1          0          0          0          0          0 │
+  └───────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</body>
+</html>

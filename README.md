@@ -1,8 +1,6 @@
 # xtevent
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/JMSLab/xtevent?label=last%20version)
 
-Stata package `xtevent` estimates linear panel event-study models.
-
 -----------
 
 ### Description
@@ -14,11 +12,6 @@ Stata package `xtevent` estimates linear panel event-study models.
 -----------
 
 ### Updates
-
-* **Version 2.2.0 (29sep2022)**:
-    - Adds `noestimate` option to generate event-time dummies without estimating the regression.
-    - Fixed bugs present in xtevent 2.1.1.    
-    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.2.0)  for the complete update list.
 
 * **Version 2.1.1 (12aug2022)**:
     - Fixed bugs present in xtevent 2.1.0.
@@ -32,13 +25,13 @@ Stata package `xtevent` estimates linear panel event-study models.
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.1.0)  for the complete update list.
     
 * **Version 2.0.0 (24jun2022)**:
-    - Adds `impute` option for imputing missing values in the policy variable according to several available rules. See the help file to know more about the available imputation rules. 
+    - **To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use *impute(stag)*.** The **impute** option imputes missing values in the *policyvar* following different rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows staggered adoption. For a detailed explanation of the **impute** option, see this [detailed example](https://rawcdn.githack.com/JMSLab/xtevent/cf16d12f90ddf363df62c397cf0e9dc05bbd9875/impute_option_description.html).
     - The option `nonstaggered` has been depreciated. The default option is now not to impute missing values or endpoints.   You should now choose any of the imputation rules in the `impute` option. To get results using imputation consistent with staggered adoption, as in version 1.0.0 you should use `impute(stag)`.
     - Now the option `trend` allows for trend adjustment by either OLS or GMM.
     - Fixed several bugs present in version 1.0.0
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.0.0)  for the complete update list.
+    
 -----------
-
 ### Installation
 
 #### To install version 2.1.0 from SSC:
@@ -90,62 +83,82 @@ help xtevent
 
 ### Examples
 
-Using xtevent 2.2.0
+Using xtevent 2.1.1
+
 #### xtevent
 ```stata
-*setup
-webuse nlswork
-xtset idcode year
+*** setup
+webuse nlswork, clear
+* year variable has many missing observations
+* Create a time variable that ignores the gaps
+by idcode (year): gen time=_n
+xtset idcode time
 
-*Estimate a basic event study with clustered standard errors. 
-*Impute the policy variable without verifying staggered adoption.
+*Generate a policy variable that follows staggered-adoption
+by idcode (time): gen union2=sum(union)
+replace union2=1 if union2>1 
+order time union union2, after(year)
+
+*** examples
+*Estimate a basic event study with clustered standard errors 
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) impute(nuchange)
+            pol(union) w(3) cluster(idcode) 
             
 *Omit fixed effects
+*Impute the policy variable verifying staggered adoption
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) impute(nuchange) nofe note
+            pol(union2) w(3) cluster(idcode) nofe note impute(stag)
 
 *Adjust the pre-trend by estimating a linear trend by GMM
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(2) cluster(idcode) impute(nuchange) trend(-2, ///
-            method(gmm))
-      
+            pol(union) w(3) cluster(idcode) trend(-2, method(gmm))
+			
 *FHS estimator with proxy variables
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) vce(cluster idcode) impute(nuchange) ///
-            proxy(wks_work)
-
+            pol(union) w(3) vce(cluster idcode) proxy(wks_work) 
+			          
 *reghdfe and two-way clustering
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe ///
             proxy(wks_work)
-
+            
+*Sun and Abraham Estimator
+*generate the variable that indicates cohort
+gen timet=year if union==1
+by idcode: egen time_of_treat=min(timet)
+*generate the variable that indicates the control cohort. 
+*we use the never treated units as the control cohort. 
+gen never_treat=time_of_treat==.
+*estimate the event-time coefficients with the Sun-and-Abraham Estimator.
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
+            policyvar(union) window(3) impute(nuchange) vce(cluster idcode) ///
+            reghdfe cohort(time_of_treat) control_cohort(never_treat) 
 
 ```
+
 #### xteventplot
 ```stata
-*setup
-webuse nlswork
-xtset idcode year
+*** setup
+webuse nlswork, clear
+* year variable has many missing observations
+* Create a time variable that ignores the gaps
+by idcode (year): gen time=_n
+xtset idcode time
 
-*Add an extra effect if union equals 1
-gen ln_wage2=ln_wage
-replace ln_wage2=ln_wage2+0.5 if union==1
-
+*** examples 
 *Basic event study with clustered standard errors. 
 *Impute policy variable without verifying staggered adoption.
-xtevent ln_wage2 age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange) 
 
-* Plot
+* simple plot
 xteventplot
 
 *Plot smoothest path in confidence region
 xteventplot, smpath(line)
 
 *FHS estimator with proxy variables
-xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
+xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) vce(cluster idcode) impute(nuchange) ///
             proxy(wks_work)
 
@@ -153,13 +166,16 @@ xtevent ln_wage age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 xteventplot, y
 xteventplot, proxy
 xteventplot, overlay(iv)
+xteventplot
 ```
+
 #### xteventtest
 ```stata
-*setup
-webuse nlswork
+*** setup
+webuse nlswork, clear
 xtset idcode year
 
+*** examples 
 *Basic event study with clustered standard errors. 
 *Impute policy variable without verifying staggered adoption.
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
