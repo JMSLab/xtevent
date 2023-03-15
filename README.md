@@ -102,33 +102,37 @@ webuse nlswork, clear
 by idcode (year): gen time=_n
 xtset idcode time
 
-*Generate a policy variable that follows staggered-adoption
+*Generate a policy variable that follows staggered adoption
 by idcode (time): gen union2=sum(union)
 replace union2=1 if union2>1 
 order time union union2, after(year)
 
-*** examples
+*** Examples
 *Estimate a basic event study with clustered standard errors 
+*Impute policy variable assuming no unobserved changes
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) 
-            
-*Omit fixed effects
+            pol(union) w(3) cluster(idcode) impute(nuchange)
+	   
+*Omit unit and time fixed effects
 *Impute the policy variable verifying staggered adoption
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union2) w(3) cluster(idcode) nofe note impute(stag)
 
-*Adjust the pre-trend by estimating a linear trend by GMM
+* Bring back unit and time fixed effects
+*Adjust for a pre-trend by estimating a linear trend by GMM
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) trend(-2, method(gmm))
+            pol(union2) w(3) cluster(idcode) trend(-2, method(gmm)) ///
+	    impute(stag)
 			
-*FHS estimator with proxy variables
+*Freyaldenhoven, Hansen and Shapiro (2019) estimator with proxy variables
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) vce(cluster idcode) proxy(wks_work) 
+            pol(union) w(3) vce(cluster idcode) proxy(wks_work) ///
+	    impute(stag)
 			          
 *reghdfe and two-way clustering
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) impute(nuchange) cluster(idcode year) reghdfe ///
-            proxy(wks_work)
+            pol(union2) w(3) impute(stag) cluster(idcode year) reghdfe ///
+            proxy(wks_work) 
             
 *Sun and Abraham Estimator
 *generate the variable that indicates cohort
