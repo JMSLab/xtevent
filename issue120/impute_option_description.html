@@ -205,46 +205,45 @@ table:not([class]) tbody:last-child tr:last-child td {border-bottom:1px solid bl
 <body>
 <h1 id="impute-option">Impute option</h1>
 <p><strong>impute(type, [saveimp])</strong> imputes missing values in
-<em>policyvar</em> and uses this new variable as the actual
-<em>policyvar</em>. <strong>type</strong> determines the imputation
-rule. The suboption <strong>saveimp</strong> adds the new variable to
-the database as <em>policyvar_imputed</em>. The following imputation
-types can be implemented:</p>
+<em>policyvar</em> and uses the imputed variable as the independent
+policy variable in estimation. <strong>type</strong> determines the
+imputation rule. The suboption <strong>saveimp</strong> adds the new
+variable to the database as <em>policyvar_imputed</em>. The following
+imputation types are available:</p>
 <ul>
 <li><p><strong>impute(nuchange)</strong> imputes missing values in
-<em>policyvar</em> according to <em>no-unobserved change</em>: it
-assumes that, for each unit: i) in periods before the first observed
-value, the policy value is the same as the first observed value; and ii)
-in periods after the last observed value, the policy value is the same
-as the last observed value.</p></li>
-<li><p><strong>impute(stag)</strong> applies <em>no-unobserved
-change</em> if <em>policyvar</em> satisfies staggered-adoption
-assumptions for all units: i) <em>policyvar</em> must be binary; and ii)
+<em>policyvar</em> under an assumption of <em>no unobserved
+changes</em>. It assumes that for each unit: i) The policy variable’s
+value is the same as the first observed value in periods before the
+first observed value, and ii) The policy variable’s value is the same as
+the last observed value in periods after the last observed
+value</p></li>
+<li><p><strong>impute(stag)</strong> imputes missing values in the
+<em>policyvar</em> under an assumption of no unobserved changes and
+staggered adoption. <em>policyvar</em> must satisfy staggered-adoption
+assumptions for all units: i) <em>policyvar</em> must be binaryl; ii)
 once <em>policyvar</em> reaches the adopted-policy state, it never
-reverts to the unadopted-policy state. See <a
-href="https://www.nber.org/papers/w29170">Freyaldenhoven et
-al. (2021)</a> for detailed explanation of the staggered case.
-Additionally in the <em>policyvar</em>, for each unit: i) the
-first-observed value must be the unadopted-policy-state value, and the
-last-observed value must be the adopted-policy-state value; or ii) all
-policy values in the observed data range must be either
-adopted-policy-state values or unadopted-policy-state values.</p></li>
-<li><p><strong>impute(instag)</strong> applies
-<strong>impute(stag)</strong> and additionally imputes missing values
-inside the observed data range: a missing value or a group of them will
-be imputed only if they are both preceded and followed by the
-unadopted-policy state or by the adopted-policy state.</p></li>
+reverts to the unadopted-policy state; iii) the first-observed value
+must be the unadopted-policy-state value, and the last-observed value
+must be the adopted-policy-state value, and iv) all <em>policyvar</em>
+values in the observed data range must be either adopted-policy-state
+values or unadopted-policy-state values.</p></li>
+<li><p><strong>impute(instag)</strong> imputes missing values in the
+<em>policyvar</em> under staggered adoption assumptions and additionally
+imputes missing values inside the observed data range: <em>xtevent</em>
+imputes a missing value or a group of them only if they are both
+preceded and followed by values corresponding to the unadopted-policy
+state or the adopted-policy state.</p></li>
 </ul>
 <h2 id="examples">Examples</h2>
-<p>Let’s see some examples of the different imputation rules of the
-<strong>impute</strong> option. We want to estimate dynamic effects of
-being a union member on the wage. We will use the National Longitudinal
-Survey.</p>
+<p>We want to estimate the dynamic effects of being a union member on
+the wage. We will use the National Longitudinal Survey data from Stata’s
+example datasets.</p>
 <pre class='stata'>. webuse nlswork, clear
 (National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
 </pre>
-<p>This dataset has many missing observations. For the example, we will
-create a time variable that ignores these gaps.</p>
+<p>This dataset has many missing observations. For the sake of the
+example, we will create a time variable that ignores these gaps.</p>
 <pre class='stata'>. by idcode (year): gen time=_n
 
 . xtset idcode time
@@ -252,9 +251,9 @@ create a time variable that ignores these gaps.</p>
         time variable:  time, 1 to 15
                 delta:  1 unit
 </pre>
-<p>For several units, the <em>policyvar</em> <em>union</em> reverts to
-the unadopted-policy-state. Let’s generate a <em>policyvar</em> that
-follows staggered-adoption.</p>
+<p>The <em>policyvar</em> <em>union</em> reverts to the
+unadopted-policy-state for several units. We generate a
+<em>policyvar</em> that follows staggered adoption.</p>
 <pre class='stata'>. by idcode (time): gen union2=sum(union)
 
 . replace union2=1 if union2>1 
@@ -262,8 +261,8 @@ follows staggered-adoption.</p>
 
 . order time union union2, after(year)
 </pre>
-<p>Let’s add some missing values for the example and see how the
-<em>policyvar</em> looks for unit 2.</p>
+<p>Now we add some missing values to the <em>policyvar</em> for this
+example and display how the <em>policyvar</em> looks for unit 2.</p>
 <pre class='stata'>. replace union2=. if idcode==2 &amp; inlist(time, 1,8,9,11,12)
 (5 real changes made, 5 to missing)
 
@@ -289,11 +288,11 @@ follows staggered-adoption.</p>
   └────────────────────────┘
 </pre>
 <h4 id="nuchange">nuchange</h4>
-<p>Now, let’s estimate an event-study where we will impute outer missing
-values in the <em>policyvar</em> without verifying staggered-adoption,
+<p>First, we estimate an event-study where we impute outer missing
+values in the <em>policyvar</em> without verifying staggered adoption,
 i.e., according to <strong>nuchange</strong>. We also want to add the
-new <em>policyvar</em> to the database by the <strong>saveimp</strong>
-suboption.</p>
+new <em>policyvar</em> to the database. We can do this using the
+<strong>saveimp</strong> suboption.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >     policyvar(union2) window(3) impute(nuchange, saveimp)
 
@@ -301,54 +300,54 @@ Using options panelvar and timevar from xtset
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =     22,877
-Absorbed variable: idcode                       No. of categories =      2,694
-                                                F(  27,  20156)   =     174.19
+Linear regression, absorbing indicators         Number of obs     =     23,533
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20735)   =     177.64
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.6701
-                                                Adj R-squared     =     0.6256
-                                                Root MSE          =     0.2851
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6211
+                                                Root MSE          =     0.2872
 
 ────────────────────┬────────────────────────────────────────────────────────────────
             ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 ────────────────────┼────────────────────────────────────────────────────────────────
-           _k_eq_m4 │  -.0426688   .0131367    -3.25   0.001    -.0684177   -.0169199
-           _k_eq_m3 │  -.0540115   .0148103    -3.65   0.000    -.0830409   -.0249822
-           _k_eq_m2 │  -.0422174   .0133608    -3.16   0.002    -.0684057   -.0160291
-           _k_eq_p0 │   .0881427   .0126766     6.95   0.000     .0632956    .1129898
-           _k_eq_p1 │   .0839043   .0131147     6.40   0.000     .0581985    .1096101
-           _k_eq_p2 │   .0796825   .0137776     5.78   0.000     .0526774    .1066877
-           _k_eq_p3 │   .0606217   .0147132     4.12   0.000     .0317825    .0894609
-           _k_eq_p4 │   .0283481   .0132207     2.14   0.032     .0024345    .0542618
-                age │   .0196494   .0040289     4.88   0.000     .0117524    .0275464
+           _k_eq_m4 │   -.044991   .0129656    -3.47   0.001    -.0704046   -.0195773
+           _k_eq_m3 │   -.056602   .0146577    -3.86   0.000    -.0853324   -.0278717
+           _k_eq_m2 │  -.0421076   .0132848    -3.17   0.002    -.0681469   -.0160683
+           _k_eq_p0 │    .089006   .0126565     7.03   0.000     .0641984    .1138137
+           _k_eq_p1 │   .0816302   .0130645     6.25   0.000     .0560227    .1072377
+           _k_eq_p2 │   .0805316   .0137205     5.87   0.000     .0536383    .1074249
+           _k_eq_p3 │   .0636236   .0146177     4.35   0.000     .0349717    .0922754
+           _k_eq_p4 │   .0299571   .0131044     2.29   0.022     .0042715    .0556428
+                age │   .0200429   .0039789     5.04   0.000      .012244    .0278418
                     │
-        c.age#c.age │  -.0005162   .0000599    -8.61   0.000    -.0006337   -.0003988
+        c.age#c.age │  -.0005227   .0000592    -8.83   0.000    -.0006388   -.0004067
                     │
-            ttl_exp │    .048873   .0036671    13.33   0.000     .0416853    .0560608
+            ttl_exp │   .0491641   .0035992    13.66   0.000     .0421095    .0562188
                     │
-c.ttl_exp#c.ttl_exp │  -.0004775   .0001341    -3.56   0.000    -.0007403   -.0002146
+c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.0001903
                     │
-             tenure │   .0096665   .0009371    10.32   0.000     .0078297    .0115032
+             tenure │    .009586   .0009319    10.29   0.000     .0077594    .0114126
                     │
                time │
-                 2  │    .058775   .0086904     6.76   0.000      .041741     .075809
-                 3  │   .0616701   .0104441     5.90   0.000     .0411988    .0821414
-                 4  │   .0645453   .0128146     5.04   0.000     .0394276    .0896631
-                 5  │   .0528849    .015525     3.41   0.001     .0224546    .0833153
-                 6  │   .0526472   .0185005     2.85   0.004     .0163848    .0889097
-                 7  │   .0391945   .0215651     1.82   0.069    -.0030748    .0814638
-                 8  │   .0310191     .02451     1.27   0.206    -.0170224    .0790606
-                 9  │   .0237829   .0273636     0.87   0.385    -.0298519    .0774177
-                10  │   .0110167   .0303628     0.36   0.717    -.0484968    .0705302
-                11  │   .0005248    .033287     0.02   0.987    -.0647205    .0657702
-                12  │  -.0044624   .0361144    -0.12   0.902    -.0752496    .0663248
-                13  │  -.0209216   .0395187    -0.53   0.597    -.0983816    .0565383
-                14  │   .0063342   .0439576     0.14   0.885    -.0798264    .0924947
-                15  │  -.0069669   .0515434    -0.14   0.892    -.1079961    .0940623
+                 2  │   .0560126   .0085424     6.56   0.000     .0392688    .0727564
+                 3  │   .0575009   .0102856     5.59   0.000     .0373404    .0776614
+                 4  │   .0602892   .0126124     4.78   0.000     .0355678    .0850106
+                 5  │   .0485475   .0152863     3.18   0.001     .0185852    .0785099
+                 6  │   .0484402   .0181939     2.66   0.008     .0127786    .0841017
+                 7  │   .0293352   .0212178     1.38   0.167    -.0122535    .0709238
+                 8  │     .02131   .0241125     0.88   0.377    -.0259524    .0685723
+                 9  │   .0151379   .0269115     0.56   0.574    -.0376107    .0678866
+                10  │   -.001417   .0298443    -0.05   0.962    -.0599142    .0570803
+                11  │  -.0124587    .032712    -0.38   0.703    -.0765768    .0516593
+                12  │   -.017273   .0355159    -0.49   0.627     -.086887    .0523411
+                13  │  -.0346884   .0388956    -0.89   0.372    -.1109267    .0415499
+                14  │  -.0097704   .0431507    -0.23   0.821    -.0943492    .0748084
+                15  │  -.0288539   .0509617    -0.57   0.571    -.1287429    .0710351
                     │
-              _cons │   1.224197    .061415    19.93   0.000     1.103819    1.344575
+              _cons │   1.221635   .0606818    20.13   0.000     1.102694    1.340576
 ────────────────────┴────────────────────────────────────────────────────────────────
-F test of absorbed indicators: F(2693, 20156) = 10.075        Prob > F = 0.000
+F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
 </pre>
 <p>Compare the original <em>policyvar</em> and the imputed
 <em>policyvar</em> for unit 2.</p>
@@ -377,8 +376,8 @@ F test of absorbed indicators: F(2693, 20156) = 10.075        Prob > F = 0.000
 <pre class='stata'>. drop union2_imputed
 </pre>
 <h4 id="stag">stag</h4>
-<p>Now, let’s estimate an event-study imputing outer missing values in
-the <em>policyvar</em> verifying staggered-adoption, i.e., according to
+<p>Now, we estimate an event-study imputing outer missing values in the
+<em>policyvar</em> verifying staggered adoption, i.e., according to
 <strong>stag</strong>, and save the imputed <em>policyvar</em>.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >             policyvar(union2) window(3) impute(stag, saveimp)
@@ -387,54 +386,54 @@ Using options panelvar and timevar from xtset
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =     22,877
-Absorbed variable: idcode                       No. of categories =      2,694
-                                                F(  27,  20156)   =     174.19
+Linear regression, absorbing indicators         Number of obs     =     23,533
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20735)   =     177.64
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.6701
-                                                Adj R-squared     =     0.6256
-                                                Root MSE          =     0.2851
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6211
+                                                Root MSE          =     0.2872
 
 ────────────────────┬────────────────────────────────────────────────────────────────
             ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 ────────────────────┼────────────────────────────────────────────────────────────────
-           _k_eq_m4 │  -.0426688   .0131367    -3.25   0.001    -.0684177   -.0169199
-           _k_eq_m3 │  -.0540115   .0148103    -3.65   0.000    -.0830409   -.0249822
-           _k_eq_m2 │  -.0422174   .0133608    -3.16   0.002    -.0684057   -.0160291
-           _k_eq_p0 │   .0881427   .0126766     6.95   0.000     .0632956    .1129898
-           _k_eq_p1 │   .0839043   .0131147     6.40   0.000     .0581985    .1096101
-           _k_eq_p2 │   .0796825   .0137776     5.78   0.000     .0526774    .1066877
-           _k_eq_p3 │   .0606217   .0147132     4.12   0.000     .0317825    .0894609
-           _k_eq_p4 │   .0283481   .0132207     2.14   0.032     .0024345    .0542618
-                age │   .0196494   .0040289     4.88   0.000     .0117524    .0275464
+           _k_eq_m4 │   -.044991   .0129656    -3.47   0.001    -.0704046   -.0195773
+           _k_eq_m3 │   -.056602   .0146577    -3.86   0.000    -.0853324   -.0278717
+           _k_eq_m2 │  -.0421076   .0132848    -3.17   0.002    -.0681469   -.0160683
+           _k_eq_p0 │    .089006   .0126565     7.03   0.000     .0641984    .1138137
+           _k_eq_p1 │   .0816302   .0130645     6.25   0.000     .0560227    .1072377
+           _k_eq_p2 │   .0805316   .0137205     5.87   0.000     .0536383    .1074249
+           _k_eq_p3 │   .0636236   .0146177     4.35   0.000     .0349717    .0922754
+           _k_eq_p4 │   .0299571   .0131044     2.29   0.022     .0042715    .0556428
+                age │   .0200429   .0039789     5.04   0.000      .012244    .0278418
                     │
-        c.age#c.age │  -.0005162   .0000599    -8.61   0.000    -.0006337   -.0003988
+        c.age#c.age │  -.0005227   .0000592    -8.83   0.000    -.0006388   -.0004067
                     │
-            ttl_exp │    .048873   .0036671    13.33   0.000     .0416853    .0560608
+            ttl_exp │   .0491641   .0035992    13.66   0.000     .0421095    .0562188
                     │
-c.ttl_exp#c.ttl_exp │  -.0004775   .0001341    -3.56   0.000    -.0007403   -.0002146
+c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.0001903
                     │
-             tenure │   .0096665   .0009371    10.32   0.000     .0078297    .0115032
+             tenure │    .009586   .0009319    10.29   0.000     .0077594    .0114126
                     │
                time │
-                 2  │    .058775   .0086904     6.76   0.000      .041741     .075809
-                 3  │   .0616701   .0104441     5.90   0.000     .0411988    .0821414
-                 4  │   .0645453   .0128146     5.04   0.000     .0394276    .0896631
-                 5  │   .0528849    .015525     3.41   0.001     .0224546    .0833153
-                 6  │   .0526472   .0185005     2.85   0.004     .0163848    .0889097
-                 7  │   .0391945   .0215651     1.82   0.069    -.0030748    .0814638
-                 8  │   .0310191     .02451     1.27   0.206    -.0170224    .0790606
-                 9  │   .0237829   .0273636     0.87   0.385    -.0298519    .0774177
-                10  │   .0110167   .0303628     0.36   0.717    -.0484968    .0705302
-                11  │   .0005248    .033287     0.02   0.987    -.0647205    .0657702
-                12  │  -.0044624   .0361144    -0.12   0.902    -.0752496    .0663248
-                13  │  -.0209216   .0395187    -0.53   0.597    -.0983816    .0565383
-                14  │   .0063342   .0439576     0.14   0.885    -.0798264    .0924947
-                15  │  -.0069669   .0515434    -0.14   0.892    -.1079961    .0940623
+                 2  │   .0560126   .0085424     6.56   0.000     .0392688    .0727564
+                 3  │   .0575009   .0102856     5.59   0.000     .0373404    .0776614
+                 4  │   .0602892   .0126124     4.78   0.000     .0355678    .0850106
+                 5  │   .0485475   .0152863     3.18   0.001     .0185852    .0785099
+                 6  │   .0484402   .0181939     2.66   0.008     .0127786    .0841017
+                 7  │   .0293352   .0212178     1.38   0.167    -.0122535    .0709238
+                 8  │     .02131   .0241125     0.88   0.377    -.0259524    .0685723
+                 9  │   .0151379   .0269115     0.56   0.574    -.0376107    .0678866
+                10  │   -.001417   .0298443    -0.05   0.962    -.0599142    .0570803
+                11  │  -.0124587    .032712    -0.38   0.703    -.0765768    .0516593
+                12  │   -.017273   .0355159    -0.49   0.627     -.086887    .0523411
+                13  │  -.0346884   .0388956    -0.89   0.372    -.1109267    .0415499
+                14  │  -.0097704   .0431507    -0.23   0.821    -.0943492    .0748084
+                15  │  -.0288539   .0509617    -0.57   0.571    -.1287429    .0710351
                     │
-              _cons │   1.224197    .061415    19.93   0.000     1.103819    1.344575
+              _cons │   1.221635   .0606818    20.13   0.000     1.102694    1.340576
 ────────────────────┴────────────────────────────────────────────────────────────────
-F test of absorbed indicators: F(2693, 20156) = 10.075        Prob > F = 0.000
+F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
 </pre>
 <p>Compare the original <em>policyvar</em> and the imputed
 <em>policyvar</em> for unit 2.</p>
@@ -463,8 +462,8 @@ F test of absorbed indicators: F(2693, 20156) = 10.075        Prob > F = 0.000
 <pre class='stata'>. drop union2_imputed
 </pre>
 <h4 id="instag">instag</h4>
-<p>Now, let’s estimate an event-study imputing outer and inner missing
-values in the <em>policyvar</em> verifying staggered-adoption, i.e.,
+<p>Last, we estimate an event-study imputing outer and inner missing
+values in the <em>policyvar</em> verifying staggered adoption, i.e.,
 according to <strong>instag</strong>, and save the imputed
 <em>policyvar</em>.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
@@ -474,54 +473,54 @@ Using options panelvar and timevar from xtset
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =     22,885
-Absorbed variable: idcode                       No. of categories =      2,694
-                                                F(  27,  20164)   =     174.37
+Linear regression, absorbing indicators         Number of obs     =     23,541
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20743)   =     177.82
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.6701
-                                                Adj R-squared     =     0.6256
-                                                Root MSE          =     0.2850
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6212
+                                                Root MSE          =     0.2872
 
 ────────────────────┬────────────────────────────────────────────────────────────────
             ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 ────────────────────┼────────────────────────────────────────────────────────────────
-           _k_eq_m4 │  -.0426694    .013134    -3.25   0.001    -.0684132   -.0169256
-           _k_eq_m3 │  -.0539937   .0148069    -3.65   0.000    -.0830165   -.0249709
-           _k_eq_m2 │  -.0422109   .0133581    -3.16   0.002     -.068394   -.0160279
-           _k_eq_p0 │   .0881611   .0126701     6.96   0.000     .0633266    .1129956
-           _k_eq_p1 │   .0838372   .0131075     6.40   0.000     .0581453     .109529
-           _k_eq_p2 │   .0795712   .0137695     5.78   0.000     .0525819    .1065604
-           _k_eq_p3 │   .0605613   .0147034     4.12   0.000     .0317414    .0893812
-           _k_eq_p4 │   .0283394   .0132114     2.15   0.032      .002444    .0542349
-                age │   .0196417   .0040278     4.88   0.000     .0117468    .0275366
+           _k_eq_m4 │  -.0449924   .0129631    -3.47   0.001    -.0704011   -.0195837
+           _k_eq_m3 │  -.0565855   .0146546    -3.86   0.000    -.0853096   -.0278614
+           _k_eq_m2 │  -.0421016   .0132823    -3.17   0.002    -.0681359   -.0160673
+           _k_eq_p0 │    .089023   .0126502     7.04   0.000     .0642277    .1138183
+           _k_eq_p1 │   .0815659   .0130576     6.25   0.000     .0559719    .1071598
+           _k_eq_p2 │   .0804259   .0137127     5.87   0.000      .053548    .1073037
+           _k_eq_p3 │   .0635638   .0146083     4.35   0.000     .0349305    .0921971
+           _k_eq_p4 │   .0299474   .0130957     2.29   0.022     .0042789    .0556159
+                age │   .0200353   .0039778     5.04   0.000     .0122385    .0278322
                     │
-        c.age#c.age │  -.0005161   .0000599    -8.61   0.000    -.0006335   -.0003987
+        c.age#c.age │  -.0005226   .0000592    -8.83   0.000    -.0006386   -.0004065
                     │
-            ttl_exp │   .0488691   .0036658    13.33   0.000     .0416839    .0560543
+            ttl_exp │   .0491603   .0035979    13.66   0.000     .0421082    .0562125
                     │
-c.ttl_exp#c.ttl_exp │  -.0004773   .0001341    -3.56   0.000    -.0007401   -.0002145
+c.ttl_exp#c.ttl_exp │  -.0004479   .0001315    -3.41   0.001    -.0007057   -.0001902
                     │
-             tenure │    .009665   .0009366    10.32   0.000     .0078292    .0115007
+             tenure │   .0095845   .0009314    10.29   0.000     .0077588    .0114102
                     │
                time │
-                 2  │   .0587788   .0086886     6.77   0.000     .0417485    .0758091
-                 3  │   .0616812   .0104416     5.91   0.000     .0412148    .0821476
-                 4  │   .0645673   .0128114     5.04   0.000     .0394559    .0896786
-                 5  │     .05292   .0155204     3.41   0.001     .0224988    .0833411
-                 6  │   .0526476   .0184946     2.85   0.004     .0163967    .0888985
-                 7  │    .039172   .0215588     1.82   0.069     -.003085    .0814289
-                 8  │   .0310151   .0245032     1.27   0.206    -.0170132    .0790433
-                 9  │   .0238217   .0273557     0.87   0.384    -.0297976    .0774411
-                10  │   .0110269   .0303544     0.36   0.716    -.0484701     .070524
-                11  │    .000538   .0332784     0.02   0.987    -.0646903    .0657663
-                12  │  -.0044897   .0361042    -0.12   0.901    -.0752568    .0662774
-                13  │  -.0209286   .0395095    -0.53   0.596    -.0983704    .0565132
-                14  │   .0063175   .0439478     0.14   0.886    -.0798237    .0924588
-                15  │  -.0069889   .0515324    -0.14   0.892    -.1079966    .0940188
+                 2  │   .0560166   .0085406     6.56   0.000     .0392763    .0727568
+                 3  │   .0575122   .0102831     5.59   0.000     .0373564     .077668
+                 4  │   .0603109   .0126093     4.78   0.000     .0355958    .0850261
+                 5  │   .0485817   .0152818     3.18   0.001     .0186282    .0785352
+                 6  │   .0484417   .0181883     2.66   0.008     .0127912    .0840921
+                 7  │   .0293154   .0212118     1.38   0.167    -.0122613    .0708922
+                 8  │    .021307   .0241059     0.88   0.377    -.0259425    .0685565
+                 9  │   .0151769   .0269039     0.56   0.573    -.0375569    .0679106
+                10  │  -.0014045   .0298363    -0.05   0.962     -.059886    .0570769
+                11  │  -.0124446   .0327037    -0.38   0.704    -.0765463    .0516572
+                12  │  -.0173009    .035506    -0.49   0.626    -.0868955    .0522938
+                13  │  -.0346925   .0388867    -0.89   0.372    -.1109135    .0415284
+                14  │  -.0097838   .0431413    -0.23   0.821    -.0943442    .0747766
+                15  │  -.0288719   .0509512    -0.57   0.571    -.1287403    .0709964
                     │
-              _cons │   1.224299   .0613977    19.94   0.000     1.103954    1.344643
+              _cons │   1.221736   .0606651    20.14   0.000     1.102827    1.340644
 ────────────────────┴────────────────────────────────────────────────────────────────
-F test of absorbed indicators: F(2693, 20164) = 10.079        Prob > F = 0.000
+F test of absorbed indicators: F(2770, 20743) = 9.924         Prob > F = 0.000
 </pre>
 <p>Compare the original <em>policyvar</em> and the imputed
 <em>policyvar</em> for unit 2.</p>
@@ -548,12 +547,12 @@ F test of absorbed indicators: F(2693, 20164) = 10.079        Prob > F = 0.000
 </pre>
 <h2 id="how-the-imputation-works-on-the-event-time-dummies">How the
 imputation works on the event-time dummies</h2>
-<p>Finally, let’s see how the imputation works on the event-time
-dummies. First, we differentiate the <em>policyvar</em>.</p>
+<p>Now we display how the imputation works on the event-time dummies.
+First, we differentiate the <em>policyvar</em>.</p>
 <pre class='stata'>. gen union2_d=d.union2
 (4,717 missing values generated)
 </pre>
-<p>Estimate an event-study without imputing the <em>policyvar</em> and
+<p>Estimate an event study without imputing the <em>policyvar</em> and
 save the event-time dummies by the <em>savek</em> option.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >     policyvar(union2) window(3) savek(vv)
@@ -562,51 +561,51 @@ Using options panelvar and timevar from xtset
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =      5,629
-Absorbed variable: idcode                       No. of categories =      1,589
-                                                F(  20,   4020)   =      16.56
+Linear regression, absorbing indicators         Number of obs     =      5,672
+Absorbed variable: idcode                       No. of categories =      1,600
+                                                F(  20,   4052)   =      16.82
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.8039
-                                                Adj R-squared     =     0.7255
-                                                Root MSE          =     0.2158
+                                                R-squared         =     0.8030
+                                                Adj R-squared     =     0.7243
+                                                Root MSE          =     0.2162
 
 ────────────────────┬────────────────────────────────────────────────────────────────
             ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 ────────────────────┼────────────────────────────────────────────────────────────────
-           _k_eq_m4 │   -.043966   .0269874    -1.63   0.103    -.0968762    .0089442
-           _k_eq_m3 │  -.0415434   .0246832    -1.68   0.092    -.0899362    .0068495
-           _k_eq_m2 │  -.0483384   .0221456    -2.18   0.029     -.091756   -.0049208
-           _k_eq_p0 │   .0409026   .0215966     1.89   0.058    -.0014386    .0832439
-           _k_eq_p1 │   .0178648   .0228461     0.78   0.434    -.0269262    .0626557
-           _k_eq_p2 │   .0257693   .0247226     1.04   0.297    -.0227007    .0742394
-           _k_eq_p3 │   .0125174   .0275682     0.45   0.650    -.0415316    .0665664
-           _k_eq_p4 │  -.0131412   .0300731    -0.44   0.662    -.0721011    .0458186
-                age │  -.0092482   .0146948    -0.63   0.529    -.0380582    .0195619
+           _k_eq_m4 │  -.0486214   .0268491    -1.81   0.070    -.1012604    .0040177
+           _k_eq_m3 │  -.0501976   .0245746    -2.04   0.041    -.0983773   -.0020179
+           _k_eq_m2 │   -.052895   .0219346    -2.41   0.016     -.095899   -.0098911
+           _k_eq_p0 │   .0405804   .0215074     1.89   0.059     -.001586    .0827468
+           _k_eq_p1 │   .0206119    .022553     0.91   0.361    -.0236043    .0648281
+           _k_eq_p2 │   .0282941   .0244515     1.16   0.247    -.0196443    .0762325
+           _k_eq_p3 │   .0152028   .0273227     0.56   0.578    -.0383647    .0687703
+           _k_eq_p4 │  -.0092743   .0298438    -0.31   0.756    -.0677845    .0492359
+                age │  -.0080527   .0146572    -0.55   0.583    -.0367888    .0206835
                     │
-        c.age#c.age │   -.000205   .0002251    -0.91   0.363    -.0006463    .0002363
+        c.age#c.age │  -.0002118   .0002247    -0.94   0.346    -.0006524    .0002287
                     │
-            ttl_exp │   .0419136   .0107666     3.89   0.000     .0208052    .0630221
+            ttl_exp │    .040395   .0105632     3.82   0.000     .0196853    .0611047
                     │
-c.ttl_exp#c.ttl_exp │  -.0006619   .0004468    -1.48   0.139    -.0015379    .0002142
+c.ttl_exp#c.ttl_exp │  -.0006165   .0004356    -1.42   0.157    -.0014706    .0002375
                     │
-             tenure │   .0077222   .0019094     4.04   0.000     .0039788    .0114657
+             tenure │   .0074825   .0018953     3.95   0.000     .0037666    .0111984
                     │
                time │
-                 6  │   .0286525    .013708     2.09   0.037     .0017773    .0555278
-                 7  │   .0389628   .0242012     1.61   0.107     -.008485    .0864105
-                 8  │   .0690636   .0346343     1.99   0.046     .0011612     .136966
-                 9  │   .0936788   .0443348     2.11   0.035     .0067581    .1805995
-                10  │   .0970093    .055501     1.75   0.081    -.0118035    .2058221
-                11  │    .117309   .0662891     1.77   0.077    -.0126544    .2472723
-                12  │   .1389331   .0757329     1.83   0.067    -.0095453    .2874115
+                 6  │   .0274323   .0136636     2.01   0.045     .0006441    .0542204
+                 7  │   .0364149   .0241351     1.51   0.131    -.0109032     .083733
+                 8  │   .0677196     .03455     1.96   0.050    -.0000174    .1354565
+                 9  │   .0935328   .0442389     2.11   0.035     .0068002    .1802655
+                10  │   .0944863   .0554168     1.71   0.088     -.014161    .2031336
+                11  │   .1177996   .0662023     1.78   0.075    -.0119933    .2475924
+                12  │    .134973   .0756575     1.78   0.074    -.0133573    .2833033
                     │
-              _cons │   1.883213   .2462565     7.65   0.000     1.400414    2.366013
+              _cons │   1.864822   .2456629     7.59   0.000     1.383187    2.346456
 ────────────────────┴────────────────────────────────────────────────────────────────
-F test of absorbed indicators: F(1588, 4020) = 8.341          Prob > F = 0.000
+F test of absorbed indicators: F(1599, 4052) = 8.310          Prob > F = 0.000
 </pre>
-<p>Now, let’s see some of the event-time dummies for a unit. We can
-verify that this set of event-time dummies correspond to different leads
-of the differentiated <em>policyvar</em> (see equation 2 in <a
+<p>Now, we display the event-time dummies for a unit. We can verify that
+this set of event-time dummies corresponds to different leads of the
+differentiated <em>policyvar</em> (see equation 2 in <a
 href="https://www.nber.org/papers/w29170">Freyaldenhoven et
 al. (2021)</a>).</p>
 <pre class='stata'>. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
@@ -636,7 +635,7 @@ al. (2021)</a>).</p>
 <p>Drop the event-time dummies.</p>
 <pre class='stata'>. drop vv*
 </pre>
-<p>Estimate the same model, but indicating to impute according to
+<p>Estimate the same model, but with imputation according to
 <strong>stag</strong>.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 > policyvar(union2) window(3) savek(vv) impute(stag)
@@ -645,60 +644,60 @@ Using options panelvar and timevar from xtset
 
 No proxy or instruments provided. Implementing OLS estimator
 
-Linear regression, absorbing indicators         Number of obs     =     22,877
-Absorbed variable: idcode                       No. of categories =      2,694
-                                                F(  27,  20156)   =     174.19
+Linear regression, absorbing indicators         Number of obs     =     23,533
+Absorbed variable: idcode                       No. of categories =      2,771
+                                                F(  27,  20735)   =     177.64
                                                 Prob > F          =     0.0000
-                                                R-squared         =     0.6701
-                                                Adj R-squared     =     0.6256
-                                                Root MSE          =     0.2851
+                                                R-squared         =     0.6662
+                                                Adj R-squared     =     0.6211
+                                                Root MSE          =     0.2872
 
 ────────────────────┬────────────────────────────────────────────────────────────────
             ln_wage │      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
 ────────────────────┼────────────────────────────────────────────────────────────────
-           _k_eq_m4 │  -.0426688   .0131367    -3.25   0.001    -.0684177   -.0169199
-           _k_eq_m3 │  -.0540115   .0148103    -3.65   0.000    -.0830409   -.0249822
-           _k_eq_m2 │  -.0422174   .0133608    -3.16   0.002    -.0684057   -.0160291
-           _k_eq_p0 │   .0881427   .0126766     6.95   0.000     .0632956    .1129898
-           _k_eq_p1 │   .0839043   .0131147     6.40   0.000     .0581985    .1096101
-           _k_eq_p2 │   .0796825   .0137776     5.78   0.000     .0526774    .1066877
-           _k_eq_p3 │   .0606217   .0147132     4.12   0.000     .0317825    .0894609
-           _k_eq_p4 │   .0283481   .0132207     2.14   0.032     .0024345    .0542618
-                age │   .0196494   .0040289     4.88   0.000     .0117524    .0275464
+           _k_eq_m4 │   -.044991   .0129656    -3.47   0.001    -.0704046   -.0195773
+           _k_eq_m3 │   -.056602   .0146577    -3.86   0.000    -.0853324   -.0278717
+           _k_eq_m2 │  -.0421076   .0132848    -3.17   0.002    -.0681469   -.0160683
+           _k_eq_p0 │    .089006   .0126565     7.03   0.000     .0641984    .1138137
+           _k_eq_p1 │   .0816302   .0130645     6.25   0.000     .0560227    .1072377
+           _k_eq_p2 │   .0805316   .0137205     5.87   0.000     .0536383    .1074249
+           _k_eq_p3 │   .0636236   .0146177     4.35   0.000     .0349717    .0922754
+           _k_eq_p4 │   .0299571   .0131044     2.29   0.022     .0042715    .0556428
+                age │   .0200429   .0039789     5.04   0.000      .012244    .0278418
                     │
-        c.age#c.age │  -.0005162   .0000599    -8.61   0.000    -.0006337   -.0003988
+        c.age#c.age │  -.0005227   .0000592    -8.83   0.000    -.0006388   -.0004067
                     │
-            ttl_exp │    .048873   .0036671    13.33   0.000     .0416853    .0560608
+            ttl_exp │   .0491641   .0035992    13.66   0.000     .0421095    .0562188
                     │
-c.ttl_exp#c.ttl_exp │  -.0004775   .0001341    -3.56   0.000    -.0007403   -.0002146
+c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.0001903
                     │
-             tenure │   .0096665   .0009371    10.32   0.000     .0078297    .0115032
+             tenure │    .009586   .0009319    10.29   0.000     .0077594    .0114126
                     │
                time │
-                 2  │    .058775   .0086904     6.76   0.000      .041741     .075809
-                 3  │   .0616701   .0104441     5.90   0.000     .0411988    .0821414
-                 4  │   .0645453   .0128146     5.04   0.000     .0394276    .0896631
-                 5  │   .0528849    .015525     3.41   0.001     .0224546    .0833153
-                 6  │   .0526472   .0185005     2.85   0.004     .0163848    .0889097
-                 7  │   .0391945   .0215651     1.82   0.069    -.0030748    .0814638
-                 8  │   .0310191     .02451     1.27   0.206    -.0170224    .0790606
-                 9  │   .0237829   .0273636     0.87   0.385    -.0298519    .0774177
-                10  │   .0110167   .0303628     0.36   0.717    -.0484968    .0705302
-                11  │   .0005248    .033287     0.02   0.987    -.0647205    .0657702
-                12  │  -.0044624   .0361144    -0.12   0.902    -.0752496    .0663248
-                13  │  -.0209216   .0395187    -0.53   0.597    -.0983816    .0565383
-                14  │   .0063342   .0439576     0.14   0.885    -.0798264    .0924947
-                15  │  -.0069669   .0515434    -0.14   0.892    -.1079961    .0940623
+                 2  │   .0560126   .0085424     6.56   0.000     .0392688    .0727564
+                 3  │   .0575009   .0102856     5.59   0.000     .0373404    .0776614
+                 4  │   .0602892   .0126124     4.78   0.000     .0355678    .0850106
+                 5  │   .0485475   .0152863     3.18   0.001     .0185852    .0785099
+                 6  │   .0484402   .0181939     2.66   0.008     .0127786    .0841017
+                 7  │   .0293352   .0212178     1.38   0.167    -.0122535    .0709238
+                 8  │     .02131   .0241125     0.88   0.377    -.0259524    .0685723
+                 9  │   .0151379   .0269115     0.56   0.574    -.0376107    .0678866
+                10  │   -.001417   .0298443    -0.05   0.962    -.0599142    .0570803
+                11  │  -.0124587    .032712    -0.38   0.703    -.0765768    .0516593
+                12  │   -.017273   .0355159    -0.49   0.627     -.086887    .0523411
+                13  │  -.0346884   .0388956    -0.89   0.372    -.1109267    .0415499
+                14  │  -.0097704   .0431507    -0.23   0.821    -.0943492    .0748084
+                15  │  -.0288539   .0509617    -0.57   0.571    -.1287429    .0710351
                     │
-              _cons │   1.224197    .061415    19.93   0.000     1.103819    1.344575
+              _cons │   1.221635   .0606818    20.13   0.000     1.102694    1.340576
 ────────────────────┴────────────────────────────────────────────────────────────────
-F test of absorbed indicators: F(2693, 20156) = 10.075        Prob > F = 0.000
+F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
 </pre>
-<p>Now, let’s see some of the event-time dummies for the same unit. We
-can verify that the event-time dummies have been imputed despite of the
+<p>Now, we display the event-time dummies for the same unit. We can
+verify that <em>xtevent</em> imputed event-time dummies despite the
 <em>policyvar</em> not having missing values in its observed data range.
-This happens because the imputation works on both the observed and the
-unobserved data range of the <em>policyvar</em>.</p>
+This imputation happens because the imputation works on both the
+observed and the unobserved data range of the <em>policyvar</em>.</p>
 <pre class='stata'>. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
 
   ┌───────────────────────────────────────────────────────────────────────────────┐
