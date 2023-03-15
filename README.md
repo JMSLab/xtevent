@@ -25,7 +25,7 @@
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.1.0)  for the complete update list.
     
 * **Version 2.0.0 (24jun2022)**:
-    - **To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use *impute(stag)*.** The **impute** option imputes missing values in the *policyvar* following different rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows staggered adoption. See [here](https://raw.githack.com/JMSLab/xtevent/issue120_integrate_impute_documentation/issue120/impute_option_description.html) for a detailed explanation of the **impute** option.
+    - **To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use *impute(stag)*.** The **impute** option imputes missing values in the *policyvar* following different rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows staggered adoption. For a detailed explanation of the **impute** option, see this [detailed example](https://rawcdn.githack.com/JMSLab/xtevent/cf16d12f90ddf363df62c397cf0e9dc05bbd9875/impute_option_description.html).
     - The option `nonstaggered` has been depreciated. The default option is now not to impute missing values or endpoints.   You should now choose any of the imputation rules in the `impute` option. To get results using imputation consistent with staggered adoption, as in version 1.0.0 you should use `impute(stag)`.
     - Now the option `trend` allows for trend adjustment by either OLS or GMM.
     - Fixed several bugs present in version 1.0.0
