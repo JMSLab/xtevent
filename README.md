@@ -109,7 +109,7 @@ order time union union2, after(year)
 
 *** Examples
 *Estimate a basic event study with clustered standard errors 
-*Impute policy variable assuming no unobserved changes
+*Impute the policy variable assuming no unobserved changes
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange)
 	   
@@ -134,42 +134,42 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union2) w(3) impute(stag) cluster(idcode year) reghdfe ///
             proxy(wks_work) 
             
-*Sun and Abraham Estimator
+*Sun and Abraham (2021) Estimator
 *generate the variable that indicates cohort
-gen timet=year if union==1
+gen timet=year if union2==1
 by idcode: egen time_of_treat=min(timet)
-*generate the variable that indicates the control cohort. 
-*we use the never treated units as the control cohort. 
+*generate the variable that indicates the control cohort 
+*we use the never treated units as the control cohort 
 gen never_treat=time_of_treat==.
-*estimate the event-time coefficients with the Sun-and-Abraham Estimator.
+*estimate the event-time coefficients with the Sun-and-Abraham (2021) Estimator
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
-            policyvar(union) window(3) impute(nuchange) vce(cluster idcode) ///
+            policyvar(union2) window(3) impute(stag) vce(cluster idcode) ///
             reghdfe cohort(time_of_treat) control_cohort(never_treat) 
 
 ```
 
 #### xteventplot
 ```stata
-*** setup
+*** Setup
 webuse nlswork, clear
 * year variable has many missing observations
 * Create a time variable that ignores the gaps
 by idcode (year): gen time=_n
 xtset idcode time
 
-*** examples 
-*Basic event study with clustered standard errors. 
-*Impute policy variable without verifying staggered adoption.
+*** Examples 
+*Basic event study with clustered standard errors 
+*Impute the policy variable assuming no unobserved changes
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange) 
 
-* simple plot
+* Simple plot
 xteventplot
 
 *Plot smoothest path in confidence region
 xteventplot, smpath(line)
 
-*FHS estimator with proxy variables
+*Freyaldenhoven, Hansen and Shapiro (2019) estimator with proxy variables
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) vce(cluster idcode) impute(nuchange) ///
             proxy(wks_work)
@@ -189,7 +189,7 @@ xtset idcode year
 
 *** examples 
 *Basic event study with clustered standard errors. 
-*Impute policy variable without verifying staggered adoption.
+*Impute the policy variable assuming no unobserved changes
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             pol(union) w(3) cluster(idcode) impute(nuchange) 
 
