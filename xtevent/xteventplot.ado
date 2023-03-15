@@ -1,4 +1,4 @@
-* xteventplot.ado 2.2.0 Aug 12 2022
+*! xteventplot.ado 2.2.0 Mar 15 2023
 
 version 11.2
 
