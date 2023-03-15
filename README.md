@@ -7,14 +7,22 @@
 `xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
-- Last version: 2.2.0 (29sep2022)
+- Last version: 2.2.0 (15mar2023)
 - Current SSC version: 2.1.0 (1aug2022)
 -----------
 
 ### Updates
 
+* **Version 2.2.0 (15mar2023)**:
+    - Add `cohort` and `control_cohort` to obtain estimates using [Sun and Abraham's (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) method.
+    - Add `repeatedcs`option to estimate event-studies in repeated cross-section settings.
+    - Add `noestimate` option to `savek()` to generate event-time dummies without estimating the regression model.
+    - Enable clustered and robust standard erros for IV estimation without `reghdfe`.
+    - Fixed bugs present in version 2.1.1.    
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.2.2) for the complete update list.
+
 * **Version 2.1.1 (12aug2022)**:
-    - Fixed bugs present in xtevent 2.1.0.
+    - Fixed bugs present in version 2.1.0.
     - Updates in the help files and other documentation.
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.1.1)  for the complete update list.
     
@@ -28,7 +36,7 @@
     - **To produce equivalent results as with xtevent 1.0.0, where the default was to impute the endpoints, the user should use *impute(stag)*.** The **impute** option imputes missing values in the *policyvar* following different rules. For instance, specifying **impute(stag)** indicates the program to check before imputing if the *policyvar* follows staggered adoption. For a detailed explanation of the **impute** option, see this [detailed example](https://rawcdn.githack.com/JMSLab/xtevent/cf16d12f90ddf363df62c397cf0e9dc05bbd9875/impute_option_description.html).
     - The option `nonstaggered` has been depreciated. The default option is now not to impute missing values or endpoints.   You should now choose any of the imputation rules in the `impute` option. To get results using imputation consistent with staggered adoption, as in version 1.0.0 you should use `impute(stag)`.
     - Now the option `trend` allows for trend adjustment by either OLS or GMM.
-    - Fixed several bugs present in version 1.0.0
+    - Fixed several bugs present in version 1.0.0.
     - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.0.0)  for the complete update list.
     
 -----------
@@ -83,7 +91,7 @@ help xtevent
 
 ### Examples
 
-Using xtevent 2.1.1
+Using xtevent 2.2.0
 
 #### xtevent
 ```stata
