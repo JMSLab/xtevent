@@ -139,7 +139,7 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 gen timet=year if union2==1
 by idcode: egen time_of_treat=min(timet)
 *generate the variable that indicates the control cohort 
-*we use the never treated units as the control cohort 
+*we use the never-treated units as the control cohort 
 gen never_treat=time_of_treat==.
 *estimate the event-time coefficients with the Sun-and-Abraham (2021) Estimator
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
