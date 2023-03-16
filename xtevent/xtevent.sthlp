@@ -422,6 +422,7 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 {it:Journal of Econometrics}, 225 (2): 175-199.
 
 {title:Acknowledgements}
-{pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
-Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Richard Calvo, Emily Wang, Theresa Doppstadt, Matthias Weigand,
-Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing earlier versions of this command.
+{pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Richard Calvo, Constantino Carreto, Kathryn Dawson-Townsend, Theresa Doppstadt,
+ Ángel Espinoza, Miguel Fajardo-Steinhauser Samuele Giambra, Ray Huang, Chandra Kant Dhakal, Panagiotis Konstantinou, Per Lidbom,
+ Isabel Z. Martínez, Diego Mayorga, Eric Melse, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Emily Wang, Matthias Weigand,
+ and Wenli Xu for contributions to development and for testing earlier versions of this command.
