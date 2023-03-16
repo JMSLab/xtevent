@@ -102,6 +102,7 @@ webuse nlswork, clear
 by idcode (year): gen time=_n
 xtset idcode time
 
+
 *Generate a policy variable that follows staggered adoption
 by idcode (time): gen union2=sum(union)
 replace union2=1 if union2>1 
@@ -121,12 +122,12 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 * Bring back unit and time fixed effects
 *Adjust for a pre-trend by estimating a linear trend by GMM
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union2) w(3) cluster(idcode) trend(-2, method(gmm)) ///
+      pol(union2) w(3) cluster(idcode) trend(-2, method(gmm)) ///
 	    impute(stag)
 			
 *Freyaldenhoven, Hansen and Shapiro (2019) estimator with proxy variables
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) vce(cluster idcode) proxy(wks_work) ///
+      pol(union) w(3) vce(cluster idcode) proxy(wks_work) ///
 	    impute(stag)
 			          
 *reghdfe and two-way clustering
@@ -135,21 +136,21 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             proxy(wks_work) 
             
 *Sun and Abraham (2021) Estimator
-*generate the variable that indicates cohort
+*Generate the variable that indicates cohort
 gen timet=year if union2==1
 by idcode: egen time_of_treat=min(timet)
-*generate the variable that indicates the control cohort 
-*we use the never-treated units as the control cohort 
+*Generate the variable that indicates the control cohort 
+*We use the never-treated units as the control cohort 
 gen never_treat=time_of_treat==.
 *estimate the event-time coefficients with the Sun-and-Abraham (2021) Estimator
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
-            policyvar(union2) window(3) impute(stag) vce(cluster idcode) ///
+            policyvar(union2) window(3) impute(stag) vce(cluster idcode) ///			
             reghdfe cohort(time_of_treat) control_cohort(never_treat) 
-
 ```
 
 #### xteventplot
 ```stata
+
 *** Setup
 webuse nlswork, clear
 * year variable has many missing observations

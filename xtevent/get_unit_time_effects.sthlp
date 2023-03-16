@@ -9,7 +9,6 @@
 {phang}
 {bf:get_unit_time_effects} {hline 2} Generate Group and Time Effects in a Repeated Cross-Sectional Dataset
 
-
 {marker syntax}{...}
 {title:Syntax}
 
@@ -120,4 +119,3 @@ variables {it:panelvar}, {it:timevar}, and {it:_unittimeeffects}. The variable {
 with Serial Correlation and Fixed Effects" Journal of Econometrics, 140(2), 670-694.{p_end}
 
  
-

@@ -444,7 +444,7 @@ program define xteventplot
 		
 		_return restore smpathparse			
 		cap noi mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.,Wcrit=.,orderout=.)		
-		
+
 		mata: st_numscalar("maxedout",maxedout)		
 
 		if !maxedout {
