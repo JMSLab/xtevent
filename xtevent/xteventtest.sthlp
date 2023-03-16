@@ -1,12 +1,12 @@
 {smcl}
-{* *! version 2.2.0 Sep 29 2022}{...}
+{* *! version 2.2.0 Mar 15 2023}{...}
 {cmd:help xteventtest}
 {hline}
 
 {title:Title}
 
 {phang}
-{bf:xteventtest} {hline 2} Hypothesis Testing after Estimation of Panel Event Study
+{bf:xteventtest} {hline 2} Hypothesis Testing after Panel Event Study Estimation
 
 
 {marker syntax}{...}
@@ -93,8 +93,8 @@ the event are equal. #1 must be greater than 0.
 {phang2}{cmd:. {stata xtset idcode year}}{p_end}
 
 {hline}
-{pstd}Basic event study with clustered standard errors.
-Impute policy variable without verifying staggered adoption.{p_end}
+{pstd}Basic event study with clustered standard errors
+Impute policy variable assuming no unobserved changes{p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) impute(nuchange)}}
 {p_end}
 
@@ -146,14 +146,14 @@ Impute policy variable without verifying staggered adoption.{p_end}
        simon.freyaldenhoven@phil.frb.org
 {pstd}Christian Hansen, University of Chicago, Booth School of Business.{p_end}
        chansen1@chicagobooth.edu
-{pstd}Jorge Pérez Pérez, Banco de México{p_end}
+{pstd}Jorge Pérez Pérez, Banco de México.{p_end}
        jorgepp@banxico.org.mx
-{pstd}Jesse Shapiro, Brown University{p_end}
+{pstd}Jesse Shapiro, Brown University.{p_end}
        jesse_shapiro_1@brown.edu	   
            
 {title:Support}    
            
-{pstd}For support and to report bugs please email Jorge Perez Perez, Banco de México.{break} 
+{pstd}For support and to report bugs please email Jorge Pérez Pérez, Banco de México.{break} 
        jorgepp@banxico.org.mx   
 
 {pstd}{cmd:xtevent} can also be found on {browse "https://github.com/JMSLab/xtevent":GitHub}.

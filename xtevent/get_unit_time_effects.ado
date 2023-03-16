@@ -1,4 +1,4 @@
-* get_unit_time_effects.ado 1.0.0 Nov 14 2022
+*! get_unit_time_effects.ado 2.2.0 March 15 2023
 
 version 11.2
 

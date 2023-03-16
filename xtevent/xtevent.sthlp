@@ -1,13 +1,13 @@
 
 {smcl}
-{* *! version 2.2.0 Sep 29 2022}{...}
+{* *! version 2.2.0 Mar 15 2023}{...}
 {cmd:help xtevent}
 {hline}
 
 {title:Title}
 
 {phang}
-{bf:xtevent} {hline 2} Estimation of Panel Event Study
+{bf:xtevent} {hline 2} Panel Event Study Estimation
 
 
 {marker syntax}{...}
@@ -48,14 +48,14 @@
 {synopt:{opt diff:avg}} estimate the difference in averages between the post and pre-periods {p_end}
 {synopt:{opt tr:end(#1 [, subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
 {synopt:{opt sav:ek(stub [, subopt])}} save time-to-event, event-time, trend, and interaction variables{p_end}
-{synopt: {opt kvars(stub)}} use previously generated even-time variables{p_end}
+{synopt: {opt kvars(stub)}} use previously generated event-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
 {synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
 {synopt:{opt rep:eatedcs}} indicate that the dataset in memory is repeated cross-sectional{p_end}
-{synopt:{opt cohort(varname)}} variable that identifies the cohorts{p_end}
-{synopt:{opt control_cohort(varname)}} variable that identifies the control cohort{p_end}
+{synopt:{opt cohort(varname)}} variable that identifies the cohorts for Sun and Abraham (2021) estimation{p_end}
+{synopt:{opt control_cohort(varname)}} variable that identifies the control cohort for Sun and Abraham (2021) estimation{p_end}
 {synopt:{opt plot}} display plot. See {help xteventplot}.{p_end} 
-{synopt:{it: additional_options}} additional options to be passed to estimation command{p_end}
+{synopt:{it: additional_options}} additional options to be passed to the estimation command{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -63,7 +63,7 @@
 {p 4 6 2} {it: depvar} and {it:indepvars} may contain factor variables; see{help fvvarlist}.{p_end}
 
 {p 4 6 2}* {opt policyvar(varname)} is required. {opt window(integer)} is required unless {opt static}, or {opt pre}, {opt post},
-{opt overidpre} and {opt overidpost} are specified. {opt panelvar(varname)} and {opt timevar(varname)} are required if the data 
+{opt overidpre}, and {opt overidpost} are specified. {opt panelvar(varname)} and {opt timevar(varname)} are required if the data 
 have not been {cmd:xtset}, otherwise they are optional. See {help xtset}. {p_end}
 {p 4 6 2}
 See {help xteventtest} for hypothesis testing after estimation and {help xteventplot} for plotting after estimation.{p_end}
@@ -73,9 +73,10 @@ See {help xteventtest} for hypothesis testing after estimation and {help xtevent
 {title:Description}
 
 {pstd}
-{cmd: xtevent} estimates the effect of a policy variable of interest on a dependent variable using a panel event
-study design. Additional control variables can be included in {it:varlist}. The command allows for estimation when a pre-trend is present using
-the instrumental variables estimator of Freyaldenhoven et al. (2019). It also allows estimation in settings with heterogeneous effects by cohort using the Interaction Weighted Estimator of Sun and Abraham (2021).{p_end}
+{cmd: xtevent} estimates the effect of a policy variable of interest on a dependent variable using a panel event-study 
+design. Additional control variables can be included in {it:varlist}. The command allows for estimation when a pre-trend
+ is present usingthe instrumental variables estimator of Freyaldenhoven et al. (2019). It also allows estimation in 
+ settings with heterogeneous effects by cohort using the Interaction Weighted Estimator of Sun and Abraham (2021).{p_end}
 
 
 {marker options}{...}
@@ -102,7 +103,7 @@ is specified, the estimation will use a symmetric window of {it:k} periods aroun
 coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<=0 and {it:k2}>=0 are specified, the 
 estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
 and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). {opt window()} is required unless 
-{opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()} 
+{opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()}, 
 and {opt overidpost()} (See below).
 
 {phang}
@@ -158,49 +159,64 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
+{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the {it:policyvar} for estimation. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
 {it:policyvar_imputed}. The following imputation types can be implemented:
 
 {phang2}
-{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
+{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: It assumes that, 
 for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
 {phang2}
-{cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, 
-it never reverts to the unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally in the {it:policyvar}, for each unit: i) the first-observed value must be 
-the unadopted-policy-state value, and the last-observed value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either adopted-policy-state values or unadopted-policy-state values.  
+{cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
+i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
+unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally in 
+the {it:policyvar}, for each unit: i) the first-observed value must be the unadopted-policy-state value, and the last-observed
+value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either 
+adopted-policy-state values or unadopted-policy-state values.  
 
 {phang2}
-{cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing value or a group of them will be imputed only if they are both preceded and followed by the unadopted-policy state 
-or by the adopted-policy state. 
+{cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing 
+value or a group of them will be imputed only if they are both preceded and followed by the unadopted-policy state or by the 
+adopted-policy state. 
 
 {phang}
-{opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with {opt window} or {opt diffavg}.
+{opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with 
+{opt window} or {opt diffavg}.
 
 {phang}
-{opt diffavg} calculates the difference in averages between the post-event estimated coefficients and the pre-event estimated coefficients periods. It also
-calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
+{opt diffavg} calculates the difference in averages between the post-event estimated coefficients and the pre-event estimated 
+coefficients periods. It also calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
-{opt tr:end(#1 [, subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in Dobkin et al. (2018). The estimated
-effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The following suboptions can be specified:
+{opt tr:end(#1 [, subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in 
+Dobkin et al. (2018). The estimated effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The 
+following suboptions can be specified:
 
 {phang2}
-{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear trend (_ttrend) to the regression. {opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
+{opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of 
+Moments {opt (gmm)}. {opt (ols)} omits the event-time dummies from {opt trend(#1)} to -1 and adds a linear trend (_ttrend) to the regression. 
+{opt (gmm)} uses the GMM to compute the trend for the event-time dummy coefficients. The default is {opt method(gmm)}.
 
 {phang2}
 {opt saveov:erlay} saves estimations for the overlay plot produced by {opt xteventplot, overlay(trend)}.
 
 {phang}
-{opt savek(stub [, subopt])} saves variables for time-to-event, event-time, trend, and interaction variables. Event-time dummies are stored as {it: stub}_eq_m# for the dummy
-variable # periods before the policy change, and {it:stub}_eq_p# for the dummy variable # periods after the policy change. The dummy variable for
-the policy change time is {it:stub}_eq_p0. Event time is stored as {it:stub}_evtime. The trend is stored as {it:stub}_trend. The interaction variables are stored as {it:stub}_m#_c# or {it:stub}_p#_c#, where c# indicates the cohort. The following 
-suboptions can be specified:
+{opt savek(stub [, subopt])} saves variables for time-to-event, event-time, trend, and interaction variables. Event-time dummies are stored as 
+{it: stub}_eq_m# for the dummy variable # periods before the policy change, and {it:stub}_eq_p# for the dummy variable # periods after the 
+policy change. The dummy variable for the policy change time is {it:stub}_eq_p0. Event time is stored as {it:stub}_evtime. The trend is stored
+ as {it:stub}_trend. For estimation with the Sun and Abrahm (2021) method, such that {opt cohort} and {opt control_cohort} are active, the
+ interaction variables are stored as {it:stub}_m#_c# or {it:stub}_p#_c#, where c# indicates the cohort. The following suboptions can be
+ specified:
 
 {phang2}
-{opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the users want to customize their regressions and plots.
+{opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the 
+users want to customize their regressions and plots.
+
+{phang2}
+{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and 
+{opt saveint:eract} cannot be specified simultaneously.
 
 {phang2}
 {opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and {opt saveint:eract} cannot be specified simultaneously.
@@ -209,31 +225,36 @@ suboptions can be specified:
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
 
 {phang}
-{opt reghdfe} uses {help reghdfe} for estimation, instead of {help areg}, {help ivregress} and {help xtivreg}. {opt reghdfe} is useful for large 
+{opt reghdfe} uses {help reghdfe} for estimation, instead of {help areg}, {help ivregress}, and {help xtivreg}. {opt reghdfe} is useful for large 
 datasets. By default, it absorbs the panel fixed effects and the time fixed effects. For OLS estimation, the {opt reghdfe}
-option requires {help reghdfe} and {help ftools} to be installed. For IV estimation, it also requires {help ivreghdfe} and {help ivreg2} to be installed.
-Note that standard errors may be different and singleton clusters may be dropped using {help reghdfe}. See Correia (2017).
+option requires {help reghdfe} and {help ftools} to be installed. For IV estimation, it also requires {help ivreghdfe} and {help ivreg2}
+ to be installed. Note that standard errors may be different and singleton clusters may be dropped using {help reghdfe}.
+ See Correia (2017).
 
 {phang}
-{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time and unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
+{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time
+ and unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
 
 {phang}
-{opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which 
-{opt policyvar} changes, while the observations in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional dataset, which involves using
-{cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See {help get_unit_time_effects}. For fixed-effects estimation, {opt repeatedcs} enables {opt reghdfe}.
+{opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups 
+at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which {opt policyvar} changes, while the observations 
+in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional 
+dataset, which involves using {cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See {help get_unit_time_effects}. For fixed-effects 
+estimation, {opt repeatedcs} enables {opt reghdfe}.
 
 {phang}
-{opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
- proposed by Sun and Abraham (2021). {opt cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install
-or type "ssc install avar" from inside Stata.
+{opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicate {cmd:xtevent}
+ to estimate the event-time coefficients with the Interaction-Weighted Estimator proposed by Sun and Abraham (2021). {opt cohort} requires the
+ Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from inside Stata.
 
 {phang}
-{opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicates {cmd:xtevent} to estimate the even-time coefficients with the Interaction Weighted Estimator
- proposed by Sun and Abraham (2021). {opt control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install
-or type "ssc install avar" from inside Stata.
+{opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicate
+ {cmd:xtevent} to estimate the event-time coefficients with the Interaction Weighted Estimator proposed by Sun and Abraham (2021). 
+ {opt control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from 
+ inside Stata.
 
 {phang}
-{opt plot} displays a default event study plot with 95% and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
+{opt plot} displays a default event-study plot with 95% and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
 Additional options are available with the postestimation command {help xteventplot}.
 
 {phang}
@@ -254,94 +275,62 @@ that two-way clustering is allowed with {help reghdfe}.
 {phang2}{cmd:. {stata "by idcode (year): gen time=_n"}}{p_end}
 {phang2}{cmd:. {stata xtset idcode time}}{p_end}
 
+{pstd}Generate a policy variable that follows staggered adoption.{p_end}
+{phang2}{cmd:. {stata "by idcode (time): gen union2 = sum(union)"}}{p_end}
+{phang2}{cmd:. {stata replace union2 = 1 if union2 > 1}}{p_end}
+
 {hline}
-{pstd}Basic event study with clustered standard errors. {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode)}}
+{pstd}Estimate a basic event study with clustered standard errors.{p_end}
+{pstd}Impute the policy variable assuming no unobserved chhanges{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) cluster(idcode) impute(nuchange)}}
 {p_end}
 
-{pstd}Omit fixed effects{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) nofe}}
-{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) nofe note}}
+{pstd}Omit unit and time fixed effects{p_end}
+{pstd}Impute the policy variable verifying staggered adoption{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) cluster(idcode) nofe note impute(stag)}}
 {p_end}
 
 {pstd}Save event-time dummies without estimating the model{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode) savek(a, noe)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) cluster(idcode) impute(stag) savek(a, noe)}}
 {p_end}
 
-{pstd}Change normalization, asymmetric window{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) cluster(idcode) w(-3 1) norm(-2)}}
+{pstd}Change the normalized coefficient and use an asymmetric window{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) cluster(idcode) w(-3 1) norm(-2) impute(stag)}}
 {p_end}
 
 {pstd}Adjust the pre-trend by estimating a linear trend by GMM {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(2) cluster(idcode) trend(-2, method(gmm))}}
-{p_end}
-
-{pstd}Impute outer and inner missing values in the policy variable verifying staggered adoption:{p_end}
-{pstd}
-First, generate a policy variable that follows staggered-adoption.
-{p_end}
-{phang2}
-{cmd:. {stata "by idcode (time): egen maxval= max(union)"}}
-{p_end}
-{phang2}
-{cmd:. {stata "by idcode (time): gen union2=sum(union) if !missing(union)"}}
-{p_end}
-{phang2}
-{cmd:. {stata replace union2=1 if union2>1 & !missing(union2)}}
-{p_end}
-{phang2}
-{cmd:. {stata "by idcode (time): egen pmean=mean(union2)"}}
-{p_end}
-{phang2}
-{cmd:. {stata "by idcode (time): replace union2=union2[_n-1] if missing(union2) & inlist(pmean,0,1)"}}
-{p_end}
-{pstd}
-Impute the policy variable that follows staggered-adoption and 
-add it to the database. Run the regression using this policy variable.
-{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure if inlist(maxval,0,1), pol(union2) w(3) cluster(idcode) impute(instag, saveimp)}}
-{p_end}
-{pstd}
-Compare the imputed and original values for a unit
-{p_end}
-{phang2}
-{cmd:. {stata list idcode year union2 union2_imputed if idcode==6}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(2) cluster(idcode) trend(-2, method(gmm)) impute(stag)}}
 {p_end}
 
 {hline}
 
-{pstd}FHS estimator with proxy variables{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work)}}
+{pstd}Freyaldenhoven, Hansen and Shapiro (2019) estimator with proxy variables{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) vce(cluster idcode) proxy(wks_work) impute(stag)}}
 {p_end}
 
-{pstd}Additional lags and proxys{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) vce(cluster idcode) proxy(wks_work hours) proxyiv(1 2)}}
+{pstd}Include additional proxy variables, and additional policy variable leads as instruments{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) vce(cluster idcode) proxy(wks_work hours) proxyiv(1 2) impute(stag)}}
 {p_end}
 
 {pstd}{help reghdfe} and two-way clustering {p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union) w(3) cluster(idcode year) reghdfe proxy(wks_work)}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) cluster(idcode year) reghdfe proxy(wks_work) impute(stag)}}
 {p_end}
 
 {hline}
 
-{pstd}Interaction Weighted Estimator proposed by Sun and Abraham (2021). {p_end}
-{pstd}First, we need to create the control and control cohort variables.{p_end}
-{pstd}Generate the variable that indicates cohort.{p_end}
-{phang2}{cmd:. {stata gen timet=year if union==1}}
+{pstd}Interaction Weighted Estimator proposed by Sun and Abraham (2021){p_end}
+{pstd}First, create the control and control cohort variables{p_end}
+{pstd}Generate the variable that indicates cohort{p_end}
+{phang2}{cmd:. {stata gen timet=year if union2==1}}
 {p_end}
 {phang2}{cmd:. {stata "by idcode: egen time_of_treat=min(timet)"}}
 {p_end}
 
-{pstd}Generate the variable that indicates the control cohort. We use the never treated units as the control cohort. {p_end}
+{pstd}Generate the variable that indicates the control cohort. We use the never-treated units as the control cohort{p_end}
 {phang2}{cmd:. {stata gen never_treat=time_of_treat==.}}
 {p_end}
 
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union) window(3) impute(nuchange) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat)}}
-{p_end}
-
-{pstd}Indicate the {bf:reghdfe} option to use the same underlying estimation command as with {help EventStudyInteract}. This produces identical estimations as with {help EventStudyInteract}.{p_end}
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union) window(3) impute(nuchange) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat) reghdfe}}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union2) window(3) impute(stag) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat)}}
 {p_end}
 
 {marker saved}{...}
@@ -381,11 +370,11 @@ Compare the imputed and original values for a unit
 {synopt:{cmd:e(V)}}variance-covariance matrix{p_end}
 {synopt:{cmd:e(delta)}}coefficient vector of event-time dummies{p_end}
 {synopt:{cmd:e(Vdelta)}}variance-covariance matrix of the event-time dummies coefficients{p_end}
-{synopt:{cmd:e(deltax)}} coefficients for proxy event study to be used in overlay plot{p_end}
-{synopt:{cmd:e(deltaxsc)}}scaled coefficients for proxy event study to be used in overlay plot{p_end}
-{synopt:{cmd:e(deltaov)}}coefficients for event study to be used in overlay plot{p_end}
-{synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of proxy event study coefficients for overlay plot{p_end}
-{synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of event study coefficients for overlay plot{p_end}
+{synopt:{cmd:e(deltax)}} coefficients for proxy event-study to be used in overlay plot{p_end}
+{synopt:{cmd:e(deltaxsc)}}scaled coefficients for proxy event-study to be used in overlay plot{p_end}
+{synopt:{cmd:e(deltaov)}}coefficients for event-study to be used in overlay plot{p_end}
+{synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of proxy-event study coefficients for overlay plot{p_end}
+{synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of event-study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort} are specified{p_end}
@@ -404,9 +393,9 @@ Compare the imputed and original values for a unit
        simon.freyaldenhoven@phil.frb.org
 {pstd}Christian Hansen, University of Chicago, Booth School of Business.{p_end}
        chansen1@chicagobooth.edu
-{pstd}Jorge Pérez Pérez, Banco de México{p_end}
+{pstd}Jorge Pérez Pérez, Banco de México.{p_end}
        jorgepp@banxico.org.mx
-{pstd}Jesse Shapiro, Harvard University and NBER{p_end}
+{pstd}Jesse Shapiro, Harvard University and NBER.{p_end}
        jesse_shapiro@fas.harvard.edu	   
            
 {title:Support}    
@@ -436,6 +425,7 @@ and Estimation in the Linear Panel Event-study Design". Working paper.
 {it:Journal of Econometrics}, 225 (2): 175-199.
 
 {title:Acknowledgements}
-{pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Constantino Carreto, Ángel Espinoza, Samuele Giambra, Ray Huang, Diego
-Mayorga, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Richard Calvo, Emily Wang, Theresa Doppstadt, Matthias Weigand,
-Isabel Z. Martínez, Eric Melse, Kathryn Dawson-Townsend, Chandra Kant Dhakal, Wenli Xu, and Miguel Fajardo-Steinhauser for testing early versions of this command.
+{pstd}We are grateful to Veli Andirin, Mauricio Cáceres, Richard Calvo, Constantino Carreto, Kathryn Dawson-Townsend, Theresa Doppstadt,
+ Ángel Espinoza, Miguel Fajardo-Steinhauser Samuele Giambra, Ray Huang, Chandra Kant Dhakal, Panagiotis Konstantinou, Per Lidbom,
+ Isabel Z. Martínez, Diego Mayorga, Eric Melse, Stefano Molina, Asjad Naqvi, Anna Pasnau, Nathan Schor, Emily Wang, Matthias Weigand,
+ and Wenli Xu for contributions to development and for testing earlier versions of this command.

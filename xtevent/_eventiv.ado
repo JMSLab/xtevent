@@ -281,7 +281,7 @@ program define _eventiv, rclass
 	
 	if "`gen'" != "nogen" {	
 		*If impute was specified, this is the second call to _eventgenvars: this time, both the policyvar and the event-time dummies will be imputed. Additional computations will happen as well  (e.g., macros, etc.).
-		_eventgenvars if `touse', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)

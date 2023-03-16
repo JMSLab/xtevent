@@ -1,4 +1,4 @@
-xtevent 2.1.1 - August 12, 2022
+xtevent 2.2.2 - Mar 15, 2023
 
 
 Authors:
@@ -7,9 +7,9 @@ Authors:
        simon.freyaldenhoven@phil.frb.org
     Christian Hansen, University of Chicago, Booth School of Business.
        chansen1@chicagobooth.edu
-    Jorge Pérez Pérez, Banco de México
+    Jorge Pérez Pérez, Banco de México.
        jorgepp@banxico.org.mx
-    Jesse Shapiro, Harvard University and NBER
+    Jesse Shapiro, Harvard University and NBER.
        jesse.m.shapiro@gmail.com       
 
 
@@ -18,8 +18,10 @@ Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapir
 
 
 Changelog:
-- Fixed bugs present in xtevent 2.1.0.
-- Updates in the help files and other documentation.
+- Add cohort and control_cohort to obtain estimates using Sun and Abraham's (2021) method.
+- Add repeatedcsoption and get_unit_time_effectscommand to estimate event-studies in repeated cross-section settings.
+- Add noestimate option to savek() to generate event-time dummies without estimating the regression model.
+- Enable clustered and robust standard erros for IV estimation without reghdfe.
+- Fixed bugs present in version 2.1.1.
 
-
-For more information, see https://github.com/JMSLab/xtevent/releases/tag/v2.1.1.
+For more information, see https://github.com/JMSLab/xtevent/releases/tag/v2.2.0.
