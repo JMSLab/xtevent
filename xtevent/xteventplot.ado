@@ -1,4 +1,4 @@
-*! xteventplot.ado 2.2.0 Mar 15 2023
+* xteventplot.ado 2.2.0 Aug 12 2022
 
 version 11.2
 
@@ -413,7 +413,8 @@ program define xteventplot
 		}
 		
 		tempname omitmat			
-		matrix `omitmat' = (`komitcomma')			
+		matrix `omitmat' = (`komitcomma')		
+		
 		if `postwindow'!=0 | "`kmiss'"!="." {
 			* Coefs													
 			gen byte `fid' = !inlist(`kxaxis',`kmiss')
@@ -707,7 +708,7 @@ mata
 			XX = 2*F'*Vhatinv*F
 			Xy = 2*F'*Vhatinv*dhat
 			A = (XX, Anorm' \ Anorm, J(rows(normalization),rows(normalization),0))
-			b = (Xy \ J(rows(normalization),rows(normalization),0))
+			b = (Xy \ J(rows(normalization),1,0))
 			
 			aL = qrsolve(A,b)
 			a = aL[1..r+1]
@@ -781,19 +782,19 @@ mata
 		i.Ab = Anorm[.,1..cols(Anorm)-pn-1]
 		i.A1 = Anorm[.,cols(Anorm)-pn..cols(Anorm)-1]
 		i.A2 = Anorm[.,cols(Anorm)]
-		
+				
 		i.Fb = F[.,1..cols(F)-pn-1]
 		i.F1 = F[.,cols(F)-pn..cols(F)-1]
 		i.F2 = F[.,cols(F)]
-		
-		i.d0 = (i.F2-i.F1*pinv(i.A1)*i.A2)'*Vhatinv*(i.F2-i.F1*pinv(i.A1)*i.A2)
-		
+
+		i.d0 = (i.F2-i.F1*pinv(i.A1)*i.A2)'*Vhatinv*(i.F2-i.F1*pinv(i.A1)*i.A2)		
+				
 		S = optimize_init()
 		optimize_init_evaluator(S,&b2m())
 		optimize_init_which(S,"min")
 		optimize_init_argument(S,1,i)
 		optimize_init_technique(S,tech)
-		optimize_init_params(S,a[1..order-1,1]')		
+		optimize_init_params(S,a[1..cols(F)-pn-1,1]')		
 		optimize_init_conv_maxiter(S,maxiter)
 		optimize_init_conv_nrtol(S,1e-6)
 		optimize_init_singularHmethod(S, "hybrid")
@@ -809,7 +810,7 @@ mata
 		S = optimize_init()
 		optimize_init_evaluator(S,&b2p())
 		optimize_init_which(S,"min")
-		optimize_init_params(S,a[1..order-1,1]')
+		optimize_init_params(S,a[1..cols(F)-pn-1,1]')
 		optimize_init_argument(S,1,i)
 		optimize_init_technique(S,tech)
 		optimize_init_conv_maxiter(S,maxiter)
