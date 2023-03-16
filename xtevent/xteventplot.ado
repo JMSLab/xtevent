@@ -1,4 +1,4 @@
-* xteventplot.ado 2.2.0 Aug 12 2022
+* xteventplot.ado 2.2.0 Mar 15 2023
 
 version 11.2
 
@@ -443,7 +443,7 @@ program define xteventplot
 		}			
 		
 		_return restore smpathparse			
-		cap qui mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.,Wcrit=.,orderout=.)		
+		cap noi mata:	polyline(1-st_numscalar("c(level)")/100,"r(maxiter)","r(technique)",dhat,Vhat0,"r(maxorder)",errorcodem=.,errorcodep=.,convergedm=.,convergedp=.,maxedout=.,param=.,WB=.,Wcrit=.,orderout=.)		
 		
 		mata: st_numscalar("maxedout",maxedout)		
 
@@ -467,9 +467,9 @@ program define xteventplot
 				else {
 					loc errorcodem = errorcodem
 					loc errorcodep = errorcodep
-					di _n "The optimization to calculate the smoothest path returned an error code."
-					di "Smoothest path won't be displayed."
-					di "Try changing the optimization options."
+					di as txt _n "The optimization to calculate the smoothest path returned an error code."
+					di as txt "Smoothest path won't be displayed."
+					di as txt "Try changing the optimization options. For example, try -smpath(scatter, tech(dfp)-."
 					di in smcl _n "Error code = `errorcodem'. See {help mf_optimize##r_error} to see what that means."
 					di in smcl "Error code = `errorcodep'. See {help mf_optimize##r_error} to see what that means."
 				}
@@ -488,6 +488,7 @@ program define xteventplot
 		}
 		else { 
 			di as txt _n "Could not find a polynomial with order<=maxorder through the Wald confidence region."
+			di as txt "Smoothest path won't be displayed."
 			loc smgraph ""			
 		}
 		
@@ -727,6 +728,8 @@ mata
 		Wstart = 1e6
 		
 		r=0
+		
+		printf("Wald Critical Value %f\n",Wcrit)
 		while (r<=maxorder & Wstart > Wcrit) {
 			printf("Order %f\n",r)
 			polywaldmin(trfit=.,W0=.,a=.,F=.,dhat,Vhatinv,normalization,r)
