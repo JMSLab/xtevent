@@ -19,7 +19,7 @@
     - Add `noestimate` option to `savek()` to generate event-time dummies without estimating the regression model.
     - Enable clustered and robust standard errors for IV estimation without `reghdfe`.
     - Fixed bugs present in version 2.1.1.    
-    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.2.2) for the complete update list.
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v2.2.0) for the complete update list.
 
 * **Version 2.1.1 (12aug2022)**:
     - Fixed bugs present in version 2.1.0.
