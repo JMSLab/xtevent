@@ -278,7 +278,7 @@ that two-way clustering is allowed with {help reghdfe}.
 
 {hline}
 {pstd}Estimate a basic event study with clustered standard errors.{p_end}
-{pstd}Impute the policy variable assuming no unobserved chhanges{p_end}
+{pstd}Impute the policy variable assuming no unobserved changes{p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) cluster(idcode) impute(nuchange)}}
 {p_end}
 
