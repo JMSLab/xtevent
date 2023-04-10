@@ -218,9 +218,6 @@ users want to customize their regressions and plots.
 {opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and 
 {opt saveint:eract} cannot be specified simultaneously.
 
-{phang2}
-{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and {opt saveint:eract} cannot be specified simultaneously.
-
 {phang}
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
 
