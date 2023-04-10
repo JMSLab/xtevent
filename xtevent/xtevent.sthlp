@@ -218,9 +218,6 @@ users want to customize their regressions and plots.
 {opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and 
 {opt saveint:eract} cannot be specified simultaneously.
 
-{phang2}
-{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and {opt saveint:eract} cannot be specified simultaneously.
-
 {phang}
 {opt usek(stub)} uses previously used event-time dummies saved with prefix {it:stub}. This can be used to speed up estimation.
 
@@ -281,7 +278,7 @@ that two-way clustering is allowed with {help reghdfe}.
 
 {hline}
 {pstd}Estimate a basic event study with clustered standard errors.{p_end}
-{pstd}Impute the policy variable assuming no unobserved chhanges{p_end}
+{pstd}Impute the policy variable assuming no unobserved changes{p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(3) cluster(idcode) impute(nuchange)}}
 {p_end}
 
@@ -374,7 +371,7 @@ that two-way clustering is allowed with {help reghdfe}.
 {synopt:{cmd:e(deltaxsc)}}scaled coefficients for proxy event-study to be used in overlay plot{p_end}
 {synopt:{cmd:e(deltaov)}}coefficients for event-study to be used in overlay plot{p_end}
 {synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of proxy-event study coefficients for overlay plot{p_end}
-{synopt:{cmd:e(Vdeltax)}} variance-covariance matrix of event-study coefficients for overlay plot{p_end}
+{synopt:{cmd:e(Vdeltaov)}} variance-covariance matrix of event-study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort} are specified{p_end}
