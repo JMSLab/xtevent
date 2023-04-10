@@ -72,7 +72,7 @@
 
 {phang}
 {opt overid} tests overidentifying restrictions: a test for pre-trends and a test for events leveling-off. The periods to be tested are those
-used in the {cmd xtevent} call. See {help xtevent}.
+used in the {cmd: xtevent} call. See {help xtevent}.
 
 {phang}
 {opth overidpre(#1)} tests the pre-trends overidentifying restriction. It tests that the coefficients for the earliest #1 periods before the event
