@@ -65,7 +65,7 @@
 
 {phang}
 {opth suptreps(integer)} specifies the number of repetitions to calculate Montiel Olea and Plagborg-Møller (2019) sup-t confidence intervals for
-the dynamic effects. The default is 1000. See {help xtevent}.
+the dynamic effects. The default is 10000. See {help xtevent}.
 
 {phang}
 {opt overlay(string)} creates overlay plots for trend extrapolation, instrumental variables estimation in presence of pre-trends, and constant 
