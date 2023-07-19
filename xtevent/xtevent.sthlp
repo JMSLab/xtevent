@@ -183,7 +183,7 @@ adopted-policy state.
 
 {phang}
 {opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with 
-{opt window} or {opt diffavg}.
+{opt window}, {opt pre}, {opt post}, {opt overidpre}, {opt overidpost}, or {opt diffavg}.
 
 {phang}
 {opt diffavg} calculates the difference in averages between the post-event estimated coefficients and the pre-event estimated 
