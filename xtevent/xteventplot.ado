@@ -13,7 +13,7 @@ program define xteventplot
 	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
 	noprepval /* Supress p-value for pre-trends test */
 	nopostpval /* Supress p-value for leveling-off test */
-	suptreps(integer 1000) /* Draws from multivariate normal for sup-t CI calculations */
+	suptreps(integer 10000) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
 	proxy /* Plot for proxy variable in IV setting */	
