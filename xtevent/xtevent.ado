@@ -107,7 +107,7 @@ program define xtevent, eclass
 		exit 198
 	}
 	if ("`static'"!="" & ("`pre'"!="" | "`post'"!="" | "`overidpre'"!="" | "`overidpost'"!="")) {
-		di as err _n "option {bf:static} not allowed with options {bf:static},{bf:pre},{bf:post},{bf:overidpre}, or {bf:overidpost}"
+		di as err _n "option {bf:static} not allowed with options {bf:pre},{bf:post},{bf:overidpre}, or {bf:overidpost}"
 		exit 198
 	}
 			
