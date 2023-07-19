@@ -190,9 +190,10 @@ adopted-policy state.
 coefficients periods. It also calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
-{opt tr:end(#1 [, subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in 
-Dobkin et al. (2018). The estimated effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The 
-following suboptions can be specified:
+{opt tr:end(#1 [, subopt])} extrapolates a linear trend using the time periods from period #1 before the policy change to one
+period before the policy change, as in Dobkin et al. (2018). For example, {cmd: trend(-3)} uses the coefficients on event-times
+-3, -2, and -1 to estimate the trend. The estimated effect of the policy is the deviation from the extrapolated linear trend. 
+#1 must be less than -1. The following suboptions can be specified:
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of 
