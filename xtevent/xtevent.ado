@@ -107,7 +107,7 @@ program define xtevent, eclass
 		exit 198
 	}
 	if ("`static'"!="" & ("`pre'"!="" | "`post'"!="" | "`overidpre'"!="" | "`overidpost'"!="")) {
-		di as err _n "option {bf:static} not allowed with options {bf:static},{bf:pre},{bf:post},{bf:overidpre}, or {bf:overidpost}"
+		di as err _n "option {bf:static} not allowed with options {bf:pre},{bf:post},{bf:overidpre}, or {bf:overidpost}"
 		exit 198
 	}
 			
@@ -324,6 +324,7 @@ program define xtevent, eclass
 			ereturn matrix mattrendx = mattrendx
 			ereturn matrix deltaov = deltaov
 			ereturn matrix Vdeltaov = Vdeltaov
+			ereturn local trendsaveov = r(trendsaveov)
 		}
 		if "`trend'"!="" ereturn local trend = r(trend)
 		
