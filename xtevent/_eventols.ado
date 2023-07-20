@@ -661,6 +661,7 @@ program define _eventols, rclass
 		return matrix Vdeltaov = `Vdeltaov'
 		return matrix mattrendy = `mattrendy'
 		return matrix mattrendx = `mattrendx'
+		return local trendsaveov = "trendsaveov"
 	}
 	if "`trend'"!="" return local trend = "trend" 
 	return local method = "ols"
