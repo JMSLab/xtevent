@@ -119,14 +119,18 @@ smoothest line. The default is to use all the estimates in the post event window
 {phang}
 {opt overidpre} changes the coefficients to be tested for the pre-trends overidentification test. 
 The default is to test all pre-event coefficients. {opt overidpre(#1)} tests if the coefficients 
-for the earliest #1 periods before the event are equal to 0. #1 must be greater than 0.  See 
- {help xteventtest}.
+for the earliest #1 periods before the event are equal to 0, including the endpoints.  
+For example, with a window of 3, {opt overidpre(2)} tests that the coefficients for event-times -4+ 
+(the endpoint) and -3 are jointly equal to 0. #1 must be greater than 0.
+ See {help xteventtest}.
 
 {phang}
 {opt overidpost} changes the coefficients to be tested for the leveling-off overidentification
  test. The default is to test that the rightmost coefficient and the previous coefficient are
- equal. {opt overidpost(#1)} tests if the coefficients for the latest #1 periods after the event
- are equal to each other. See {help xteventtest}.
+ equal, including the endpoints. {opt overidpost(#1)} tests if the coefficients for the latest
+ #1 periods after the event  are equal to each other. For example, with a window of 3, 
+ {opt overidpost(3)} tests that the coefficients for event-times 4+ (the endpoint),3, 
+ and 2 are equal to each other. #1 must be greater than 1. See {help xteventtest}.
 
 {dlgtab:Appearance}
 
