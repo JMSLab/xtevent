@@ -95,8 +95,8 @@ intervals -- a standard confidence interval and a sup-t confidence interval -- a
 confidence intervals, along with a sup-t confidence interval for the confidence level stored in c(level).
 
 {phang}
-{opt smpath([type , subopt])}} displays values on the smoothest line through the sup-t confidence region. {opt type} determines the line type, 
-which may be {opt scatter} or {opt line}.  {opt smpath} is not allowed with {opt noci}. 
+{opt smpath([type , subopt])}} displays values on the smoothest line through the Wald confidence region of the event-time path. 
+{opt type} determines the line type, which may be {opt scatter} or {opt line}. {opt smpath} is not allowed with {opt noci}. 
 
 {phang} The following suboptions for {opt smpath} control the optimization process. Because of the nature of the 
 optimization problem, optimization error messages 4 and 5 (missing derivatives) or 8 (flat regions) may be
