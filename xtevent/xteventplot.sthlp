@@ -65,25 +65,28 @@
 
 {phang}
 {opth suptreps(integer)} specifies the number of repetitions to calculate Montiel Olea and Plagborg-Møller (2019) sup-t confidence intervals for
-the dynamic effects. The default is 1000. See {help xtevent}.
+the dynamic effects. The default is 10000. See {help xtevent}.
 
 {phang}
 {opt overlay(string)} creates overlay plots for trend extrapolation, instrumental variables estimation in presence of pre-trends, and constant 
 policy effects over time.
 
 {phang2} {opt overlay(trend)} Overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
+{opt overlay(trend)} is only available after {cmd: xtevent , trend(,saveoverlay)}.
 
 {phang2} {opt overlay(iv)} Overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
-trend of the confounder.
+trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
 
 {phang2} {opt overlay(static)} Overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
 effect over time.
 
 {phang}
-{opt y} creates an event-study plot of the dependent variable in instrumental variables estimation.
+{opt y} creates an event-study plot of the dependent variable in instrumental variables estimation. {opt y} is only available after 
+{cmd: xtevent, proxy() proxyiv()}.
 
 {phang}
-{opt proxy} creates an event-study plot of the proxy variable in instrumental variables estimation.
+{opt proxy} creates an event-study plot of the proxy variable in instrumental variables estimation. {opt proxy} is only available after 
+{cmd: xtevent, proxy() proxyiv()}.
 
 {phang}
 {opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, two confidence
