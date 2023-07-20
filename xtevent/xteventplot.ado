@@ -65,7 +65,7 @@ program define xteventplot
 		exit 301
 	}
 	
-	if "`overlay'"=="trend" & "`=e(trend)'"!="trend" { 
+	if "`overlay'"=="trend" & ("`=e(trend)'"!="trend" | ("`=e(trend)'"=="trend" & "`e(trendsaveov)'"!="trendsaveov"))  { 
 		di as err "option {bf:overlay(trend)} only allowed after {cmd:xtevent, trend(, saveoverlay)}"
 		exit 301
 	}
@@ -120,6 +120,7 @@ program define xteventplot
 		di as txt _n "option {bf:smplotopts} specified but option {bf:smpath} is missing. option {bf:smplotopts} ignored"
 		loc smplotopts = ""
 	}
+	* "
 	if "`ciplotopts'"!="" & "`ci'"=="noci" {
 		di as txt _n "option {bf:ciplotopts} specified but option {bf:noci} is active. option {bf:ciplotopts} ignored"
 		loc ciplotopts = ""
@@ -205,8 +206,9 @@ program define xteventplot
 		if  "`imptype'"=="." loc imptype=""
 		loc saveimp = r(saveimpl)
 		if  "`saveimp'"=="." loc saveimp=""
-		
-		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
+				
+		loc depvarpredict: word 2 of `cmdpredict'
+		loc cmdpredict: subinstr local cmdpredict "`depvarpredict'" "`yhat'", word	
 		qui est store `estimates'
 		
 		*the user didn't specify impute option
@@ -254,11 +256,7 @@ program define xteventplot
 		qui est restore `estimates'
 		restoresample `samplevar'
 	}
-		
-		
-		
-	
-			
+				
 	* Get Wald CIs and place overlays in coef2
 	
 	loc i=1
