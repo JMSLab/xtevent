@@ -10,10 +10,10 @@ program define xteventplot
 	noci /* Supress confidence intervals */
 	nosupt /* Omit sup-t CI */
 	NOZEROline /* Supress line at 0 */
-	NOMINus1label /* Supress label for value of dependent variable at event time = -1 */
+	NONORMLabel /* Supress label for value of dependent variable at event time = -1 */
 	noprepval /* Supress p-value for pre-trends test */
 	nopostpval /* Supress p-value for leveling-off test */
-	suptreps(integer 1000) /* Draws from multivariate normal for sup-t CI calculations */
+	suptreps(integer 10000) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
 	proxy /* Plot for proxy variable in IV setting */	
@@ -65,7 +65,7 @@ program define xteventplot
 		exit 301
 	}
 	
-	if "`overlay'"=="trend" & "`=e(trend)'"!="trend" { 
+	if "`overlay'"=="trend" & ("`=e(trend)'"!="trend" | ("`=e(trend)'"=="trend" & "`e(trendsaveov)'"!="trendsaveov"))  { 
 		di as err "option {bf:overlay(trend)} only allowed after {cmd:xtevent, trend(, saveoverlay)}"
 		exit 301
 	}
@@ -107,7 +107,7 @@ program define xteventplot
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
 	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
 	if "`nozeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
-	if "`nominus1label'"=="nominus1label" di as txt _n "option {bf:nominus1label} has been specified. The label for the value of the depedent variable at event-time = -1 won't be displayed"
+	if "`nonormlabel'"=="nonormlabel" di as txt _n "option {bf:nonormlabel} has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed"
 	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
 	if "`postpval'"=="nopostpval" di as txt _n "option {bf:nopostpval} has been specified. The p-value for a test of effects leveling-off won't be displayed"
 	
@@ -120,6 +120,7 @@ program define xteventplot
 		di as txt _n "option {bf:smplotopts} specified but option {bf:smpath} is missing. option {bf:smplotopts} ignored"
 		loc smplotopts = ""
 	}
+	* "
 	if "`ciplotopts'"!="" & "`ci'"=="noci" {
 		di as txt _n "option {bf:ciplotopts} specified but option {bf:noci} is active. option {bf:ciplotopts} ignored"
 		loc ciplotopts = ""
@@ -205,8 +206,9 @@ program define xteventplot
 		if  "`imptype'"=="." loc imptype=""
 		loc saveimp = r(saveimpl)
 		if  "`saveimp'"=="." loc saveimp=""
-		
-		loc cmdpredict: subinstr local cmdpredict "`depvar'" "`yhat'", word	
+				
+		loc depvarpredict: word 2 of `cmdpredict'
+		loc cmdpredict: subinstr local cmdpredict "`depvarpredict'" "`yhat'", word	
 		qui est store `estimates'
 		
 		*the user didn't specify impute option
@@ -254,11 +256,7 @@ program define xteventplot
 		qui est restore `estimates'
 		restoresample `samplevar'
 	}
-		
-		
-		
-	
-			
+				
 	* Get Wald CIs and place overlays in coef2
 	
 	loc i=1
@@ -581,7 +579,7 @@ program define xteventplot
 	else loc zeroline "yline(0, lpattern(dash) lstyle(refline))"
 
 	* Label for value of y at -1 by default, unless supressed
-	if "`nominus1label'"=="nominus1label" loc ylab ""
+	if "`nonormlabel'"=="nonormlabel" loc ylab ""
 	else loc ylab "ylab(#5 0 `y1plot')"	
 
 	tw  `smgraph' `smplotopts' || `cigraph' `ciplotopts' || `cigraphsupt' `suptciplotopts' || `cmdov' , xtitle("") ytitle("") `xaxis' pstyle(p1) `ylab' `note' msymbol(circle triangle_hollow) `scatterplotopts' || `addplots'	|| `trendplot' `trendplotopts' ||,`zeroline' `options' `legend'

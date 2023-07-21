@@ -36,7 +36,7 @@
 {synopt: {opt noci}} omit all confidence intervals{p_end}
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
 {synopt:{opt nozero:line}} omit reference line at 0{p_end}
-{synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -1 {p_end}
+{synopt:{opt nonorml:abel}} omit label for value of dependent variable at event-time = -1 {p_end}
 {synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
 {synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
@@ -146,8 +146,8 @@ For example, with a window of 3, {opt overidpre(2)} tests that the coefficients 
 default line with {opt nozeroline} and adding other lines with {opt yline}. See {help added_line_options}. 
 
 {phang}
-{opt nominus1label} omits the display of the label for the value of the dependent variable at 
-event-time = -1.
+{opt nonormlabel} suppresses the vertical-axis label for the mean of the dependent variable at 
+event-time corresponding to the normalized coefficient.
 
 {phang}
 {opt noprepval} omits the display of the p-value for a test for pre-trends. The test is a Wald test 
