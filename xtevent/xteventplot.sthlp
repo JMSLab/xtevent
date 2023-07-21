@@ -150,12 +150,12 @@ default line with {opt nozeroline} and adding other lines with {opt yline}. See 
 event-time corresponding to the normalized coefficient.
 
 {phang}
-{opt noprepval} omits the display of the p-value for a test for pre-trends. The test is a Wald test 
-for all the pre-event coefficients being equal to 0.
+{opt noprepval} omits the display of the p-value for a test for pre-trends. By default, this is a
+ Wald test for all the pre-event coefficients being equal to 0, unless {opt overidpre} is specified.
 
 {phang}
-{opt nopostpval} omits the display of the p-value for a test for effects leveling off. The test is
-a Wald test for the last post-event coefficients being equal.
+{opt nopostpval} omits the display of the p-value for a test for effects leveling off. By default, 
+this is a Wald test for the last post-event coefficients being equal, unless {opt overidpost} is specified.
 
 {phang}
 {opt scatterplotopts} specifies options to be passed to {cmd:scatter} for the coefficients plot.
