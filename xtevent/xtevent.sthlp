@@ -115,13 +115,13 @@ and {opt overidpost()} (See below).
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
-of periods after the event minus 2.
+of periods after the event (not including the period for the event, e.g. event time = 0).
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
 
 {phang2} {opt overidpost} is the number of post-event periods for an overidentification test of effects leveling off. With {opt window},
-{opt overidpost} is 2.
+{opt overidpost} is 1.
 
 {phang} You can specify either {opt window}  or 
 {opt pre},
@@ -193,7 +193,8 @@ coefficients periods. It also calculates its standard error with {help lincom}. 
 {opt tr:end(#1 [, subopt])} extrapolates a linear trend using the time periods from period #1 before the policy change to one
 period before the policy change, as in Dobkin et al. (2018). For example, {cmd: trend(-3)} uses the coefficients on event-times
 -3, -2, and -1 to estimate the trend. The estimated effect of the policy is the deviation from the extrapolated linear trend. 
-#1 must be less than -1. The following suboptions can be specified:
+#1 must be less than -1. {opt trend} is only available when the normalized coefficient is -1 and {opt pre} = 0.
+The following suboptions can be specified:
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of 

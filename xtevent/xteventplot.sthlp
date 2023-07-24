@@ -78,7 +78,9 @@ policy effects over time.
 trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
 
 {phang2} {opt overlay(static)} Overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
-effect over time.
+effect over time. These coefficients are calculated by 1) estimating a model where the policy affects the outcome contemporaneously and 
+its effect is constant, 2) obtaining predicted values of the outcome variable from this constant effects model, and 2) regressing 
+the predicted values on event-time dummy variables.
 
 {phang}
 {opt y} creates an event-study plot of the dependent variable in instrumental variables estimation. {opt y} is only available after 
@@ -90,9 +92,9 @@ effect over time.
 
 {phang}
 {opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, two confidence
-intervals -- a standard confidence interval and a sup-t confidence interval -- are drawn for the confidence interval stored in c(level).
+intervals -- a standard confidence interval and a sup-t confidence interval -- are drawn.
 {opt levels} allows different confidence levels for standard confidence intervals. For example, {opt levels(90 95)} draws both 90% and 95% level
-confidence intervals, along with a sup-t confidence interval for the confidence level stored in c(level).
+confidence intervals, along with a sup-t confidence interval for Stata's default confidence level.
 
 {phang}
 {opt smpath([type , subopt])}} displays values on the smoothest line through the Wald confidence region of the event-time path. 
