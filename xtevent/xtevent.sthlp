@@ -171,10 +171,7 @@ for each unit: i) in periods before the first observed value, the policy value i
 {phang2}
 {cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
 i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
-unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally in 
-the {it:policyvar}, for each unit: i) the first-observed value must be the unadopted-policy-state value, and the last-observed
-value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either 
-adopted-policy-state values or unadopted-policy-state values.  
+unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case.
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing 
