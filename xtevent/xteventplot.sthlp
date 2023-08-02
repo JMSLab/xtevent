@@ -78,8 +78,8 @@ policy effects over time.
 trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
 
 {phang2} {opt overlay(static)} Overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
-effect over time. These coefficients are calculated by 1) estimating a model where the policy affects the outcome contemporaneously and 
-its effect is constant, 2) obtaining predicted values of the outcome variable from this constant effects model, and 2) regressing 
+effect over time. These coefficients are calculated by (i) estimating a model where the policy affects the outcome contemporaneously and 
+its effect is constant, (ii) obtaining predicted values of the outcome variable from this constant effects model, and (iii) regressing 
 the predicted values on event-time dummy variables.
 
 {phang}
@@ -97,7 +97,7 @@ intervals -- a standard confidence interval and a sup-t confidence interval -- a
 confidence intervals, along with a sup-t confidence interval for Stata's default confidence level.
 
 {phang}
-{opt smpath([type , subopt])}} displays values on the smoothest line through the Wald confidence region of the event-time path. 
+{opt smpath([type , subopt])}} displays the ``least wiggly`` path through the Wald confidence region of the event-time coefficients.
 {opt type} determines the line type, which may be {opt scatter} or {opt line}. {opt smpath} is not allowed with {opt noci}. 
 
 {phang} The following suboptions for {opt smpath} control the optimization process. Because of the nature of the 
