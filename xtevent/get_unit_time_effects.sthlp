@@ -56,13 +56,13 @@ variables {it:panelvar}, {it:timevar}, and {it:_unittimeeffects}. The variable {
 {synoptline}
 
 {phang}
-{opth panelvar(varname)} specifies the group variable. For the Hansen (2007) estimator, the policy variable should vary at this group level.
+{opth panelvar(varname)} specifies the group variable. The policy variable should vary at this group level.
 
 {phang}
 {opth timevar(varname)} specifies the time variable. 
 
 {phang}
-{opt saving(filename, [replace])} specifies the name of the Stata data file which contains the unit-time effects estimates. If {opt saving} is
+{opt saving(filename, [replace])} specifies the name of the Stata data file to store the unit-time effects estimates. If {opt saving} is
  not specified, the file will be saved in the current directory with the name {it: unit_time_effects.dta}. The suboption {it:replace} overwrites
  the unit-time effects file.
 
