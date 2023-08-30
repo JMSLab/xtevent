@@ -71,13 +71,13 @@ the dynamic effects. The default is 10000. See {help xtevent}.
 {opt overlay(string)} creates overlay plots for trend extrapolation, instrumental variables estimation in presence of pre-trends, and constant 
 policy effects over time.
 
-{phang2} {opt overlay(trend)} Overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
+{phang2} {opt overlay(trend)} overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
 {opt overlay(trend)} is only available after {cmd: xtevent , trend(,saveoverlay)}.
 
-{phang2} {opt overlay(iv)} Overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
+{phang2} {opt overlay(iv)} overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
 trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
 
-{phang2} {opt overlay(static)} Overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
+{phang2} {opt overlay(static)} overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
 effect over time. These coefficients are calculated by (i) estimating a model where the policy affects the outcome contemporaneously and 
 its effect is constant, (ii) obtaining predicted values of the outcome variable from this constant effects model, and (iii) regressing 
 the predicted values on event-time dummy variables.
@@ -160,15 +160,15 @@ event-time corresponding to the normalized coefficient.
 this is a Wald test for the last post-event coefficients being equal, unless {opt overidpost} is specified.
 
 {phang}
-{opt scatterplotopts} specifies options to be passed to {cmd:scatter} for the coefficients plot.
+{opt scatterplotopts} specifies options to be passed to {cmd:scatter} for the coefficients' plot.
 
 {phang}
-{opt ciplotopts} specifies options to be passed to {cmd:rcap} for the confidence interval 
+{opt ciplotopts} specifies options to be passed to {cmd:rcap} for the confidence interval's 
 plot. These options are disabled if {opt noci} is specified.
 
 {phang}
 {opt suptciplotopts} specifies options to be passed to {cmd:rcap} for the sup-t confidence
- interval plot. These options are disabled if {opt nosupt} is specified.
+ interval's plot. These options are disabled if {opt nosupt} is specified.
  
 {phang}
 {opt smplotopts} specifies options to be passed to {cmd:line} for the smoothest path through 
