@@ -123,11 +123,11 @@ is the number of periods before the event.
 {phang2} {opt overidpost} is the number of post-event periods for an overidentification test of effects leveling off. With {opt window},
 {opt overidpost} is 1.
 
-{phang} You can specify either {opt window}  or 
+{phang} Only one of {opt window}  or 
 {opt pre},
 {opt post}, 
 {opt overidpre} and 
-{opt overidpost}. 
+{opt overidpost} can be declared. 
 
 {phang} {opth norm(integer)} specifies the event-time coefficient to be normalized to 0.
 The default is to normalize the coefficient on -1.
@@ -137,7 +137,7 @@ The default is to normalize the coefficient on -1.
 
 {phang}
 {opth proxyiv(string)} specifies instruments for the proxy variable for the policy. {opth proxyiv()} admits three syntaxes to use 
-either leads of the policy variable or aditional variables as instruments. The default is to use leads of the difference of the
+either leads of the policy variable or additional variables as instruments. The default is to use leads of the difference of the
 policy variable as instruments, selecting the lead with the strongest first stage. 
 
 {phang2}
@@ -164,7 +164,7 @@ be used as an instrument.
 {it:policyvar_imputed}. The following imputation types can be implemented:
 
 {phang2}
-{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: It assumes that, 
+{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
 for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
