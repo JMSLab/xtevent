@@ -100,7 +100,9 @@ program define _eventols, rclass
 	* error messages for sun_abraham
 	loc sun_abraham ""
 	if "`cohort'"!="" & "`control_cohort'"!="" {
-		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options. Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)."
+		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options.
+		di as text _n "Event-time coefficients will be estimated with"
+		di as text _n "the Interaction Weighted Estimator of Sun and Abraham (2021)."
 		loc sun_abraham "sun_abraham"
 	}
 	if "`saveint'"!="" & "`sun_abraham'"==""{
@@ -111,7 +113,8 @@ program define _eventols, rclass
 	if "`saveint'"!=""{
 		cap unab old_interact_vars : `savek'_interact*
 		if !_rc {
-			di as err _n "You have variable names with the {bf:`savek'_interact} prefix. {bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation."
+			di as err _n "You have variable names with the {bf:`savek'_interact} prefix."
+			di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation."
 			di as err _n "Please rename or drop these variables before proceeding."
 			exit 110
 		}
