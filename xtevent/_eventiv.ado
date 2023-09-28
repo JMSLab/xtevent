@@ -224,11 +224,15 @@ program define _eventiv, rclass
 				di as txt _n "The corresponding coefficient of lead `v' and the normalized coefficient were the same. Lead `=`v'' has been changed to `=`v'+1'."
 				loc repeatlead=strmatch("`proxyiv_numbers'","*`=`v'+1'*")
 				if "`repeatlead'"=="0"{
+					di as txt _n "The coefficient at `norm' is normalized to zero."
+					di as txt _n "For estimation with proxy variables, an additional coefficient needs to be normalized to zero." 
 					di as txt _n "The coefficient at `=-`v'-1' was selected to be normalized to zero."
 				}
 			}
 			else {
 				loc ivnorm "`ivnorm' -`v'"	
+				di as txt _n "The coefficient at `norm' is normalized to zero."
+				di as txt _n "For estimation with proxy variables, an additional coefficient needs to be normalized to zero." 
 				di as txt _n "The coefficient at `=-`v'' was selected to be normalized to zero."
 			}
 		}
