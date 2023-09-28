@@ -137,11 +137,11 @@ Impute policy variable assuming no unobserved changes{p_end}
 
 {synoptset 15 tabbed}{...}
 {p2col 5 15 19 2: Macros}{p_end}
-{synopt:{cmd:r(mtmethod)}}method of adjustment for multiple testing{p_end}
+{synopt:{cmd:r(mtmethod)}}method of adjustment for multiple testing. This macro is inherited from {cmd:test}{p_end}
 
 {synoptset 15 tabbed}{...}
 {p2col 5 15 19 2: Matrices}{p_end}
-{synopt:{cmd:r(mtest)}}multiple test results{p_end}
+{synopt:{cmd:r(mtest)}}multiple test results. This matrix is inherited from {cmd:test}{p_end}
 
 
 {title:Authors}
