@@ -115,13 +115,14 @@ and {opt overidpost()} (See below).
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
-of periods after the event (not including the period for the event, e.g. event time = 0).
+of periods after the event (not including the period for the event, e.g. event time = 0), 
+except the lastest two periods (assigned to {opt overidpost} for the leveling off test).
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
 
 {phang2} {opt overidpost} is the number of post-event periods for an overidentification test of effects leveling off. With {opt window},
-{opt overidpost} is 1.
+{opt overidpost} is 2.
 
 {phang} Only one of {opt window}  or 
 {opt pre},
@@ -159,19 +160,19 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the {it:policyvar} for estimation. 
+{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
 {it:policyvar_imputed}. The following imputation types can be implemented:
 
 {phang2}
 {cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
-for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
+for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value and;
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
 {phang2}
 {cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
 i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
-unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case.
+unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered adoption case.
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing 
