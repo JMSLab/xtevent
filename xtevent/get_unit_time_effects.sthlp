@@ -17,7 +17,7 @@
 {p 8 17 2}
 {cmd:get_unit_time_effects}
 {depvar} [{indepvars}]
-{ifin}
+{ifin} {weight}
 {cmd:,}
 {opth p:anelvar(varname)}
 {opth t:imevar(varname)}

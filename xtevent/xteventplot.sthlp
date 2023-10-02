@@ -72,7 +72,7 @@ the dynamic effects. The default is 10000. See {help xtevent}.
 policy effects over time.
 
 {phang2} {opt overlay(trend)} overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
-{opt overlay(trend)} is only available after {cmd: xtevent , trend(,saveoverlay)}.
+{opt overlay(trend)} is only available after {cmd: xtevent, trend(, saveoverlay)}.
 
 {phang2} {opt overlay(iv)} overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
 trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
@@ -102,7 +102,7 @@ confidence intervals, along with a sup-t confidence interval for Stata's default
 
 {phang} The following suboptions for {opt smpath} control the optimization process. Because of the nature of the 
 optimization problem, optimization error messages 4 and 5 (missing derivatives) or 8 (flat regions) may be
- frequent. Modifying these optimization suboptions may improve optimization behavior.
+ frequent. Nevertheless, the approximate results from the optimization should be close to the results that would be obtained with convergence of the optimization process. Modifying these optimization suboptions may improve optimization behavior.
 
 {phang2}
 {opt , postwindow(scalar > 0)} sets the number of post event coefficient estimates to use for calculating the 
@@ -129,9 +129,9 @@ For example, with a window of 3, {opt overidpre(2)} tests that the coefficients 
 {phang}
 {opt overidpost} changes the coefficients to be tested for the leveling-off overidentification
  test. The default is to test that the rightmost coefficient and the previous coefficient are
- equal, including the endpoints. {opt overidpost(#1)} tests if the coefficients for the latest
- #1 periods after the event  are equal to each other. For example, with a window of 3, 
- {opt overidpost(3)} tests that the coefficients for event-times 4+ (the endpoint),3, 
+ equal. {opt overidpost(#1)} tests if the coefficients for the latest
+ #1 periods after the event  are equal to each other, including the endpoints. For example, with a window of 3, 
+ {opt overidpost(3)} tests that the coefficients for event-times 4+ (the endpoint), 3, 
  and 2 are equal to each other. #1 must be greater than 1. See {help xteventtest}.
 
 {dlgtab:Appearance}

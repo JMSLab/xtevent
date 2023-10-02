@@ -84,7 +84,7 @@ are equal to 0, including the endpoints. For example, with a window of 3, {opt o
 {phang}
 {opth overidpost(#1)} tests the effects leveling off overidentifying restriction. It tests that the coefficients for the latest #1 periods after  
 the event are equal, including the endpoints. For example, with a window of 3, {opt overidpost(3)} tests that the coefficients for event-times
- 4+ (the endpoint),3, and 2 are equal to each other. #1 must be greater than 1. 
+ 4+ (the endpoint), 3, and 2 are equal to each other. #1 must be greater than 1. 
 
 {phang}
 {opt testopts(string)} specifies options to be passed to {cmd:test}. See {help test}.

@@ -18,7 +18,7 @@
 {p 8 17 2}
 {cmd:xtevent}
 {depvar} [{indepvars}]
-{ifin}
+{ifin} {weight}
 {cmd:,}
 {opth pol:icyvar(varname)}
 {opth p:anelvar(varname)}
@@ -137,7 +137,7 @@ The default is to normalize the coefficient on -1.
 {opth proxy(varlist)} specifies proxy variables for the confound to be included.
 
 {phang}
-{opth proxyiv(string)} specifies instruments for the proxy variable for the policy. {opth proxyiv()} admits three syntaxes to use 
+{opth proxyiv(string)} specifies instruments for the proxy variable for the policy. {cmd:proxyiv()} admits three syntaxes to use 
 either leads of the policy variable or additional variables as instruments. The default is to use leads of the difference of the
 policy variable as instruments, selecting the lead with the strongest first stage. 
 
@@ -172,7 +172,7 @@ for each unit: i) in periods before the first observed value, the policy value i
 {phang2}
 {cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
 i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
-unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered adoption case.
+unadopted-policy state. See Freyaldenhoven et al. (2021) for detailed explanation of the staggered adoption case.
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing 
@@ -241,12 +241,12 @@ estimation, {opt repeatedcs} enables {opt reghdfe}.
 
 {phang}
 {opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicate {cmd:xtevent}
- to estimate the event-time coefficients with the Interaction-Weighted Estimator proposed by Sun and Abraham (2021). {opt cohort} requires the
+ to estimate the event-time coefficients with the estimator of Sun and Abraham (2021) for settings with heterogeneous effects by cohort. {opt cohort} requires the
  Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from inside Stata.
 
 {phang}
 {opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicate
- {cmd:xtevent} to estimate the event-time coefficients with the Interaction Weighted Estimator proposed by Sun and Abraham (2021). 
+ {cmd:xtevent} to estimate the event-time coefficients with the estimator of Sun and Abraham (2021) for settings with heterogeneous effects by cohort. 
  {opt control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from 
  inside Stata.
 
