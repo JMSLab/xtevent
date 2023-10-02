@@ -36,7 +36,7 @@
 {synopt: {opt noci}} omit all confidence intervals{p_end}
 {synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
 {synopt:{opt nozero:line}} omit reference line at 0{p_end}
-{synopt:{opt nomin:us1label}} omit label for value of dependent variable at event-time = -1 {p_end}
+{synopt:{opt nonorml:abel}} omit label for value of dependent variable at event-time = -1 {p_end}
 {synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
 {synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
@@ -71,33 +71,38 @@ the dynamic effects. The default is 10000. See {help xtevent}.
 {opt overlay(string)} creates overlay plots for trend extrapolation, instrumental variables estimation in presence of pre-trends, and constant 
 policy effects over time.
 
-{phang2} {opt overlay(trend)} Overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
+{phang2} {opt overlay(trend)} overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
+{opt overlay(trend)} is only available after {cmd: xtevent, trend(, saveoverlay)}.
 
-{phang2} {opt overlay(iv)} Overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
-trend of the confounder.
+{phang2} {opt overlay(iv)} overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
+trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
 
-{phang2} {opt overlay(static)} Overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
-effect over time.
+{phang2} {opt overlay(static)} overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
+effect over time. These coefficients are calculated by (i) estimating a model where the policy affects the outcome contemporaneously and 
+its effect is constant, (ii) obtaining predicted values of the outcome variable from this constant effects model, and (iii) regressing 
+the predicted values on event-time dummy variables.
 
 {phang}
-{opt y} creates an event-study plot of the dependent variable in instrumental variables estimation.
+{opt y} creates an event-study plot of the dependent variable in instrumental variables estimation. {opt y} is only available after 
+{cmd: xtevent, proxy() proxyiv()}.
 
 {phang}
-{opt proxy} creates an event-study plot of the proxy variable in instrumental variables estimation.
+{opt proxy} creates an event-study plot of the proxy variable in instrumental variables estimation. {opt proxy} is only available after 
+{cmd: xtevent, proxy() proxyiv()}.
 
 {phang}
 {opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, two confidence
-intervals -- a standard confidence interval and a sup-t confidence interval -- are drawn for the confidence interval stored in c(level).
+intervals -- a standard confidence interval and a sup-t confidence interval -- are drawn.
 {opt levels} allows different confidence levels for standard confidence intervals. For example, {opt levels(90 95)} draws both 90% and 95% level
-confidence intervals, along with a sup-t confidence interval for the confidence level stored in c(level).
+confidence intervals, along with a sup-t confidence interval for Stata's default confidence level.
 
 {phang}
-{opt smpath([type , subopt])}} displays values on the smoothest line through the sup-t confidence region. {opt type} determines the line type, 
-which may be {opt scatter} or {opt line}.  {opt smpath} is not allowed with {opt noci}. 
+{opt smpath([type , subopt])}} displays the ``least wiggly`` path through the Wald confidence region of the event-time coefficients.
+{opt type} determines the line type, which may be {opt scatter} or {opt line}. {opt smpath} is not allowed with {opt noci}. 
 
 {phang} The following suboptions for {opt smpath} control the optimization process. Because of the nature of the 
 optimization problem, optimization error messages 4 and 5 (missing derivatives) or 8 (flat regions) may be
- frequent. Modifying these optimization suboptions may improve optimization behavior.
+ frequent. Nevertheless, the approximate results from the optimization should be close to the results that would be obtained with convergence of the optimization process. Modifying these optimization suboptions may improve optimization behavior.
 
 {phang2}
 {opt , postwindow(scalar > 0)} sets the number of post event coefficient estimates to use for calculating the 
@@ -116,14 +121,18 @@ smoothest line. The default is to use all the estimates in the post event window
 {phang}
 {opt overidpre} changes the coefficients to be tested for the pre-trends overidentification test. 
 The default is to test all pre-event coefficients. {opt overidpre(#1)} tests if the coefficients 
-for the earliest #1 periods before the event are equal to 0. #1 must be greater than 0.  See 
- {help xteventtest}.
+for the earliest #1 periods before the event are equal to 0, including the endpoints.  
+For example, with a window of 3, {opt overidpre(2)} tests that the coefficients for event-times -4+ 
+(the endpoint) and -3 are jointly equal to 0. #1 must be greater than 0.
+ See {help xteventtest}.
 
 {phang}
 {opt overidpost} changes the coefficients to be tested for the leveling-off overidentification
  test. The default is to test that the rightmost coefficient and the previous coefficient are
- equal. {opt overidpost(#1)} tests if the coefficients for the latest #1 periods after the event
- are equal to each other. See {help xteventtest}.
+ equal. {opt overidpost(#1)} tests if the coefficients for the latest
+ #1 periods after the event  are equal to each other, including the endpoints. For example, with a window of 3, 
+ {opt overidpost(3)} tests that the coefficients for event-times 4+ (the endpoint), 3, 
+ and 2 are equal to each other. #1 must be greater than 1. See {help xteventtest}.
 
 {dlgtab:Appearance}
 
@@ -139,27 +148,27 @@ for the earliest #1 periods before the event are equal to 0. #1 must be greater 
 default line with {opt nozeroline} and adding other lines with {opt yline}. See {help added_line_options}. 
 
 {phang}
-{opt nominus1label} omits the display of the label for the value of the dependent variable at 
-event-time = -1.
+{opt nonormlabel} suppresses the vertical-axis label for the mean of the dependent variable at 
+event-time corresponding to the normalized coefficient.
 
 {phang}
-{opt noprepval} omits the display of the p-value for a test for pre-trends. The test is a Wald test 
-for all the pre-event coefficients being equal to 0.
+{opt noprepval} omits the display of the p-value for a test for pre-trends. By default, this is a
+ Wald test for all the pre-event coefficients being equal to 0, unless {opt overidpre} is specified.
 
 {phang}
-{opt nopostpval} omits the display of the p-value for a test for effects leveling off. The test is
-a Wald test for the last post-event coefficients being equal.
+{opt nopostpval} omits the display of the p-value for a test for effects leveling off. By default, 
+this is a Wald test for the last post-event coefficients being equal, unless {opt overidpost} is specified.
 
 {phang}
-{opt scatterplotopts} specifies options to be passed to {cmd:scatter} for the coefficients plot.
+{opt scatterplotopts} specifies options to be passed to {cmd:scatter} for the coefficients' plot.
 
 {phang}
-{opt ciplotopts} specifies options to be passed to {cmd:rcap} for the confidence interval 
+{opt ciplotopts} specifies options to be passed to {cmd:rcap} for the confidence interval's 
 plot. These options are disabled if {opt noci} is specified.
 
 {phang}
 {opt suptciplotopts} specifies options to be passed to {cmd:rcap} for the sup-t confidence
- interval plot. These options are disabled if {opt nosupt} is specified.
+ interval's plot. These options are disabled if {opt nosupt} is specified.
  
 {phang}
 {opt smplotopts} specifies options to be passed to {cmd:line} for the smoothest path through 

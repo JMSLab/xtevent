@@ -18,7 +18,7 @@
 {p 8 17 2}
 {cmd:xtevent}
 {depvar} [{indepvars}]
-{ifin}
+{ifin} {weight}
 {cmd:,}
 {opth pol:icyvar(varname)}
 {opth p:anelvar(varname)}
@@ -115,7 +115,8 @@ and {opt overidpost()} (See below).
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
-of periods after the event minus 2.
+of periods after the event (not including the period for the event, e.g. event time = 0), 
+except the lastest two periods (assigned to {opt overidpost} for the leveling off test).
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
@@ -123,11 +124,11 @@ is the number of periods before the event.
 {phang2} {opt overidpost} is the number of post-event periods for an overidentification test of effects leveling off. With {opt window},
 {opt overidpost} is 2.
 
-{phang} You can specify either {opt window}  or 
+{phang} Only one of {opt window}  or 
 {opt pre},
 {opt post}, 
 {opt overidpre} and 
-{opt overidpost}. 
+{opt overidpost} can be declared. 
 
 {phang} {opth norm(integer)} specifies the event-time coefficient to be normalized to 0.
 The default is to normalize the coefficient on -1.
@@ -136,8 +137,8 @@ The default is to normalize the coefficient on -1.
 {opth proxy(varlist)} specifies proxy variables for the confound to be included.
 
 {phang}
-{opth proxyiv(string)} specifies instruments for the proxy variable for the policy. {opth proxyiv()} admits three syntaxes to use 
-either leads of the policy variable or aditional variables as instruments. The default is to use leads of the difference of the
+{opth proxyiv(string)} specifies instruments for the proxy variable for the policy. {cmd:proxyiv()} admits three syntaxes to use 
+either leads of the policy variable or additional variables as instruments. The default is to use leads of the difference of the
 policy variable as instruments, selecting the lead with the strongest first stage. 
 
 {phang2}
@@ -159,22 +160,19 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the {it:policyvar} for estimation. 
+{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
 {it:policyvar_imputed}. The following imputation types can be implemented:
 
 {phang2}
-{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: It assumes that, 
-for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value; and
+{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
+for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value and;
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
 {phang2}
 {cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
 i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
-unadopted-policy state. See Freyaldenhoven et al. (2019) for detailed explanation of the staggered case. Additionally in 
-the {it:policyvar}, for each unit: i) the first-observed value must be the unadopted-policy-state value, and the last-observed
-value must be the adopted-policy-state value; or ii) all policy values in the observed data range must be either 
-adopted-policy-state values or unadopted-policy-state values.  
+unadopted-policy state. See Freyaldenhoven et al. (2021) for detailed explanation of the staggered adoption case.
 
 {phang2}
 {cmd:impute(instag)} applies {opt impute(stag)} and additionally imputes missing values inside the observed data range: a missing 
@@ -183,16 +181,18 @@ adopted-policy state.
 
 {phang}
 {opt static} estimates a static panel data model and does not generate or plot event-time dummies. {opt static} is not allowed with 
-{opt window} or {opt diffavg}.
+{opt window}, {opt pre}, {opt post}, {opt overidpre}, {opt overidpost}, or {opt diffavg}.
 
 {phang}
 {opt diffavg} calculates the difference in averages between the post-event estimated coefficients and the pre-event estimated 
 coefficients periods. It also calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
-{opt tr:end(#1 [, subopt])} extrapolates a linear trend between time periods from period #1 before the policy change, as in 
-Dobkin et al. (2018). The estimated effect of the policy is the deviation from the extrapolated linear trend. #1 must be less than -1. The 
-following suboptions can be specified:
+{opt tr:end(#1 [, subopt])} extrapolates a linear trend using the time periods from period #1 before the policy change to one
+period before the policy change, as in Dobkin et al. (2018). For example, {cmd: trend(-3)} uses the coefficients on event-times
+-3, -2, and -1 to estimate the trend. The estimated effect of the policy is the deviation from the extrapolated linear trend. 
+#1 must be less than -1. {opt trend} is only available when the normalized coefficient is -1 and {opt pre} = 0.
+The following suboptions can be specified:
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of 
@@ -241,12 +241,12 @@ estimation, {opt repeatedcs} enables {opt reghdfe}.
 
 {phang}
 {opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicate {cmd:xtevent}
- to estimate the event-time coefficients with the Interaction-Weighted Estimator proposed by Sun and Abraham (2021). {opt cohort} requires the
+ to estimate the event-time coefficients with the estimator of Sun and Abraham (2021) for settings with heterogeneous effects by cohort. {opt cohort} requires the
  Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from inside Stata.
 
 {phang}
 {opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicate
- {cmd:xtevent} to estimate the event-time coefficients with the Interaction Weighted Estimator proposed by Sun and Abraham (2021). 
+ {cmd:xtevent} to estimate the event-time coefficients with the estimator of Sun and Abraham (2021) for settings with heterogeneous effects by cohort. 
  {opt control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from 
  inside Stata.
 

@@ -65,7 +65,9 @@
 {opt linpretrend} requests a specification test to see if the coefficients before the event follow a linear trend.
 
 {phang}
-{opt trend(#1)} tests for a linear trend from time period #1 before the policy change. It uses {opt xtevent, trend(#1, method(ols))} to estimate the trend. #1 must be less than 0.
+{opt trend(#1)} tests for a linear trend from time period #1 before the policy change to one period before the policy change. It uses
+ {opt xtevent, trend(#1, method(ols))} to estimate the trend. For example, {opt: trend(-3)} uses the coefficients on event-times -3, -2,
+ and -1 to estimate the trend and tests its significance. #1 must be less than -1.
 
 {phang}
 {opt constanteff} tests that all post-event coefficients are equal.
@@ -76,11 +78,13 @@ used in the {cmd: xtevent} call. See {help xtevent}.
 
 {phang}
 {opth overidpre(#1)} tests the pre-trends overidentifying restriction. It tests that the coefficients for the earliest #1 periods before the event
-are equal to 0. #1 must be greater than 0.
+are equal to 0, including the endpoints. For example, with a window of 3, {opt overidpre(2)} tests that the coefficients for event-times -4+
+ (the endpoint) and -3 are jointly equal to 0. #1 must be greater than 0.
 
 {phang}
 {opth overidpost(#1)} tests the effects leveling off overidentifying restriction. It tests that the coefficients for the latest #1 periods after  
-the event are equal. #1 must be greater than 0.
+the event are equal, including the endpoints. For example, with a window of 3, {opt overidpost(3)} tests that the coefficients for event-times
+ 4+ (the endpoint), 3, and 2 are equal to each other. #1 must be greater than 1. 
 
 {phang}
 {opt testopts(string)} specifies options to be passed to {cmd:test}. See {help test}.
@@ -133,11 +137,11 @@ Impute policy variable assuming no unobserved changes{p_end}
 
 {synoptset 15 tabbed}{...}
 {p2col 5 15 19 2: Macros}{p_end}
-{synopt:{cmd:r(mtmethod)}}method of adjustment for multiple testing{p_end}
+{synopt:{cmd:r(mtmethod)}}method of adjustment for multiple testing. This macro is inherited from {cmd:test}{p_end}
 
 {synoptset 15 tabbed}{...}
 {p2col 5 15 19 2: Matrices}{p_end}
-{synopt:{cmd:r(mtest)}}multiple test results{p_end}
+{synopt:{cmd:r(mtest)}}multiple test results. This matrix is inherited from {cmd:test}{p_end}
 
 
 {title:Authors}
