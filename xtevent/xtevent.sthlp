@@ -160,18 +160,18 @@ be used as an instrument.
 {opt note} excludes time fixed effects.
 
 {phang}
-{opt impute(type [, saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
+{opt impute(type, [ saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
 {cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
-{it:policyvar_imputed}. The following imputation types can be implemented:
+{it:policyvar_imputed}. The following imputation types are available:
 
 {phang2}
-{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no-unobserved change}: it assumes that, 
+{cmd:impute(nuchange)} imputes missing values in {it:policyvar} according to {it:no unobserved change}: it assumes that 
 for each unit: i) in periods before the first observed value, the policy value is the same as the first observed value and;
  ii) in periods after the last observed value, the policy value is the same as the last observed value.
 
 {phang2}
-{cmd:impute(stag)} applies {it:no-unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
-i) {it:policyvar} must be binary; and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
+{cmd:impute(stag)} applies {it:no unobserved change} if {it:policyvar} satisfies staggered-adoption assumptions for all units: 
+i) {it:policyvar} must be binary, and ii) once {it:policyvar} reaches the adopted-policy state, it never reverts to the 
 unadopted-policy state. See Freyaldenhoven et al. (2021) for detailed explanation of the staggered adoption case.
 
 {phang2}
@@ -192,7 +192,7 @@ coefficients periods. It also calculates its standard error with {help lincom}. 
 period before the policy change, as in Dobkin et al. (2018). For example, {cmd: trend(-3)} uses the coefficients on event-times
 -3, -2, and -1 to estimate the trend. The estimated effect of the policy is the deviation from the extrapolated linear trend. 
 #1 must be less than -1. {opt trend} is only available when the normalized coefficient is -1 and {opt pre} = 0.
-The following suboptions can be specified:
+The following can be passed as suboptions:
 
 {phang2}
 {opt method(string)} sets the method to estimate the linear trend. It can be Ordinary Least Squares {opt (ols)} or Generalized Method of 
@@ -211,7 +211,7 @@ policy change. The dummy variable for the policy change time is {it:stub}_eq_p0.
  specified:
 
 {phang2}
-{opt noe:stimate} saves variables for event-time dummies, event-time and trends without estimating the model. This is useful if the 
+{opt noe:stimate} saves variables for event-time dummies, event-time, and trends without estimating the model. This option is helpful if the 
 users want to customize their regressions and plots.
 
 {phang2}
@@ -226,7 +226,7 @@ users want to customize their regressions and plots.
 datasets. By default, it absorbs the panel fixed effects and the time fixed effects. For OLS estimation, the {opt reghdfe}
 option requires {help reghdfe} and {help ftools} to be installed. For IV estimation, it also requires {help ivreghdfe} and {help ivreg2}
  to be installed. Note that standard errors may be different and singleton clusters may be dropped using {help reghdfe}.
- See Correia (2017).
+ See Correia (2016).
 
 {phang}
 {opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time
@@ -235,8 +235,8 @@ option requires {help reghdfe} and {help ftools} to be installed. For IV estimat
 {phang}
 {opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups 
 at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which {opt policyvar} changes, while the observations 
-in the dataset should be individuals in each state. There is a faster method to estimate the event study in a repeated cross-sectional 
-dataset, which involves using {cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See {help get_unit_time_effects}. For fixed-effects 
+in the dataset are individuals in each state. An alternative method to
+estimate the event study in a repeated cross-sectional dataset involves using {cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See the description of the {help get_unit_time_effects} command below. For fixed-effects 
 estimation, {opt repeatedcs} enables {opt reghdfe}.
 
 {phang}
@@ -257,7 +257,7 @@ Additional options are available with the postestimation command {help xteventpl
 {phang}
 {it: additional_options}: Additional options to be passed to the estimation command. When {opt proxy} is specified, these options are passed
 to {help ivregress}. When {opt reghdfe} is specified, these options are passed to {help reghdfe}. Otherwise, they are passed to {help areg} or
-to {help regress} if {opt nofe} is specified. This is useful to calculate clustered standard errors or to change regression reporting. Note
+to {help regress} if {opt nofe} is specified. This option is useful for calculating clustered standard errors or changing regression reporting. Note
 that two-way clustering is allowed with {help reghdfe}.  
 
 
@@ -404,7 +404,7 @@ that two-way clustering is allowed with {help reghdfe}.
        
 {title:References}
 
-{pstd}Correia, S. (2017) . "Linear Models with High-Dimensional Fixed Effects: An Efficient and Feasible Estimator" Working Paper. {browse "http://scorreia.com/research/hdfe.pdf"} 
+{pstd}Correia, S. (2016) . "Linear Models with High-Dimensional Fixed Effects: An Efficient and Feasible Estimator" Working Paper. {browse "http://scorreia.com/research/hdfe.pdf"} 
 
 {pstd}Dobkin, C., Finkelstein A., Kluender. R., and Notowidigdo, M. J. (2018) "The Economic Consequences of Hospital Admissions."
 {it:American Economic Review}, 108 (2): 308-52.

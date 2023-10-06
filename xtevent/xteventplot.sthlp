@@ -91,8 +91,7 @@ the predicted values on event-time dummy variables.
 {cmd: xtevent, proxy() proxyiv()}.
 
 {phang}
-{opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, two confidence
-intervals -- a standard confidence interval and a sup-t confidence interval -- are drawn.
+{opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, xteventplot draws two confidence intervals: a standard one and a sup-t confidence interval.
 {opt levels} allows different confidence levels for standard confidence intervals. For example, {opt levels(90 95)} draws both 90% and 95% level
 confidence intervals, along with a sup-t confidence interval for Stata's default confidence level.
 
