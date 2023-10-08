@@ -62,12 +62,10 @@
 {opt allpost} tests that all post-event coefficients are equal to 0. With {cmd:cumul}, it tests that the sum of all post-event coefficients is equal to 0.
 
 {phang}
-{opt linpretrend} requests a specification test to see if the coefficients before the event follow a linear trend.
+{opt linpretrend} requests a specification test to see if the coefficients follow a linear trend before the event.
 
 {phang}
-{opt trend(#1)} tests for a linear trend from time period #1 before the policy change to one period before the policy change. It uses
- {opt xtevent, trend(#1, method(ols))} to estimate the trend. For example, {opt: trend(-3)} uses the coefficients on event-times -3, -2,
- and -1 to estimate the trend and tests its significance. #1 must be less than -1.
+{opt trend(#1)} tests for a linear trend from time period #1 before the policy change. It uses {opt xtevent, trend(#1, method(ols))} to estimate the trend. #1 must be less than -1.
 
 {phang}
 {opt constanteff} tests that all post-event coefficients are equal.
