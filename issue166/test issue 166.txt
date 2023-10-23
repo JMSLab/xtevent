@@ -1,0 +1,909 @@
+----------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\166\test issue 166
+> .txt
+  log type:  text
+ opened on:  22 Oct 2023, 20:12:59
+
+. 
+. ******* test issue 166
+. 
+. *Setup
+. webuse nlswork, clear
+(National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
+
+. *year variable has many missing observations.
+. *Create a time variable that ignores these gaps.
+. by idcode (year): gen time=_n
+
+. xtset idcode time
+       panel variable:  idcode (unbalanced)
+        time variable:  time, 1 to 15
+                delta:  1 unit
+
+. *Generate a policy variable that follows staggered adoption.
+. by idcode (time): gen union2 = sum(union)
+
+. replace union2 = 1 if union2 > 1
+(4,177 real changes made)
+
+. 
+. 
+. ******** default estimation (no trend adjustment)
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(
+> -5 9) cluster(idcode) impute(stag)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =      8,870
+Absorbed variable: idcode                       No. of categories =        712
+                                                F(  35,    711)   =      26.38
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6564
+                                                Adj R-squared     =     0.6248
+                                                Root MSE          =     0.2681
+
+                               (Std. Err. adjusted for 712 clusters in idcode)
+------------------------------------------------------------------------------
+             |               Robust
+     ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m6 |  -.0706911   .0321146    -2.20   0.028    -.1337418   -.0076403
+    _k_eq_m5 |  -.0686776   .0279325    -2.46   0.014    -.1235177   -.0138374
+    _k_eq_m4 |  -.0727429   .0263419    -2.76   0.006    -.1244601   -.0210257
+    _k_eq_m3 |  -.0681702   .0235966    -2.89   0.004    -.1144976   -.0218429
+    _k_eq_m2 |  -.0556489   .0199538    -2.79   0.005    -.0948244   -.0164735
+    _k_eq_p0 |   .0857419   .0174833     4.90   0.000     .0514168    .1200669
+    _k_eq_p1 |   .0691923    .019104     3.62   0.000     .0316852    .1066993
+    _k_eq_p2 |   .0701434   .0215321     3.26   0.001     .0278693    .1124175
+    _k_eq_p3 |    .046279   .0233966     1.98   0.048     .0003442    .0922137
+    _k_eq_p4 |   .0203853   .0279577     0.73   0.466    -.0345042    .0752748
+    _k_eq_p5 |    .046789   .0291637     1.60   0.109    -.0104682    .1040462
+    _k_eq_p6 |   .0146254   .0320787     0.46   0.649     -.048355    .0776057
+    _k_eq_p7 |   .0147181   .0357908     0.41   0.681    -.0555502    .0849864
+    _k_eq_p8 |   .0221997   .0402844     0.55   0.582     -.056891    .1012904
+    _k_eq_p9 |    .023881   .0468967     0.51   0.611    -.0681915    .1159536
+   _k_eq_p10 |  -.0005517   .0506857    -0.01   0.991    -.1000632    .0989597
+         age |   .0265626   .0136961     1.94   0.053     -.000327    .0534522
+             |
+ c.age#c.age |  -.0006927   .0001972    -3.51   0.000      -.00108   -.0003055
+             |
+     ttl_exp |    .049726   .0090788     5.48   0.000     .0319015    .0675505
+             |
+   c.ttl_exp#|
+   c.ttl_exp |  -.0004206   .0003002    -1.40   0.162      -.00101    .0001687
+             |
+      tenure |   .0073692   .0021115     3.49   0.001     .0032237    .0115147
+             |
+        time |
+          2  |   .0539544   .0154102     3.50   0.000     .0236995    .0842092
+          3  |   .0516477   .0237074     2.18   0.030     .0051028    .0981926
+          4  |   .0513022   .0321454     1.60   0.111    -.0118091    .1144135
+          5  |    .049941   .0424879     1.18   0.240    -.0334758    .1333578
+          6  |   .0516893   .0526923     0.98   0.327    -.0517619    .1551405
+          7  |    .026648   .0652472     0.41   0.683    -.1014523    .1547483
+          8  |   .0300889   .0763754     0.39   0.694    -.1198594    .1800371
+          9  |   .0356507   .0865537     0.41   0.681    -.1342807    .2055822
+         10  |    .021096   .0998255     0.21   0.833     -.174892     .217084
+         11  |   .0287365    .110571     0.26   0.795    -.1883481    .2458212
+         12  |   .0314406   .1224595     0.26   0.797    -.2089849    .2718661
+         13  |   .0273037   .1333479     0.20   0.838    -.2344991    .2891065
+         14  |   .0648942   .1463198     0.44   0.658    -.2223764    .3521647
+         15  |    .054442   .1612468     0.34   0.736    -.2621348    .3710189
+             |
+       _cons |   1.197165   .2142148     5.59   0.000     .7765955    1.617734
+------------------------------------------------------------------------------
+
+. xteventplot //overid tests are added by default
+
+. 
+. xteventtest, coefs(1 2)
+
+ ( 1)  _k_eq_p1 = 0
+ ( 2)  _k_eq_p2 = 0
+
+       F(  2,   711) =    7.05
+            Prob > F =    0.0009
+
+. xteventtest, allpre 
+
+Test for all pre-event coefficients = 0
+
+ ( 1)  _k_eq_m6 = 0
+ ( 2)  _k_eq_m5 = 0
+ ( 3)  _k_eq_m4 = 0
+ ( 4)  _k_eq_m3 = 0
+ ( 5)  _k_eq_m2 = 0
+
+       F(  5,   711) =    2.24
+            Prob > F =    0.0487
+
+. xteventtest, allpost 
+
+Test for all post-event coefficients = 0
+
+ ( 1)  _k_eq_p0 = 0
+ ( 2)  _k_eq_p1 = 0
+ ( 3)  _k_eq_p2 = 0
+ ( 4)  _k_eq_p3 = 0
+ ( 5)  _k_eq_p4 = 0
+ ( 6)  _k_eq_p5 = 0
+ ( 7)  _k_eq_p6 = 0
+ ( 8)  _k_eq_p7 = 0
+ ( 9)  _k_eq_p8 = 0
+ (10)  _k_eq_p9 = 0
+ (11)  _k_eq_p10 = 0
+
+       F( 11,   711) =    3.16
+            Prob > F =    0.0003
+
+. xteventtest, constanteff 
+
+Test for constant post-event coefficients
+
+ ( 1)  _k_eq_p0 - _k_eq_p1 = 0
+ ( 2)  _k_eq_p0 - _k_eq_p2 = 0
+ ( 3)  _k_eq_p0 - _k_eq_p3 = 0
+ ( 4)  _k_eq_p0 - _k_eq_p4 = 0
+ ( 5)  _k_eq_p0 - _k_eq_p5 = 0
+ ( 6)  _k_eq_p0 - _k_eq_p6 = 0
+ ( 7)  _k_eq_p0 - _k_eq_p7 = 0
+ ( 8)  _k_eq_p0 - _k_eq_p8 = 0
+ ( 9)  _k_eq_p0 - _k_eq_p9 = 0
+ (10)  _k_eq_p0 - _k_eq_p10 = 0
+
+       F( 10,   711) =    1.22
+            Prob > F =    0.2749
+
+. xteventtest, overid 
+
+Overidentification test for pretrends: 5 pre-event coefficients are 0
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+Overidentification test for pretrends: 5 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m6 = 0
+ ( 2)  _k_eq_m5 = 0
+ ( 3)  _k_eq_m4 = 0
+ ( 4)  _k_eq_m3 = 0
+ ( 5)  _k_eq_m2 = 0
+
+       F(  5,   711) =    2.24
+            Prob > F =    0.0487
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p9 + _k_eq_p10 = 0
+
+       F(  1,   711) =    0.62
+            Prob > F =    0.4307
+
+Joint overidentification test
+
+ ( 1)  _k_eq_m6 = 0
+ ( 2)  _k_eq_m5 = 0
+ ( 3)  _k_eq_m4 = 0
+ ( 4)  _k_eq_m3 = 0
+ ( 5)  _k_eq_m2 = 0
+ ( 6)  - _k_eq_p9 + _k_eq_p10 = 0
+
+       F(  6,   711) =    2.03
+            Prob > F =    0.0594
+
+. xteventtest, overidpre(2) 
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m6 = 0
+ ( 2)  _k_eq_m5 = 0
+
+       F(  2,   711) =    3.17
+            Prob > F =    0.0427
+
+. xteventtest, overidpost(2) 
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p9 + _k_eq_p10 = 0
+
+       F(  1,   711) =    0.62
+            Prob > F =    0.4307
+
+. 
+. ********* Adjust the pre-trend by estimating a linear trend by OLS
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(
+> -5 9) cluster(idcode) impute(stag) trend(-3, method(ols) saveoverlay) 
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =      8,870
+Absorbed variable: idcode                       No. of categories =        712
+                                                F(  34,    711)   =      27.12
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6563
+                                                Adj R-squared     =     0.6248
+                                                Root MSE          =     0.2681
+
+                               (Std. Err. adjusted for 712 clusters in idcode)
+------------------------------------------------------------------------------
+             |               Robust
+     ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m6 |  -.1000403   .0392974    -2.55   0.011     -.177193   -.0228875
+    _k_eq_m5 |    .079273   .0398699     1.99   0.047     .0009962    .1575499
+    _k_eq_m4 |   .0398097   .0286253     1.39   0.165    -.0163906    .0960099
+    _k_eq_p0 |   .0564726    .023021     2.45   0.014     .0112753    .1016699
+    _k_eq_p1 |   .0044438   .0334324     0.13   0.894    -.0611943    .0700819
+    _k_eq_p2 |  -.0300423   .0448104    -0.67   0.503    -.1180188    .0579341
+    _k_eq_p3 |  -.0893367   .0559876    -1.60   0.111    -.1992574    .0205841
+    _k_eq_p4 |  -.1506784    .068058    -2.21   0.027    -.2842971   -.0170597
+    _k_eq_p5 |  -.1596919   .0809634    -1.97   0.049    -.3186477    -.000736
+    _k_eq_p6 |  -.2273135   .0918576    -2.47   0.014    -.4076582   -.0469689
+    _k_eq_p7 |  -.2626581    .105397    -2.49   0.013    -.4695847   -.0557315
+    _k_eq_p8 |  -.2905564   .1157906    -2.51   0.012    -.5178889   -.0632239
+    _k_eq_p9 |  -.3244149   .1321395    -2.46   0.014    -.5838452   -.0649847
+   _k_eq_p10 |  -.0294427   .0527442    -0.56   0.577    -.1329958    .0741104
+         age |     .02645   .0136864     1.93   0.054    -.0004206    .0533205
+             |
+ c.age#c.age |  -.0006922   .0001972    -3.51   0.000    -.0010793   -.0003051
+             |
+     ttl_exp |   .0497593   .0090787     5.48   0.000      .031935    .0675836
+             |
+   c.ttl_exp#|
+   c.ttl_exp |  -.0004213   .0003001    -1.40   0.161    -.0010104    .0001678
+             |
+      tenure |    .007358   .0021109     3.49   0.001     .0032137    .0115023
+             |
+        time |
+          2  |   .0549631   .0153022     3.59   0.000     .0249203     .085006
+          3  |   .0525127   .0236535     2.22   0.027     .0060736    .0989517
+          4  |   .0525356   .0320345     1.64   0.101     -.010358    .1154292
+          5  |    .050893   .0424226     1.20   0.231    -.0323956    .1341816
+          6  |   .0529029   .0526296     1.01   0.315    -.0504251    .1562309
+          7  |   .0278894   .0651696     0.43   0.669    -.1000585    .1558373
+          8  |    .031299   .0762976     0.41   0.682    -.1184965    .1810946
+          9  |   .0372282   .0864694     0.43   0.667    -.1325377    .2069941
+         10  |    .022598   .0997516     0.23   0.821    -.1732449    .2184408
+         11  |   .0303944   .1104945     0.28   0.783    -.1865402     .247329
+         12  |   .0332132   .1223806     0.27   0.786    -.2070573    .2734837
+         13  |   .0290989   .1332827     0.22   0.827    -.2325759    .2907736
+         14  |   .0668662   .1462555     0.46   0.648    -.2202782    .3540106
+         15  |    .056461   .1611897     0.35   0.726    -.2600038    .3729258
+             |
+     _ttrend |    .035485    .011871     2.99   0.003     .0121785    .0587914
+       _cons |   1.227872   .2152458     5.70   0.000     .8052784    1.650465
+------------------------------------------------------------------------------
+
+. xteventplot 
+
+. xteventplot, overlay(trend) 
+
+. 
+. xteventtest, coefs(1 2)
+
+ ( 1)  _k_eq_p1 = 0
+ ( 2)  _k_eq_p2 = 0
+
+       F(  2,   711) =    1.92
+            Prob > F =    0.1476
+
+. xteventtest, allpre //-6 should not be considered 
+
+Test for all pre-event coefficients = 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+. xteventtest, allpost // 10 should not be considered
+
+Test for all post-event coefficients = 0
+
+ ( 1)  _k_eq_p0 = 0
+ ( 2)  _k_eq_p1 = 0
+ ( 3)  _k_eq_p2 = 0
+ ( 4)  _k_eq_p3 = 0
+ ( 5)  _k_eq_p4 = 0
+ ( 6)  _k_eq_p5 = 0
+ ( 7)  _k_eq_p6 = 0
+ ( 8)  _k_eq_p7 = 0
+ ( 9)  _k_eq_p8 = 0
+ (10)  _k_eq_p9 = 0
+
+       F( 10,   711) =    6.01
+            Prob > F =    0.0000
+
+. xteventtest, constanteff // 10 should not be considered
+
+Test for constant post-event coefficients
+
+ ( 1)  _k_eq_p0 - _k_eq_p1 = 0
+ ( 2)  _k_eq_p0 - _k_eq_p2 = 0
+ ( 3)  _k_eq_p0 - _k_eq_p3 = 0
+ ( 4)  _k_eq_p0 - _k_eq_p4 = 0
+ ( 5)  _k_eq_p0 - _k_eq_p5 = 0
+ ( 6)  _k_eq_p0 - _k_eq_p6 = 0
+ ( 7)  _k_eq_p0 - _k_eq_p7 = 0
+ ( 8)  _k_eq_p0 - _k_eq_p8 = 0
+ ( 9)  _k_eq_p0 - _k_eq_p9 = 0
+
+       F(  9,   711) =    2.40
+            Prob > F =    0.0109
+
+. xteventtest, overid // -6 and 10 should not be considered
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.32
+            Prob > F =    0.2504
+
+Joint overidentification test
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+ ( 3)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  3,   711) =    1.37
+            Prob > F =    0.2514
+
+. xteventtest, overidpre(2) // -6 should not be considered
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+. xteventtest, overidpost(2) // 10 should not be considered
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.32
+            Prob > F =    0.2504
+
+. 
+. ******* Adjust the pre-trend by estimating a linear trend by GMM
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(
+> -5 9) cluster(idcode) impute(stag) trend(-3, method(gmm) saveoverlay) 
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =      8,870
+Absorbed variable: idcode                       No. of categories =        712
+                                                F(  35,    711)   =      26.38
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6564
+                                                Adj R-squared     =     0.6248
+                                                Root MSE          =     0.2681
+
+                               (Std. Err. adjusted for 712 clusters in idcode)
+------------------------------------------------------------------------------
+             |               Robust
+     ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m6 |   .0968964   .0505593     1.92   0.056    -.0023669    .1961598
+    _k_eq_m5 |   .0653924   .0278111     2.35   0.019     .0107908    .1199941
+    _k_eq_m4 |   .0278096   .0343018     0.81   0.418    -.0395352    .0951545
+    _k_eq_m3 |  -.0011352   .0251437    -0.05   0.964    -.0504999    .0482295
+    _k_eq_m2 |  -.0221314   .0187065    -1.18   0.237     -.058858    .0145952
+    _k_eq_p0 |   .0522244   .0243559     2.14   0.032     .0044062    .1000425
+    _k_eq_p1 |   .0021573   .0362361     0.06   0.953    -.0689852    .0732998
+    _k_eq_p2 |  -.0304091   .0490902    -0.62   0.536    -.1267881      .06597
+    _k_eq_p3 |   -.087791   .0614343    -1.43   0.153    -.2084054    .0328233
+    _k_eq_p4 |  -.1472022   .0768467    -1.92   0.056    -.2980758    .0036714
+    _k_eq_p5 |   -.154316   .0905623    -1.70   0.089    -.3321175    .0234855
+    _k_eq_p6 |  -.2199972   .1044865    -2.11   0.036    -.4251361   -.0148582
+    _k_eq_p7 |   -.253422    .119741    -2.12   0.035    -.4885102   -.0183337
+    _k_eq_p8 |  -.2794579   .1320997    -2.12   0.035    -.5388099   -.0201058
+    _k_eq_p9 |   -.311294    .149237    -2.09   0.037     -.604292    -.018296
+   _k_eq_p10 |  -.3692442   .1617341    -2.28   0.023    -.6867778   -.0517107
+         age |   .0265626   .0136961     1.94   0.053     -.000327    .0534522
+             |
+ c.age#c.age |  -.0006927   .0001972    -3.51   0.000      -.00108   -.0003055
+             |
+     ttl_exp |    .049726   .0090788     5.48   0.000     .0319015    .0675505
+             |
+   c.ttl_exp#|
+   c.ttl_exp |  -.0004206   .0003002    -1.40   0.162      -.00101    .0001687
+             |
+      tenure |   .0073692   .0021115     3.49   0.001     .0032237    .0115147
+             |
+        time |
+          2  |   .0539544   .0154102     3.50   0.000     .0236995    .0842092
+          3  |   .0516477   .0237074     2.18   0.030     .0051028    .0981926
+          4  |   .0513022   .0321454     1.60   0.111    -.0118091    .1144135
+          5  |    .049941   .0424879     1.18   0.240    -.0334758    .1333578
+          6  |   .0516893   .0526923     0.98   0.327    -.0517619    .1551405
+          7  |    .026648   .0652472     0.41   0.683    -.1014523    .1547483
+          8  |   .0300889   .0763754     0.39   0.694    -.1198594    .1800371
+          9  |   .0356507   .0865537     0.41   0.681    -.1342807    .2055822
+         10  |    .021096   .0998255     0.21   0.833     -.174892     .217084
+         11  |   .0287365    .110571     0.26   0.795    -.1883481    .2458212
+         12  |   .0314406   .1224595     0.26   0.797    -.2089849    .2718661
+         13  |   .0273037   .1333479     0.20   0.838    -.2344991    .2891065
+         14  |   .0648942   .1463198     0.44   0.658    -.2223764    .3521647
+         15  |    .054442   .1612468     0.34   0.736    -.2621348    .3710189
+             |
+       _cons |   1.197165   .2142148     5.59   0.000     .7765955    1.617734
+------------------------------------------------------------------------------
+
+. 
+. xteventtest, coefs(1 2)
+
+ ( 1)  _k_eq_p1 = 0
+ ( 2)  _k_eq_p2 = 0
+
+       F(  2,   711) =    1.63
+            Prob > F =    0.1967
+
+. xteventtest, allpre  
+
+Test for all pre-event coefficients = 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+ ( 3)  _k_eq_m3 = 0
+ ( 4)  _k_eq_m2 = 0
+
+       F(  4,   711) =    2.83
+            Prob > F =    0.0240
+
+. xteventtest, allpost 
+
+Test for all post-event coefficients = 0
+
+ ( 1)  _k_eq_p0 = 0
+ ( 2)  _k_eq_p1 = 0
+ ( 3)  _k_eq_p2 = 0
+ ( 4)  _k_eq_p3 = 0
+ ( 5)  _k_eq_p4 = 0
+ ( 6)  _k_eq_p5 = 0
+ ( 7)  _k_eq_p6 = 0
+ ( 8)  _k_eq_p7 = 0
+ ( 9)  _k_eq_p8 = 0
+ (10)  _k_eq_p9 = 0
+
+       F( 10,   711) =    4.69
+            Prob > F =    0.0000
+
+. xteventtest, constanteff 
+
+Test for constant post-event coefficients
+
+ ( 1)  _k_eq_p0 - _k_eq_p1 = 0
+ ( 2)  _k_eq_p0 - _k_eq_p2 = 0
+ ( 3)  _k_eq_p0 - _k_eq_p3 = 0
+ ( 4)  _k_eq_p0 - _k_eq_p4 = 0
+ ( 5)  _k_eq_p0 - _k_eq_p5 = 0
+ ( 6)  _k_eq_p0 - _k_eq_p6 = 0
+ ( 7)  _k_eq_p0 - _k_eq_p7 = 0
+ ( 8)  _k_eq_p0 - _k_eq_p8 = 0
+ ( 9)  _k_eq_p0 - _k_eq_p9 = 0
+
+       F(  9,   711) =    1.79
+            Prob > F =    0.0664
+
+. xteventtest, overid 
+
+Overidentification test for pretrends: 4 pre-event coefficients are 0
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+Overidentification test for pretrends: 4 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+ ( 3)  _k_eq_m3 = 0
+ ( 4)  _k_eq_m2 = 0
+
+       F(  4,   711) =    2.83
+            Prob > F =    0.0240
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.13
+            Prob > F =    0.2885
+
+Joint overidentification test
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+ ( 3)  _k_eq_m3 = 0
+ ( 4)  _k_eq_m2 = 0
+ ( 5)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  5,   711) =    2.31
+            Prob > F =    0.0427
+
+. xteventtest, overidpre(2) 
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    4.38
+            Prob > F =    0.0129
+
+. xteventtest, overidpost(2) 
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.13
+            Prob > F =    0.2885
+
+. 
+. ************ pre,post, overidpre, overidpost 
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) ov
+> eridpre(5) pre(0) post(8) overidpost(2) cluster(idcode) impute(stag) trend(-3, m
+> ethod(ols) saveoverlay) 
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =      8,870
+Absorbed variable: idcode                       No. of categories =        712
+                                                F(  34,    711)   =      27.12
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6563
+                                                Adj R-squared     =     0.6248
+                                                Root MSE          =     0.2681
+
+                               (Std. Err. adjusted for 712 clusters in idcode)
+------------------------------------------------------------------------------
+             |               Robust
+     ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m6 |  -.1000403   .0392974    -2.55   0.011     -.177193   -.0228875
+    _k_eq_m5 |    .079273   .0398699     1.99   0.047     .0009962    .1575499
+    _k_eq_m4 |   .0398097   .0286253     1.39   0.165    -.0163906    .0960099
+    _k_eq_p0 |   .0564726    .023021     2.45   0.014     .0112753    .1016699
+    _k_eq_p1 |   .0044438   .0334324     0.13   0.894    -.0611943    .0700819
+    _k_eq_p2 |  -.0300423   .0448104    -0.67   0.503    -.1180188    .0579341
+    _k_eq_p3 |  -.0893367   .0559876    -1.60   0.111    -.1992574    .0205841
+    _k_eq_p4 |  -.1506784    .068058    -2.21   0.027    -.2842971   -.0170597
+    _k_eq_p5 |  -.1596919   .0809634    -1.97   0.049    -.3186477    -.000736
+    _k_eq_p6 |  -.2273135   .0918576    -2.47   0.014    -.4076582   -.0469689
+    _k_eq_p7 |  -.2626581    .105397    -2.49   0.013    -.4695847   -.0557315
+    _k_eq_p8 |  -.2905564   .1157906    -2.51   0.012    -.5178889   -.0632239
+    _k_eq_p9 |  -.3244149   .1321395    -2.46   0.014    -.5838452   -.0649847
+   _k_eq_p10 |  -.0294427   .0527442    -0.56   0.577    -.1329958    .0741104
+         age |     .02645   .0136864     1.93   0.054    -.0004206    .0533205
+             |
+ c.age#c.age |  -.0006922   .0001972    -3.51   0.000    -.0010793   -.0003051
+             |
+     ttl_exp |   .0497593   .0090787     5.48   0.000      .031935    .0675836
+             |
+   c.ttl_exp#|
+   c.ttl_exp |  -.0004213   .0003001    -1.40   0.161    -.0010104    .0001678
+             |
+      tenure |    .007358   .0021109     3.49   0.001     .0032137    .0115023
+             |
+        time |
+          2  |   .0549631   .0153022     3.59   0.000     .0249203     .085006
+          3  |   .0525127   .0236535     2.22   0.027     .0060736    .0989517
+          4  |   .0525356   .0320345     1.64   0.101     -.010358    .1154292
+          5  |    .050893   .0424226     1.20   0.231    -.0323956    .1341816
+          6  |   .0529029   .0526296     1.01   0.315    -.0504251    .1562309
+          7  |   .0278894   .0651696     0.43   0.669    -.1000585    .1558373
+          8  |    .031299   .0762976     0.41   0.682    -.1184965    .1810946
+          9  |   .0372282   .0864694     0.43   0.667    -.1325377    .2069941
+         10  |    .022598   .0997516     0.23   0.821    -.1732449    .2184408
+         11  |   .0303944   .1104945     0.28   0.783    -.1865402     .247329
+         12  |   .0332132   .1223806     0.27   0.786    -.2070573    .2734837
+         13  |   .0290989   .1332827     0.22   0.827    -.2325759    .2907736
+         14  |   .0668662   .1462555     0.46   0.648    -.2202782    .3540106
+         15  |    .056461   .1611897     0.35   0.726    -.2600038    .3729258
+             |
+     _ttrend |    .035485    .011871     2.99   0.003     .0121785    .0587914
+       _cons |   1.227872   .2152458     5.70   0.000     .8052784    1.650465
+------------------------------------------------------------------------------
+
+. 
+. xteventtest, coefs(1 2)
+
+ ( 1)  _k_eq_p1 = 0
+ ( 2)  _k_eq_p2 = 0
+
+       F(  2,   711) =    1.92
+            Prob > F =    0.1476
+
+. xteventtest, allpre  
+
+Test for all pre-event coefficients = 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+. xteventtest, allpost 
+
+Test for all post-event coefficients = 0
+
+ ( 1)  _k_eq_p0 = 0
+ ( 2)  _k_eq_p1 = 0
+ ( 3)  _k_eq_p2 = 0
+ ( 4)  _k_eq_p3 = 0
+ ( 5)  _k_eq_p4 = 0
+ ( 6)  _k_eq_p5 = 0
+ ( 7)  _k_eq_p6 = 0
+ ( 8)  _k_eq_p7 = 0
+ ( 9)  _k_eq_p8 = 0
+ (10)  _k_eq_p9 = 0
+
+       F( 10,   711) =    6.01
+            Prob > F =    0.0000
+
+. xteventtest, constanteff 
+
+Test for constant post-event coefficients
+
+ ( 1)  _k_eq_p0 - _k_eq_p1 = 0
+ ( 2)  _k_eq_p0 - _k_eq_p2 = 0
+ ( 3)  _k_eq_p0 - _k_eq_p3 = 0
+ ( 4)  _k_eq_p0 - _k_eq_p4 = 0
+ ( 5)  _k_eq_p0 - _k_eq_p5 = 0
+ ( 6)  _k_eq_p0 - _k_eq_p6 = 0
+ ( 7)  _k_eq_p0 - _k_eq_p7 = 0
+ ( 8)  _k_eq_p0 - _k_eq_p8 = 0
+ ( 9)  _k_eq_p0 - _k_eq_p9 = 0
+
+       F(  9,   711) =    2.40
+            Prob > F =    0.0109
+
+. *expected error 
+. cap noisily xteventtest, overid // since overidpre(5) it will try to test the fi
+> rst 5 coefficients for the pre-trend test. It  inherits from xtevent the value f
+> or overidpre
+
+Overidentification test for pretrends: 5 pre-event coefficients are 0
+
+Cannot test more pre-event coefficients than were estimated
+
+. xteventtest, overidpre(2) 
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+. xteventtest, overidpost(2) 
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.32
+            Prob > F =    0.2504
+
+. 
+. ****** savek 
+. cap drop myvars*
+
+. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) w(
+> -5 9) cluster(idcode) impute(stag) trend(-3, method(ols) saveoverlay) savek(myva
+> rs)
+
+Using options panelvar and timevar from xtset
+
+No proxy or instruments provided. Implementing OLS estimator
+
+Linear regression, absorbing indicators         Number of obs     =      8,870
+Absorbed variable: idcode                       No. of categories =        712
+                                                F(  34,    711)   =      27.12
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.6563
+                                                Adj R-squared     =     0.6248
+                                                Root MSE          =     0.2681
+
+                               (Std. Err. adjusted for 712 clusters in idcode)
+------------------------------------------------------------------------------
+             |               Robust
+     ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _k_eq_m6 |  -.1000403   .0392974    -2.55   0.011     -.177193   -.0228875
+    _k_eq_m5 |    .079273   .0398699     1.99   0.047     .0009962    .1575499
+    _k_eq_m4 |   .0398097   .0286253     1.39   0.165    -.0163906    .0960099
+    _k_eq_p0 |   .0564726    .023021     2.45   0.014     .0112753    .1016699
+    _k_eq_p1 |   .0044438   .0334324     0.13   0.894    -.0611943    .0700819
+    _k_eq_p2 |  -.0300423   .0448104    -0.67   0.503    -.1180188    .0579341
+    _k_eq_p3 |  -.0893367   .0559876    -1.60   0.111    -.1992574    .0205841
+    _k_eq_p4 |  -.1506784    .068058    -2.21   0.027    -.2842971   -.0170597
+    _k_eq_p5 |  -.1596919   .0809634    -1.97   0.049    -.3186477    -.000736
+    _k_eq_p6 |  -.2273135   .0918576    -2.47   0.014    -.4076582   -.0469689
+    _k_eq_p7 |  -.2626581    .105397    -2.49   0.013    -.4695847   -.0557315
+    _k_eq_p8 |  -.2905564   .1157906    -2.51   0.012    -.5178889   -.0632239
+    _k_eq_p9 |  -.3244149   .1321395    -2.46   0.014    -.5838452   -.0649847
+   _k_eq_p10 |  -.0294427   .0527442    -0.56   0.577    -.1329958    .0741104
+         age |     .02645   .0136864     1.93   0.054    -.0004206    .0533205
+             |
+ c.age#c.age |  -.0006922   .0001972    -3.51   0.000    -.0010793   -.0003051
+             |
+     ttl_exp |   .0497593   .0090787     5.48   0.000      .031935    .0675836
+             |
+   c.ttl_exp#|
+   c.ttl_exp |  -.0004213   .0003001    -1.40   0.161    -.0010104    .0001678
+             |
+      tenure |    .007358   .0021109     3.49   0.001     .0032137    .0115023
+             |
+        time |
+          2  |   .0549631   .0153022     3.59   0.000     .0249203     .085006
+          3  |   .0525127   .0236535     2.22   0.027     .0060736    .0989517
+          4  |   .0525356   .0320345     1.64   0.101     -.010358    .1154292
+          5  |    .050893   .0424226     1.20   0.231    -.0323956    .1341816
+          6  |   .0529029   .0526296     1.01   0.315    -.0504251    .1562309
+          7  |   .0278894   .0651696     0.43   0.669    -.1000585    .1558373
+          8  |    .031299   .0762976     0.41   0.682    -.1184965    .1810946
+          9  |   .0372282   .0864694     0.43   0.667    -.1325377    .2069941
+         10  |    .022598   .0997516     0.23   0.821    -.1732449    .2184408
+         11  |   .0303944   .1104945     0.28   0.783    -.1865402     .247329
+         12  |   .0332132   .1223806     0.27   0.786    -.2070573    .2734837
+         13  |   .0290989   .1332827     0.22   0.827    -.2325759    .2907736
+         14  |   .0668662   .1462555     0.46   0.648    -.2202782    .3540106
+         15  |    .056461   .1611897     0.35   0.726    -.2600038    .3729258
+             |
+     _ttrend |    .035485    .011871     2.99   0.003     .0121785    .0587914
+       _cons |   1.227872   .2152458     5.70   0.000     .8052784    1.650465
+------------------------------------------------------------------------------
+
+. 
+. xteventtest, coefs(1 2)
+
+ ( 1)  _k_eq_p1 = 0
+ ( 2)  _k_eq_p2 = 0
+
+       F(  2,   711) =    1.92
+            Prob > F =    0.1476
+
+. xteventtest, allpre  
+
+Test for all pre-event coefficients = 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+. xteventtest, allpost 
+
+Test for all post-event coefficients = 0
+
+ ( 1)  _k_eq_p0 = 0
+ ( 2)  _k_eq_p1 = 0
+ ( 3)  _k_eq_p2 = 0
+ ( 4)  _k_eq_p3 = 0
+ ( 5)  _k_eq_p4 = 0
+ ( 6)  _k_eq_p5 = 0
+ ( 7)  _k_eq_p6 = 0
+ ( 8)  _k_eq_p7 = 0
+ ( 9)  _k_eq_p8 = 0
+ (10)  _k_eq_p9 = 0
+
+       F( 10,   711) =    6.01
+            Prob > F =    0.0000
+
+. xteventtest, constanteff 
+
+Test for constant post-event coefficients
+
+ ( 1)  _k_eq_p0 - _k_eq_p1 = 0
+ ( 2)  _k_eq_p0 - _k_eq_p2 = 0
+ ( 3)  _k_eq_p0 - _k_eq_p3 = 0
+ ( 4)  _k_eq_p0 - _k_eq_p4 = 0
+ ( 5)  _k_eq_p0 - _k_eq_p5 = 0
+ ( 6)  _k_eq_p0 - _k_eq_p6 = 0
+ ( 7)  _k_eq_p0 - _k_eq_p7 = 0
+ ( 8)  _k_eq_p0 - _k_eq_p8 = 0
+ ( 9)  _k_eq_p0 - _k_eq_p9 = 0
+
+       F(  9,   711) =    2.40
+            Prob > F =    0.0109
+
+. xteventtest, overid 
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.32
+            Prob > F =    0.2504
+
+Joint overidentification test
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+ ( 3)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  3,   711) =    1.37
+            Prob > F =    0.2514
+
+. xteventtest, overidpre(2) 
+
+Overidentification test for pretrends: 2 pre-event coefficients are 0
+
+ ( 1)  _k_eq_m5 = 0
+ ( 2)  _k_eq_m4 = 0
+
+       F(  2,   711) =    1.98
+            Prob > F =    0.1386
+
+. xteventtest, overidpost(2)
+
+Overidentification test for effects leveling off: 2 last post-event coefficients a
+> re equal
+
+ ( 1)  - _k_eq_p8 + _k_eq_p9 = 0
+
+       F(  1,   711) =    1.32
+            Prob > F =    0.2504
+
+. 
+. log close 
+      name:  <unnamed>
+       log:  C:\Users\tino_\Dropbox\PC\Documents\xtevent\issues\166\test issue 166
+> .txt
+  log type:  text
+ closed on:  22 Oct 2023, 20:13:38
+----------------------------------------------------------------------------------
