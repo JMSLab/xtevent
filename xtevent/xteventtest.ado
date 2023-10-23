@@ -63,6 +63,14 @@ program define xteventtest, rclass
 		
 	loc names = e(names)
 	
+	*remove the endpoints from the stored list of event-time dummy variables  
+	if "`=e(trend)'"=="trend"{
+		loc lendp "_k_eq_m`=-`=`e(lwindow)'-1''"
+		loc rendp "_k_eq_p`=`e(rwindow)'+1'"
+		loc names: subinstr local names "`lendp'" "", all
+		loc names: subinstr local names "`rendp'" "", all
+	}
+	
 	* Turn overid into overidpre and overidpost
 	if "`overid'"!="" {
 		if e(pre)==. {
