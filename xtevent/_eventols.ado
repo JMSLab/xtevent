@@ -666,7 +666,11 @@ program define _eventols, rclass
 		return matrix mattrendx = `mattrendx'
 		return local trendsaveov = "trendsaveov"
 	}
-	if "`trend'"!="" return local trend = "trend" 
+	if "`trend'"!="" {
+		return local trend = "trend" 
+		return local trendmethod = "`methodt'" 
+		}
+	
 	return local method = "ols"
 end
 

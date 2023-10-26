@@ -63,7 +63,7 @@ program define xteventtest, rclass
 		
 	loc names = e(names)
 	
-	*remove the endpoints from the stored list of event-time dummy variables  
+	*if previous trend adjustment, remove the endpoints from the stored list of event-time dummy variables  
 	if "`=e(trend)'"=="trend"{
 		loc lendp "_k_eq_m`=-`=`e(lwindow)'-1''"
 		loc rendp "_k_eq_p`=`e(rwindow)'+1'"
@@ -89,6 +89,33 @@ program define xteventtest, rclass
 			loc overidpre=e(overidpre)
 			loc overidpost=e(overidpost)+1
 		}
+	}
+	
+	*Change the coefficients to test pretrends if there was trend adjustment with ols method and requested number of coefficients is greater than the number of available ones.
+	if "`=e(trendmethod)'"=="ols" & ("`overid'"!="" | "`overidpre'"!="") {
+		*number of available pre-event coefficients 
+		loc j=0
+		foreach w in `names' {
+			if regexm("`w'","_k_eq_m") loc ++j
+		}	
+		
+		if `j' == 0 {
+			di as err _n "Cannot test pretrends if there are 0 available pre-event coefficients after trend adjustment with OLS method."
+			exit 103 
+		}
+		loc checkadj = 0
+		if "`overid'"!="" & `overidpre'>`j' {
+			di as text _n "{bf:overidpre} value from {cmd: xtevent} is `e(overidpre)', but available pre-event coefficients are {bf:`j'} after trend adjustment with OLS method."
+			loc checkadj 1
+		}
+		if "`overidpre'"!="" & "`overid'"==""  & `overidpre'>`j'{
+			di as text _n "You requested pretrend test with the first {bf:`overidpre'} coefficients, but there are only {bf:`j'} available pre-event coefficients after trend adjustment with OLS method."
+			loc checkadj 1
+		}
+		if `checkadj'==1 {
+			di as text _n "The pretrend test will account only the {bf:`j'} available pre-event coefficients."
+			loc overidpre=`j'
+		}	
 	}
 		
 	* If overidpre, take the earlier coefs

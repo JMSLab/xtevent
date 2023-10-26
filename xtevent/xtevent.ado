@@ -326,7 +326,10 @@ program define xtevent, eclass
 			ereturn matrix Vdeltaov = Vdeltaov
 			ereturn local trendsaveov = r(trendsaveov)
 		}
-		if "`trend'"!="" ereturn local trend = r(trend)
+		if "`trend'"!="" {
+			ereturn local trendmethod = r(trendmethod)
+			ereturn local trend = r(trend)
+		}
 		
 		ereturn local names=r(names)
 		loc cmd = r(cmd)
