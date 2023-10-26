@@ -347,6 +347,7 @@ that two-way clustering is allowed with {help reghdfe}.
 {synopt:{cmd:e(y1)}}mean of dependent variable et event-time = -1{p_end}
 {synopt:{cmd:e(x1)}}mean of proxy variable et event-time = -1, when only one proxy is specified{p_end}
 {synopt:{cmd:e(trend)}}"trend" if estimation included extrapolation of a linear trend{p_end}
+{synopt:{cmd:e(trendmethod)}}method used to estimate the linear trend: can be "ols" or "gmm"{p_end}
 {synopt:{cmd:e(cmd)}}estimation command: can be {help regress}, {help areg}, {help ivregress}, {help xtivreg}, or {help reghdfe}
 {p_end}
 {synopt:{cmd:e(df)}}degrees of freedom{p_end}
