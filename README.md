@@ -227,4 +227,4 @@ Our YouTube channel, [Linear Panel Event-Study Design](https://www.youtube.com/w
 Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. "Visualization, Identification, and Estimation in the Linear Panel Event-Study Design." [NBER Working Paper No. 29170](https://www.nber.org/papers/w29170),
 August 2021; forthcoming in _Advances in Economics and Econometrics: Twelfth World Congress_.
 
-Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, Jesse M. Shapiro, and Constantino Carreto. "Estimation and Visualization in the Linear Panel Event-Study Design." [Article submitted to _Stata Journal_]([https://www.nber.org/papers/w29170](https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf)https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf), October 2023.
+Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, Jesse M. Shapiro, and Constantino Carreto. "Estimation and Visualization in the Linear Panel Event-Study Design." [Article to accompany Stata package](https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf), October 2023.
