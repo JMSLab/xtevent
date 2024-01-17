@@ -13,6 +13,13 @@
 
 ### Updates
 
+* **Version 3.0.0 (17jan2024)**:
+    - Increase default replications for sup-t confidence intervals: #153
+    - Fixed bugs present in version 2.2.0: #155, #159, #166
+    - Clarifications in the documentation: #152, #161, #163 
+    - Fixed typos in help files.
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v3.0.0) for the complete update list.
+
 * **Version 2.2.0 (15mar2023)**:
     - Add `cohort` and `control_cohort` to obtain estimates using [Sun and Abraham's (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) method.
     - Add `repeatedcs`option and `get_unit_time_effects`command to estimate event-studies in repeated cross-section settings.
@@ -221,4 +228,3 @@ Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapir
 August 2021; forthcoming in _Advances in Economics and Econometrics: Twelfth World Congress_.
 
 Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, Jesse M. Shapiro, and Constantino Carreto. "Estimation and Visualization in the Linear Panel Event-Study Design." [Article submitted to _Stata Journal_]([https://www.nber.org/papers/w29170](https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf)https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf), October 2023.
-
