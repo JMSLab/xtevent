@@ -1,6 +1,6 @@
 
 {smcl}
-{* *! version 2.2.0 Mar 15 2023}{...}
+{* *! version 3.0.0 Feb 23 2024}{...}
 {cmd:help get_unit_time_effects}
 {hline}
 
