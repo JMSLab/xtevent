@@ -7,7 +7,7 @@
 `xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
-- Last version: 3.0.0 (jan2024)
+- Last version: 3.0.0 (23feb2024)
 - Current SSC version: 2.2.0 (15mar2023)
 -----------
 
