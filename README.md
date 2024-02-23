@@ -7,11 +7,18 @@
 `xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
-- Last version: 2.2.0 (15mar2023)
+- Last version: 3.0.0 (23feb2024)
 - Current SSC version: 2.2.0 (15mar2023)
 -----------
 
 ### Updates
+
+* **Version 3.0.0 (jan2024)**:
+    - Increase default replications for sup-t confidence intervals: [#153](https://github.com/JMSLab/xtevent/issues/153)
+    - Change the name of the option to omit the label for the value of the dependent variable from `nominus1label` to `nonormlabel`: [#152](https://github.com/JMSLab/xtevent/issues/152)
+    - Fixed bugs present in version 2.2.0: [#155](https://github.com/JMSLab/xtevent/issues/155), [#159](https://github.com/JMSLab/xtevent/issues/159), [#166](https://github.com/JMSLab/xtevent/issues/166)
+    - Clarifications in the documentation: [#152](https://github.com/JMSLab/xtevent/issues/152), [#161](https://github.com/JMSLab/xtevent/issues/161), [#163](https://github.com/JMSLab/xtevent/issues/163) 
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v3.0.0) for the complete update list.
 
 * **Version 2.2.0 (15mar2023)**:
     - Add `cohort` and `control_cohort` to obtain estimates using [Sun and Abraham's (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) method.
@@ -217,5 +224,7 @@ Our YouTube channel, [Linear Panel Event-Study Design](https://www.youtube.com/w
 
 ### Citation
 
-Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. "Visualization, Identification, and Estimation in the Panel Event-Study Design." [NBER Working Paper No. 29170](https://www.nber.org/papers/w29170),
-August 2021.
+Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. "Visualization, Identification, and Estimation in the Linear Panel Event-Study Design." [NBER Working Paper No. 29170](https://www.nber.org/papers/w29170),
+August 2021; forthcoming in _Advances in Economics and Econometrics: Twelfth World Congress_.
+
+Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, Jesse M. Shapiro, and Constantino Carreto. "Estimation and Visualization in the Linear Panel Event-Study Design." [Article to accompany Stata package](https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf), October 2023.

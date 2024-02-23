@@ -32,29 +32,29 @@ xtevent y eta, policyvar(z) panelvar(z) window(5)
 xtevent y eta, policyvar(z) timevar(z) window(5) 
 */
 
-* Testing noci, nosupt, nozeroline, nominus1label
+* Testing noci, nosupt, nozeroline, nonormlabel
 xtevent y eta, policyvar(z) timevar(t) window(5)
 xteventplot, noci
 xteventplot, nosupt
 xteventplot, nozeroline
-xteventplot, nominus1label
+xteventplot, nonormlabel
 
 * Test combinations
 xteventplot, noci nozeroline
-xteventplot, noci nominus1label
+xteventplot, noci nonormlabel
 xteventplot, nosupt nozeroline
-xteventplot, nosupt nominus1label
+xteventplot, nosupt nonormlabel
 
 * A common axis plot with labels
 gen y2 = y + 5
 xtevent y eta, policyvar(z) timevar(t) window(5)
 loc lab : di %-9.2f `=e(y1)'
 loc lab=strtrim("`lab'")
-xteventplot, nominus1label ylab(-3 0 `"0 (`lab')"' 3) name(g1) /* " */
+xteventplot, nonormlabel ylab(-3 0 `"0 (`lab')"' 3) name(g1) /* " */
 xtevent y2 eta, policyvar(z) timevar(t) window(5)
 loc lab : di %-9.2f `=e(y1)'
 loc lab=strtrim("`lab'")
-xteventplot, nominus1label ylab(-3 0 `"0 (`lab')"' 3) name(g2) /* " */
+xteventplot, nonormlabel ylab(-3 0 `"0 (`lab')"' 3) name(g2) /* " */
 graph combine g1 g2
 drop y2
 
@@ -285,12 +285,12 @@ xtevent y eta, policyvar(z) panelvar(z) window(5)
 xtevent y eta, policyvar(z) timevar(z) window(5) 
 */
 
-* Testing noci, nosupt, nozeroline, nominus1label
+* Testing noci, nosupt, nozeroline, nonormlabel
 xtevent y , policyvar(z) timevar(t) window(5)
 xteventplot, noci
 xteventplot, nosupt
 xteventplot, nozeroline
-xteventplot, nominus1label
+xteventplot, nonormlabel
 
 * Test if/in
 xtevent y if i<100, panelvar(i) timevar(t) policyvar(z) window(5) plot
@@ -424,12 +424,12 @@ xtevent y , policyvar(z) panelvar(z) window(5) proxy(x)
 xtevent y , policyvar(z) timevar(z) window(5) proxy(x)
 */
 
-* Testing noci, nosupt, nozeroline, nominus1label
+* Testing noci, nosupt, nozeroline, nonormlabel
 xtevent y , policyvar(z) timevar(t) window(5) proxy(x)
 xteventplot, nosupt
 xteventplot, noci
 xteventplot, nozeroline
-xteventplot, nominus1label
+xteventplot, nonormlabel
 
 * Test if/in
 xtevent y if i<100, panelvar(i) timevar(t) policyvar(z) window(5) proxy(x) plot
@@ -486,11 +486,11 @@ xtevent y eta, policyvar(z) panelvar(z) window(5) trend(-3 5)
 xtevent y eta, policyvar(z) timevar(z) window(5) trend(-3 5)
 */
 
-* Testing noci, nosupt, nozeroline, nominus1label
+* Testing noci, nosupt, nozeroline, nonormlabel
 xteventplot, noci
 xteventplot, nosupt
 xteventplot, nozeroline
-xteventplot, nominus1label
+xteventplot, nonormlabel
 
 * Must fail
 * xtevent y eta if i<100, panelvar(i) timevar(t) policyvar(z) window(5) trend(-8 5)
