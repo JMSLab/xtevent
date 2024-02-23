@@ -13,7 +13,7 @@
 
 ### Updates
 
-* **Version 3.0.0 (jan2024)**:
+* **Version 3.0.0 (23feb2024)**:
     - Increase default replications for sup-t confidence intervals: [#153](https://github.com/JMSLab/xtevent/issues/153)
     - Change the name of the option to omit the label for the value of the dependent variable from `nominus1label` to `nonormlabel`: [#152](https://github.com/JMSLab/xtevent/issues/152)
     - Fixed bugs present in version 2.2.0: [#155](https://github.com/JMSLab/xtevent/issues/155), [#159](https://github.com/JMSLab/xtevent/issues/159), [#166](https://github.com/JMSLab/xtevent/issues/166)
