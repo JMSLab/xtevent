@@ -370,7 +370,7 @@ program define xteventplot
 					di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
 				}
 				loc level=c(level)/100
-				mata: supt(`suptreps',"`se'",`level')
+				mata: supt(`suptreps',"`se'","`V'",`level')
 				tempvar ulsupt llsupt
 				gen double `ulsupt' = `coef' + q*`se'
 				gen double `llsupt' = `coef' - q*`se'
@@ -949,21 +949,19 @@ mata
 		
 	void supt(real scalar suptreps,
 				string scalar se,
+				string scalar V,
 				real scalar level
 	)
-	{	real matrix senum,rmv,mv,means,var,sd,std,am
+	{	real matrix senum,Vnum,Vcor,rmv,am
 		real scalar q
 	
 		senum = st_matrix(se)
-		rmv=rnormal(suptreps,1,J(1,cols(senum),0),senum)
-		mv = meanvariance(rmv)
-		means = mv[1,.]
-		var   = mv[|2,1 \ .,.|]
-		sd = sqrt(diagonal(var))'
-		std = (rmv :- means):/sd
-		am = rowmax(abs(std))
+		Vnum = st_matrix(V)
+		Vcor=cholinv(diag(senum))*Vnum*cholinv(diag(senum))
+		rmv=rnormal(suptreps,1,J(1,cols(senum),0),J(1,cols(senum),1))*(cholesky(Vcor)')
+		am = rowmax(abs(rmv))
 		q = mm_quantile(am,1,level)		
-		st_numscalar("q",q)
+		st_numscalar("q",q)		
 	}
 
 	real matrix mm_quantile(real matrix X, | real colvector w,
