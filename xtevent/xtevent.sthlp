@@ -32,7 +32,7 @@
 {p2coldent:* {opth pol:icyvar(varname)}} policy variable{p_end}
 {synopt: {opth p:anelvar(varname)}} variable that identifies the panels{p_end}
 {synopt: {opth t:imevar(varname)}} variable that identifies the time periods{p_end}
-{synopt: {opth w:indow(numlist)}} # of periods in the estimation window{p_end}
+{synopt: {opth w:indow(string)}} # of periods in the estimation window{p_end}
 {synopt: {opth pre(integer)}} # of periods with anticipation effects{p_end}
 {synopt: {opth post(integer)}} # of periods with policy effects{p_end}
 {synopt: {opth overidpre(integer)}} # of periods to test pre-trends{p_end}
@@ -98,12 +98,13 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {help xtset}.
 
 {phang}
-{opth window(numlist)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
+{opth window(string)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
 is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
 coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<=0 and {it:k2}>=0 are specified, the 
 estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
-and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). {opt window()} is required unless 
-{opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()}, 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). If {cmd: max} is specified, the estimation will use the maximum possible number of periods before and after the 
+event plus the endpoints. If {cmd: balanced} is specified, the estimation will use the maximum possible number of periods before and after the event plus the endpoints where all units have data. 
+{opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()}, 
 and {opt overidpost()} (See below).
 
 {phang}
@@ -293,6 +294,10 @@ that two-way clustering is allowed with {help reghdfe}.
 
 {pstd}Change the normalized coefficient and use an asymmetric window{p_end}
 {phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) cluster(idcode) w(-3 1) norm(-2) impute(stag)}}
+{p_end}
+
+{pstd}Estimate using all possible periods before and after the event{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , pol(union2) cluster(idcode) w(max) impute(stag)}}
 {p_end}
 
 {pstd}Adjust the pre-trend by estimating a linear trend by GMM {p_end}
