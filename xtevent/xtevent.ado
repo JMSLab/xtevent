@@ -19,7 +19,7 @@ program define xtevent, eclass
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in] , /* Proxy for eta and covariates go in varlist. Can add fv ts later */	
 	POLicyvar(varname) /* Policy variable */	
 	[
-	Window(numlist min=1 max=2 integer) /* Estimation window */
+	Window(string) /* Estimation window */
 	pre(numlist >=0 min=1 max=1 integer) /* Pre-event time periods where anticipation effects are allowed */
 	post(numlist >=0 min=1 max=1 integer) /* Post-event time periods where dynamic effects are allowed */
 	overidpre(numlist >=0 min=1 max=1 integer) /* Pre-event time periods for overidentification */
@@ -159,29 +159,47 @@ program define xtevent, eclass
 	mark `tousegen' `if' `in'
 	
 	loc flagerr=0
-				
+	
+	
+	* first parsing of window 
+	parsewindow `window'
+	loc swindow = r(swindow)
+	loc w_type = r(w_type)	
+	
 	if "`static'"=="" {
 		if "`window'"!="" {
 			* Parse window
 			loc nw : word count `window'
-			if `nw'==1 {
-				loc lwindow = -`window'
-				loc rwindow = `window'
+			
+			* if window is numeric 
+			if "`w_type'"=="numeric"{
+				if `nw'==1 {
+					loc lwindow = -`window'
+					loc rwindow = `window'
+				}
+				else if `nw'==2 {
+					loc lwindow : word 1 of `window'
+					loc rwindow : word 2 of `window'
+				}
 			}
-			else if `nw'==2 {
+			* if window is string (max or balanced)
+			if "`w_type'"=="string"{
 				loc lwindow : word 1 of `window'
-				loc rwindow : word 2 of `window'
+				loc rwindow : word 1 of `window'
 			}
 			
-			if -`lwindow'<0 | `rwindow'<0 {
-				di as err _n "Window can not be negative"
-				exit 198
+			if "`w_type'"=="numeric" {
+				if  (-`lwindow'<0 | `rwindow'<0) {
+					di as err _n "Window can not be negative"
+					exit 198
+				}
 			}
 		}
 		else if "`window'"=="" & ("`pre'"!="" & "`post'"!="" & "`overidpre'"!="" & "`overidpost'"!="") {
 			loc lwindow = `pre' + `overidpre'
 			loc lwindow = -`lwindow'
 			loc rwindow = `post' + `overidpost' -1 
+			loc w_type = "numeric"
 		}
 		
 		* If allowing for anticipation effects, change the normalization if norm is missing, or warn the user
@@ -193,11 +211,12 @@ program define xtevent, eclass
 		}
 		
 		* Check that normalization is in window
-		if `norm' < `=`lwindow'-1' | `norm' > `rwindow' {
-			di as err _n "The coefficient to be normalized to 0 is outside of the estimation window"
-			exit 498
+		if "`w_type'"=="numeric" { 
+			if (`norm' < `=`lwindow'-1' | `norm' > `rwindow') {
+				di as err _n "The coefficient to be normalized to 0 is outside of the estimation window"
+				exit 498
+			}
 		}
-		
 		* Do not allow norm and trend 
 		if "`norm'" !="-1" & "`trend'" != "" {
 			di as err _n "Option {bf:trend} not allowed with a value for option {bf:norm} different from -1."
@@ -211,18 +230,23 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' cohort(`cohort') control_cohort(`control_cohort') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' cohort(`cohort') control_cohort(`control_cohort') `options' 
 			if _rc {
 				errpostest
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
-			cap noi _eventiv `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
+			cap noi _eventiv `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
 			if _rc {
 				errpostest
 			}
 		}		
+		* if window was max or balanced, return the found limits 
+		if "`w_type'"=="string" {
+			loc lwindow = r(lwindow)
+			loc rwindow = r(rwindow)
+		}
 	}
 	else if "`static'"=="static" {
 		loc lwindow=.
@@ -348,6 +372,68 @@ program define xtevent, eclass
 	if "`plot'"!="" xteventplot
 
 end
+
+* Program to parse window 
+cap program drop parsewindow
+program define parsewindow, rclass
+
+	syntax [anything] 
+		
+	tokenize "`anything'"
+	loc nwwindow = wordcount("`anything'")
+	
+	*check that all words are numeric or string 
+	loc isnum = 0
+	forvalues i=1/`nwwindow'{
+		cap confirm number ``i''
+		if !_rc loc ++ isnum 
+	}
+	if `isnum'>0 & `isnum'<`nwwindow'{
+		di as err _n "Invalid {bf:window} option."
+		exit 198
+	}
+	
+	* tell if all words are numeric or strings 
+	if `isnum' == 0 loc w_type ="string"
+	if `isnum' == `nwwindow' loc w_type ="numeric"
+	
+	* if all words are numeric, check that it is one or two numbers and that they are integers 
+	if "`w_type'"=="numeric" {
+		if `nwwindow'>2 {
+			di as err _n "If numeric, {bf:window} option must be one or two integers."
+			exit 198
+		}
+		loc isnotint = 0
+		forvalues i=1/`nwwindow'{
+			cap confirm integer number ``i''
+			if _rc!=0 loc ++ isnotint 
+		}
+		if `isnotint'>0 {
+			di as err _n "Number in {bf:window} must be integer."
+			exit 126
+		}
+	}
+	
+	* if all words are string, check that it is only one word and it is a valid option name 
+	if "`w_type'"=="string" {
+		
+		if `nwwindow'>1 {
+			di as err _n "Invalid {bf:window} option."
+			exit 198
+		}
+		
+		if `nwwindow'==1 {
+			if !inlist("`anything'","max","balanced"){
+				di as err _n "Invalid {bf:window} option."
+				exit 198
+			}
+		}
+		
+	}
+
+	return local swindow "`anything'"
+	return local w_type "`w_type'"
+end	
 
 cap program drop cleanup
 program define cleanup

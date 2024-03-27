@@ -7,9 +7,10 @@ program define _eventols, rclass
 	Panelvar(varname) /* Panel variable */
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
-	LWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	RWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	LWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	RWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
 	[
+	w_type(string) /* Window defined by the user or define window based on the data time limits */
 	nofe /* No fixed effects */
 	note /* No time effects */
 	TRend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/
@@ -32,7 +33,6 @@ program define _eventols, rclass
 	#d cr
 	
 	marksample touse
-	
 		
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
@@ -135,7 +135,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
@@ -152,6 +152,11 @@ program define _eventols, rclass
 			loc z="`zimp'"
 		}
 		else loc z = "`policyvar'"
+		*if window was max or balanced, bring the found limits 
+		if "`w_type'"=="string" {
+			loc lwindow = r(lwindow)
+			loc rwindow = r(rwindow)
+		}
 		
 	}
 	else {
@@ -639,6 +644,10 @@ program define _eventols, rclass
 	loc y1 = r(mean)
 
 	* Returns
+	if "`w_type'"=="string" {
+		return local lwindow = `lwindow'
+		return local rwindow = `rwindow' 
+	}
 	return matrix b = `bb'
 	return matrix V = `VV'
 	return matrix delta=`delta'

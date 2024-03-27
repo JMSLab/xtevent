@@ -7,8 +7,9 @@ program define _eventiv, rclass
 	Panelvar(varname) /* Panel variable */
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
-	LWindow(integer) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	RWindow(integer)
+	LWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	RWindow(string)
+	w_type(string) /* Window defined by the user or define window based on the data time limits */
 	proxy (varlist numeric) /* Proxy variable(s) */
 	[
 	proxyiv(string) /* Instruments. Either numlist with lags or varlist with names of instrumental variables */
@@ -57,13 +58,14 @@ program define _eventiv, rclass
 	*If imputation is specified, _eventiv will call _eventgenvars twice.
 	*The first call only imputes the policyvar, but the second call imputes both the policyvar and the event-time dummies
 	*First call: bring the imputed policyvar calling only _eventgenvars' imputation code. This call is neccesary to choose the lead order using the imputed policyvar
-	if "`impute'"!=""{
+	if ("`impute'"!="" | "`w_type'"=="string") {
 		*rr is the tempvar to be imputed: create it in _eventiv, so after _eventgenvars we can still have access to it.
 		tempvar rr
 		qui gen double `rr'=.
 
 		*call _eventgenvars
-		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') lwindow(`lwindow') w_type(`w_type') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
+		// Include options lwindow and w_type because when selecting lead order for proxyiv we need to evaluate all lead orders limited by the found left window in case the user specified window(max) or window(balanced)
 
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
@@ -75,7 +77,16 @@ program define _eventiv, rclass
 		} 
 		*otherwise, keep using the original policyvar 
 		else loc z = "`policyvar'"
+		
+		* if window(max) or window(balanced), what value is left window? 
+		if "`w_type'"=="string" {
+			loc lwindow_call1 = r(lwindow)
+		}
 	}
+	
+	*define local for left window. Can be the input by the user or the value found in the data 
+	if "`w_type'"=="numeric" loc lwindow_iter = `lwindow'
+	else loc lwindow_iter = `lwindow_call1'
 	
 	* if dataset is repeated cross-sectional, create leads of policyvar at state level
 	if "`repeatedcs'"!=""{
@@ -87,7 +98,7 @@ program define _eventiv, rclass
 			keep `panelvar' `timevar' (`z')
 			bysort `panelvar' `timevar' (`z'): keep if _n==1
 			xtset `panelvar' `timevar'
-			forv v=1(1)`=-`lwindow''{
+			forv v=1(1)`=-`lwindow_iter''{
 				tempvar _fd`v'`z'
 				qui gen double `_fd`v'`z'' = f`v'.d.`z' 
 			}
@@ -122,7 +133,7 @@ program define _eventiv, rclass
 		else {
 			di as text _n "proxyiv=select. Selecting lead order of differenced policy variable to use as instrument."
 			loc Fstart = 0
-			forv v=1(1)`=-`lwindow'' {
+			forv v=1(1)`=-`lwindow_iter'' {
 				if "`repeatedcs'"=="" {
 					tempvar _fd`v'`z'
 					qui gen double `_fd`v'`z'' = f`v'.d.`z' if `touse'
@@ -242,7 +253,7 @@ program define _eventiv, rclass
 	*set normalizations for external instruments 
 	*get the pool of available coefficients for normalization
 	loc available ""
-	forvalues l=1/`=-`lwindow'+1'{
+	forvalues l=1/`=-`lwindow_iter'+1'{
 		loc l = -`l'
 		loc available "`available' `l'"
 	}
@@ -285,11 +296,16 @@ program define _eventiv, rclass
 	
 	if "`gen'" != "nogen" {	
 		*If impute was specified, this is the second call to _eventgenvars: this time, both the policyvar and the event-time dummies will be imputed. Additional computations will happen as well  (e.g., macros, etc.).
-		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') `trend' norm(`norm') impute(`impute') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') `trend' norm(`norm') impute(`impute') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
 		if "`komittrend'"=="." loc komittrend = ""
+		*if window was max or balanced, bring the found limits 
+		if "`w_type'"=="string" {
+			loc lwindow = r(lwindow)
+			loc rwindow = r(rwindow)
+		}
 	}
 	else {
 		loc kvstub "`kvars'"		
@@ -322,7 +338,6 @@ program define _eventiv, rclass
 	loc komit: list uniq komit	
 	
 	* Check that the iv normalization works
-	
 	foreach v in `leadivs' `varivs' {
 		cap _rmdcoll `v' `included' if `touse'
 		if _rc {
