@@ -1,6 +1,5 @@
 version 11.2
 
-cap program drop _eventols
 program define _eventols, rclass
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Proxy for eta and covariates go in varlist. Can add fv ts later */
@@ -761,13 +760,11 @@ mata
 	
 end
 
-cap program drop repostdelta
 program define repostdelta, eclass
 	ereturn repost b=`1' V=`2'
 end
 
 * Program to parse trend
-cap program drop parsetrend
 program define parsetrend, rclass
 
 	syntax [anything] , [method(string) SAVEOVerlay]
@@ -779,7 +776,6 @@ program define parsetrend, rclass
 end	
 
 *program to parse savek
-cap program drop parsesavek
 program define parsesavek, rclass
 
 	syntax [anything] , [NOEstimate SAVEINTeract]

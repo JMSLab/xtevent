@@ -2,7 +2,6 @@
 
 version 11.2
 
-cap program drop xtevent
 program define xtevent, eclass
 
 	* Replay routine
@@ -349,7 +348,6 @@ program define xtevent, eclass
 
 end
 
-cap program drop cleanup
 program define cleanup
 	cap drop _k_eq*
 	cap drop _ttrend
@@ -359,7 +357,6 @@ program define cleanup
 	cap _estimates clear
 end
 
-cap program drop errpostest
 program define errpostest, rclass
 	cleanup _rc	
 	return local flagerr=1
