@@ -1,6 +1,5 @@
 version 11.2
 
-cap program drop _eventgenvars
 program define _eventgenvars, rclass
 
 	#d;
@@ -594,7 +593,6 @@ end
 
 
 * Program to parse impute 
-cap program drop parseimpute
 program define parseimpute, rclass
 
 	syntax [anything] , [saveimp]

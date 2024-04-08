@@ -1,6 +1,5 @@
 version 11.2
 
-cap program drop _eventiv
 program define _eventiv, rclass
 	#d;
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], /* Covariates go in varlist. Can add fv ts later */
