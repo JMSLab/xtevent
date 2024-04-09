@@ -1,6 +1,6 @@
 *! xteventplot.ado 3.0.0 February 23, 2024
 
-version 11.2
+version 13
 
 program define xteventplot
 	#d;
