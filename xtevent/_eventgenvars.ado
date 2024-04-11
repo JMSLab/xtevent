@@ -366,23 +366,23 @@ program define _eventgenvars, rclass
 		loc lwindow = `lwindow' +1
 		loc rwindow = `rwindow' -1
 		
-		**** Error messages if found window is not valid  
+		**** Error messages if calculated window limits are not valid  
 		if  (-`lwindow'<0 | `rwindow'<0) {
-					di "Found window limits are `lwindow' for the left window and `rwindow' for the right window."
+					di "Calculated left and right window limits are `lwindow' and `rwindow'."
 			di as err _n "Left window can not be positive and right window can not be negative."
 			exit 198
 		}
 		*smallest possible window is (-1,0)
 		*Including the endpoints, the limit are two pre-event periods and one post-event period. 
 		if `lwindow'>-1 | `rwindow'<0 {
-					di "Found window limits are `lwindow' for the left window and `rwindow' for the right window."
+					di "Calculated left and right window limits are `lwindow' and `rwindow'."
 			di as err _n "Minimum possible window range is (-1,0)."
 			exit 322
 		}
 		* Check that normalization is in window
 		if "`norm'"!="" {
 			if (`norm' < `=`lwindow'-1' | `norm' > `rwindow') {
-						di "Found window limits are `lwindow' for the left window and `rwindow' for the right window."
+						di "Calculated left and right window limits are `lwindow' and `rwindow'."
 				di as err _n "The coefficient to be normalized to 0 is outside of the estimation window."
 				exit 498
 			}
@@ -631,7 +631,7 @@ program define _eventgenvars, rclass
 		
 	}
 	
-	* if input window was max or balanced, return the found window limits 
+	* if input window was max or balanced, return the calculated window limits 
 	if "`w_type'"=="string" {
 		return local lwindow = `lwindow'
 		return local rwindow = `rwindow'
