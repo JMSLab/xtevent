@@ -301,7 +301,7 @@ program define _eventiv, rclass
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
 		if "`komittrend'"=="." loc komittrend = ""
-		*if window was max or balanced, bring the calculated limits 
+		*if window was max or balanced, use calculated left and right window limits 
 		if "`w_type'"=="string" {
 			loc lwindow = r(lwindow)
 			loc rwindow = r(rwindow)
