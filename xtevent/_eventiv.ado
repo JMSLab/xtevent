@@ -7,9 +7,9 @@ program define _eventiv, rclass
 	Panelvar(varname) /* Panel variable */
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
-	LWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	RWindow(string)
-	w_type(string) /* Window defined by the user or define window based on the data time limits */
+	LWindow(string) /* Left window */
+	RWindow(string) /* Right window */
+	w_type(string) /* Window defined by the user (numeric) or define window based on the data time limits (string: max or balanced) */
 	proxy (varlist numeric) /* Proxy variable(s) */
 	[
 	proxyiv(string) /* Instruments. Either numlist with lags or varlist with names of instrumental variables */

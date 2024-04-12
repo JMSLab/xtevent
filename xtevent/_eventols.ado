@@ -7,10 +7,10 @@ program define _eventols, rclass
 	Panelvar(varname) /* Panel variable */
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
-	LWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	RWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
+	LWindow(string) /* Left window. */
+	RWindow(string) /* Right window. */
 	[
-	w_type(string) /* Window defined by the user or define window based on the data time limits */
+	w_type(string) /* Window defined by the user (numeric) or define window based on the data time limits (string: max or balanced) */
 	nofe /* No fixed effects */
 	note /* No time effects */
 	TRend(string) /* trend(a -1) Include a linear trend from time a to -1. Method can be either GMM or OLS*/

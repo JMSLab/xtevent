@@ -10,10 +10,9 @@ program define _eventgenvars, rclass
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
 	[
-	LWindow(string)
-	RWindow(string) /* Estimation window. Need to set a default, but it has to be based on the dataset */
-	/* since lwindow and rwindow are now optional, a default value must be provided*/
-	w_type(string) /* It indicates whether window is user-defined (numeric) or whether the window must be defined based on the data */
+	LWindow(string) /* Left window */
+	RWindow(string) /* Right window */
+	w_type(string) /* Window defined by the user (numeric) or define window based on the data time limits (string: max or balanced) */
 	norm(numlist) /* Coefficients to normalize */
 	
 	impute(string) /*impute policyvar. There are three options: */
