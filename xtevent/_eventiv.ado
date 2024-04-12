@@ -65,7 +65,7 @@ program define _eventiv, rclass
 
 		*call _eventgenvars
 		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') lwindow(`lwindow') w_type(`w_type') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
-		// Include options lwindow and w_type because when selecting lead order for proxyiv we need to evaluate all lead orders limited by the found left window in case the user specified window(max) or window(balanced)
+		// Include options lwindow and w_type because when selecting lead order for proxyiv we need to evaluate all lead orders limited by the calculated left window in case the user specified window(max) or window(balanced)
 
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
@@ -84,7 +84,7 @@ program define _eventiv, rclass
 		}
 	}
 	
-	*define local for left window. Can be the input by the user or the value found in the data 
+	*define local for left window. Can be the input by the user or the value calculated with the data 
 	if "`w_type'"=="numeric" loc lwindow_iter = `lwindow'
 	else loc lwindow_iter = `lwindow_call1'
 	
@@ -301,7 +301,7 @@ program define _eventiv, rclass
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
 		if "`komittrend'"=="." loc komittrend = ""
-		*if window was max or balanced, bring the found limits 
+		*if window was max or balanced, bring the calculated limits 
 		if "`w_type'"=="string" {
 			loc lwindow = r(lwindow)
 			loc rwindow = r(rwindow)

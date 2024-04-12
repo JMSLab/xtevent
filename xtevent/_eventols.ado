@@ -152,7 +152,7 @@ program define _eventols, rclass
 			loc z="`zimp'"
 		}
 		else loc z = "`policyvar'"
-		*if window was max or balanced, bring the found limits 
+		*if window was max or balanced, bring the calculated limits 
 		if "`w_type'"=="string" {
 			loc lwindow = r(lwindow)
 			loc rwindow = r(rwindow)
