@@ -381,6 +381,10 @@ program define parsewindow, rclass
 		
 	tokenize "`anything'"
 	loc nwwindow = wordcount("`anything'")
+	if `nwwindow'==0 {
+		di as err _n "Invalid {bf:window} option."
+		exit 198
+	}
 	
 	*check that all words are numeric or string 
 	loc isnum = 0
