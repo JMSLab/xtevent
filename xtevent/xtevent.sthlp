@@ -102,8 +102,8 @@ have not been previously {cmd:xtset}. See {help xtset}.
 is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
 coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<=0 and {it:k2}>=0 are specified, the 
 estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
-and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). If {cmd: max} is specified, the estimation will use the maximum possible number of periods before and after the 
-event plus the endpoints. If {cmd: balanced} is specified, the estimation will use the maximum possible number of periods before and after the event plus the endpoints where all units have data. 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). Notice that if the event time in your database goes from -2 to 3, the maximum window you can specify is then {it:k1} = -1 and 
+{it:k2} = 2. If {cmd: max} is specified, the estimation will use the maximum possible number of periods before and after the event plus the endpoints. If {cmd: balanced} is specified, the estimation will use the maximum possible number of periods before and after the event plus the endpoints where all units have data. 
 {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()}, 
 and {opt overidpost()} (See below).
 
