@@ -381,8 +381,9 @@ program define parsewindow, rclass
 		
 	tokenize "`anything'"
 	loc nwwindow = wordcount("`anything'")
-	if `nwwindow'==0 {
-		di as err _n "Invalid {bf:window} option."
+	if !inlist(`nwwindow',1,2) {
+		di as err _n "If numeric, {bf:window} option must be one or two integers."
+		di as err _n "If string, {bf:window} option must be one of {bf:max} or {bf:balanced}."
 		exit 198
 	}
 	
@@ -401,19 +402,15 @@ program define parsewindow, rclass
 	if `isnum' == 0 loc w_type ="string"
 	if `isnum' == `nwwindow' loc w_type ="numeric"
 	
-	* if all words are numeric, check that it is one or two numbers and that they are integers 
+	* if all words are numbers, check that they are integers 
 	if "`w_type'"=="numeric" {
-		if `nwwindow'>2 {
-			di as err _n "If numeric, {bf:window} option must be one or two integers."
-			exit 198
-		}
 		loc isnotint = 0
 		forvalues i=1/`nwwindow'{
 			cap confirm integer number ``i''
 			if _rc!=0 loc ++ isnotint 
 		}
 		if `isnotint'>0 {
-			di as err _n "Number in {bf:window} must be integer."
+			di as err _n "Numbers in {bf:window} must be integer."
 			exit 126
 		}
 	}
