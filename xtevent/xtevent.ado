@@ -162,9 +162,11 @@ program define xtevent, eclass
 	
 	
 	* first parsing of window 
-	parsewindow `window'
-	loc swindow = r(swindow)
-	loc w_type = r(w_type)	
+	if "`window'"!="" {
+		parsewindow `window'
+		loc swindow = r(swindow)
+		loc w_type = r(w_type)
+	}
 	
 	if "`static'"=="" {
 		if "`window'"!="" {
