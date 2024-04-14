@@ -627,7 +627,7 @@ end
 
 cap program drop parsecmdline
 program define parsecmdline, rclass
-	syntax anything [aw fw pw] [if][in], samplevar(string) [Window(numlist min=1 max=2 integer) savek(string) plot proxy(string) POLicyvar(string) impute(string) *]
+	syntax anything [aw fw pw] [if][in], samplevar(string) [Window(string) savek(string) plot proxy(string) POLicyvar(string) impute(string) *]
 	
 	if "`if'"=="" loc ifs "if `samplevar'"
 	else loc ifs "`if' & `samplevar'"
