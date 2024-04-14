@@ -1,6 +1,5 @@
-version 11.2
+version 13
 
-cap program drop _eventolsstatic
 program define _eventolsstatic, rclass
 
 	#d;

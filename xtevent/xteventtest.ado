@@ -1,8 +1,7 @@
 *! xteventtest.ado 3.0.0 February 23, 2024
 
-version 11.2
+version 13
 
-cap program drop xteventtest
 program define xteventtest, rclass
 	#d;
 	syntax, 
@@ -292,7 +291,6 @@ program define xteventtest, rclass
 	
 end
 
-cap program drop returntest
 program define returntest, rclass
 	args stub
 	foreach x in p F df_r chi2 ss rss drop {

@@ -1,8 +1,7 @@
 *! xtevent.ado 3.0.0 February 23, 2024
 
-version 11.2
+version 13
 
-cap program drop xtevent
 program define xtevent, eclass
 
 	* Replay routine
@@ -376,7 +375,6 @@ program define xtevent, eclass
 end
 
 * Program to parse window 
-cap program drop parsewindow
 program define parsewindow, rclass
 
 	syntax [anything] 
@@ -437,7 +435,6 @@ program define parsewindow, rclass
 	return local w_type "`w_type'"
 end	
 
-cap program drop cleanup
 program define cleanup
 	cap drop _k_eq*
 	cap drop _ttrend
@@ -447,7 +444,6 @@ program define cleanup
 	cap _estimates clear
 end
 
-cap program drop errpostest
 program define errpostest, rclass
 	cleanup _rc	
 	return local flagerr=1

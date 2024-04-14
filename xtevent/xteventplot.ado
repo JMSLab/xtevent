@@ -1,8 +1,7 @@
 *! xteventplot.ado 3.0.0 February 23, 2024
 
-version 11.2
+version 13
 
-cap program drop xteventplot
 program define xteventplot
 	#d;
 	syntax [anything], 
@@ -587,7 +586,6 @@ program define xteventplot
 end
 
 * Program to parse smpath options
-cap program drop parsesmpath
 program define parsesmpath, rclass
 
 	syntax [anything] , [maxiter(integer 100) TECHnique(string) postwindow(real 0) maxorder(integer 10)]
@@ -606,7 +604,6 @@ program define parsesmpath, rclass
 end	
 
 * Program to get smline from mata
-cap program drop getsm
 program define getsm
 	
 	args fidget coef smline p fid
@@ -618,14 +615,12 @@ program define getsm
 end
 
 * Program to repost sample
-cap program drop restoresample
 program define restoresample, eclass
 	ereturn repost, esample(`1')
 end
 
 * Program to parse cmdline and return commands for overlay static plot
 
-cap program drop parsecmdline
 program define parsecmdline, rclass
 	syntax anything [aw fw pw] [if][in], samplevar(string) [Window(string) savek(string) plot proxy(string) POLicyvar(string) impute(string) *]
 	
@@ -642,7 +637,6 @@ program define parsecmdline, rclass
 end
 
 *program to parse impute option
-cap program drop parseimp
 program define parseimp, rclass
 	syntax [anything] , [saveimp]
 	return local imptype "`anything'"
