@@ -424,7 +424,7 @@ program define parsewindow, rclass
 		
 		if `nwwindow'==1 {
 			if !inlist("`anything'","max","balanced"){
-				di as err _n "{bf:window} must be one of {bf:max} or {bf:balanced}."
+				di as err _n "{bf:window} must be {bf:max} or {bf:balanced}."
 				exit 198
 			}
 		}
