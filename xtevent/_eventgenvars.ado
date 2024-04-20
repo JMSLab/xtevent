@@ -274,8 +274,15 @@ program define _eventgenvars, rclass
 			*sbmin is an indicator of the units that satisfied the first filter 
 			by `panelvar' (`timevar'): egen byte `sbmin'=min(`sb') if `timevar'>=`zmint2' & `timevar'<=`zmaxt2' & `touse'
 		}
-		cap assert inlist(`z',`rminz',`rmaxz') if `sbmin'==0
+		
+		* For obs that did not satisfy the first filter, policy var must be constant
+
+		tempvar tag ndistinct
+		egen `tag' = tag(`panelvar' `z') if `touse'
+		egen `ndistinct' = total(`tag'), by(`panelvar')
+		cap assert `ndistinct' == 1 if `sbmin' == 0 & `touse'
 		if !_rc loc bounds 1
+		
 		}
 	
 	
@@ -284,6 +291,13 @@ program define _eventgenvars, rclass
 				loc impute =""	
 		}
 	}
+
+	loc binnorev = 0 	
+	if `bin'==1 & `norever'==1 {
+		loc binnorev = 1
+	}
+	
+	return scalar binnorev = `binnorev'
 	
 	***************** apply no unobserved change ***************************
 
@@ -334,14 +348,14 @@ program define _eventgenvars, rclass
 		
 		qui forv klevel=`lwindow'(1)`rwindow' {
 			loc absk = abs(`klevel')
-			
+						
 			if `klevel'<0 { 
 				loc plus = "m"
 				qui {
 					by `panelvar' (`timevar'): gen double _k_eq_`plus'`absk'=F`absk'.`zd' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse'
 					la var _k_eq_`plus'`absk' "Event-time = - `absk'"
-					*this to impute zeros and complete the observed range
-					tempvar minp minp2 maxp maxp2
+					*this to impute zeros and complete the observed range	
+					tempvar minp minp2 maxp maxp2				
 					if "`impute'"!=""{
 						by `panelvar' (`timevar'): egen long `minp'=min(`timevar') if !missing(_k_eq_`plus'`absk')
 						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
