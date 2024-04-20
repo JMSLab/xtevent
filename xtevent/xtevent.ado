@@ -34,8 +34,8 @@ program define xtevent, eclass
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
-	cohort(varname) /*categorial variable to indicate cohort in SA estimation*/ 
-	control_cohort(varname) /* dummy variable to indicate cohort to be used as control in SA estimation*/
+	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
+	control_cohort(string) /* dummy variable to indicate cohort to be used as control in SA estimation*/
 	plot /* Produce plot */
 	*
 	/*
