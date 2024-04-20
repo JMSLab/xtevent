@@ -21,8 +21,8 @@ program define _eventols, rclass
 	impute(string) /*imputation on policyvar*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	DIFFavg /* Obtain regular DiD estimate implied by the model */
-	cohort(varname) /* categorical variable indicating cohort */
-	control_cohort(varname) /* dummy variable indicating the control cohort */
+	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
+	control_cohort(string) /* dummy variable indicating the control cohort */
   REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 
 	*
@@ -74,7 +74,7 @@ program define _eventols, rclass
 	if "`trend'"!="" {
 		tempvar ktrend trendy trendx
 		if `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
-			di as err "{bf:trend} is outside estimation window."
+			di as err "{bf:trend} is outside estimation window"
 			exit 301
 		}
 		
@@ -83,11 +83,11 @@ program define _eventols, rclass
 			exit 301
 		}
 		if `trcoef'==-1 {
-			di as err "Trend extrapolation requires at least two pre-treatment points."
+			di as err "Trend extrapolation requires at least two pre-treatment points"
 			exit 301
 		}			
 		if !inlist("`methodt'","ols","gmm"){
-			di as err "{bf:method(`methodt')} is not a valid suboption."		
+			di as err "{bf:method(`methodt')} is not a valid suboption"		
 			exit 301
 		}
 		if "`methodt'"=="ols" {
@@ -99,22 +99,21 @@ program define _eventols, rclass
 	* error messages for sun_abraham
 	loc sun_abraham ""
 	if "`cohort'"!="" & "`control_cohort'"!="" {
-		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options."
-		di as text _n "Event-time coefficients will be estimated with"
-		di as text _n "the Interaction Weighted Estimator of Sun and Abraham (2021)."
+		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options"
+		di as text "Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)"
 		loc sun_abraham "sun_abraham"
 	}
 	if "`saveint'"!="" & "`sun_abraham'"==""{
-		di as err _n "Suboption {bf:saveint} can only be specified if options {bf:cohort} and {bf:control_cohort} have been specified as well."
+		di as err _n "Suboption {bf:saveint} can only be specified if options {bf:cohort} and {bf:control_cohort} have been specified as well"
 		exit 301
 	}
 	* Check for vars named _interact
 	if "`saveint'"!=""{
 		cap unab old_interact_vars : `savek'_interact*
 		if !_rc {
-			di as err _n "You have variable names with the {bf:`savek'_interact} prefix."
-			di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation."
-			di as err _n "Please rename or drop these variables before proceeding."
+			di as err _n "You have variable names with the {bf:`savek'_interact} prefix"
+			di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation"
+			di as err _n "Please rename or drop these variables before proceeding"
 			exit 110
 		}
 	}
@@ -123,6 +122,41 @@ program define _eventols, rclass
 		di as err _n "Options -nogen- and -kvars- must be specified together"
 		exit 301
 	}
+
+	* Parse cohort
+
+	if "`cohort'"!="" {
+		parsecohort `cohort'	
+		loc cohortvar = r(cohortvar)
+		loc cohortforce = r(force)
+		loc cohorttype = r(cohorttype)
+
+		* Check consistency: if cohort variable is given, cohort variable should be missing if control_cohort is 1 unless force
+
+		if "`cohortvar'"!="" & "`cohortforce'"=="." {
+			cap assert `cohortvar'==. if `control_cohort' == 1 & `touse'
+			if _rc {
+				di as err _n "Cohort variable `cohortvar' is not missing for the control cohort selected by `control_cohort'"
+				exit 301
+			}
+			cap assert `control_cohort'==0 | `control_cohort'==1 if `touse'
+			if _rc {
+				di as err _n "Control cohort indicator variable `control_cohort' is not binary"
+				exit 301 
+			}
+			cap assert `control_cohort'==0 if `cohortvar'!=. & `touse'
+			if _rc {
+				di as err _n "Control cohort variable `control_cohort' is not zero for treated cohorts defined by `cohortvar'"
+				exit 301
+			}			
+		}
+		else if "`cohortvar'"!="" & "`cohortforce'"=="force" {
+			di as text _n "Treatment cohort variable `cohortvar' was not checked for consistency with the policy"
+			di as text "variable `policyvar' or the control cohort variable `control_cohort'"
+		}
+	}
+
+	***
 	
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
@@ -134,11 +168,11 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'		
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
-		loc bin = r(bin)
+		loc binnorev = r(binnorev)
 		if "`komittrend'"=="." loc komittrend = ""
 
 		*bring the imputed policyvar
@@ -192,6 +226,42 @@ program define _eventols, rclass
 		
 	******** SA *******
 	if "`sun_abraham'"!=""{
+
+		* Another consistency check: obs with cohort should have some treated values, obs with control_cohort should have some untreated values
+		* Not checking that all cohorts have treated values, not checking that z is always zero for never treat, so these are minimal checks
+
+		if "`cohorttype'"=="" {
+			qui levelsof z if `cohortvar'!=. & `touse'
+			if r(levels)=="0" {
+				di as err _n "Treated observations according to cohort variable `cohortvar' are inconsistent"
+				di as err "with values of the policy variable `z'"
+				exit 301
+			}
+
+			qui count if `z'==0 & `control_cohort' & `touse'
+			if r(N)==0 {
+				di as err _n "Untreated observations according to control cohort variable `control_cohort'"
+				di as err "are inconsistent with values of the policy variable `z'"
+			}
+		}
+
+		* Create the cohort variable if requested
+		if "`cohorttype'"=="create" {
+			cap assert `binnorev'==1
+			if _rc {
+				di as err _n "The policy variable is not binary or treatment reverts"
+				di as err "Cannot create treatment cohort variables"
+				exit 301
+			}
+
+			tempvar timet createdcohortvar
+			qui gen `timet'=`timevar' if `policyvar'==1 & `touse'
+			qui by `panelvar' : egen `createdcohortvar' = min(`timet')
+			loc cohortvar "`createdcohortvar'"
+			*Generate control cohort indicator. We use the never treated units as the control cohort. 
+			* gen never_treat=time_of_treat==.
+		}
+
 		* Parse the dependent variable
 		local lhs = "`depenvar'"
 		local rel_time_list = "`included'"
@@ -208,7 +278,7 @@ program define _eventols, rclass
 		}	
 
 		* Get cohort count  and count of relative time
-		qui levelsof `cohort' if  `control_cohort' == 0, local(cohort_list) 
+		qui levelsof `cohortvar' if  `control_cohort' == 0, local(cohort_list) 
 		local nrel_times: word count `nvarlist' 
 		local ncohort: word count `cohort_list'  
 		
@@ -220,7 +290,7 @@ program define _eventols, rclass
 		local nresidlist ""
 		foreach yy of local cohort_list {
 			tempvar cohort_ind resid`yy'
-			qui gen `cohort_ind'  = (`cohort' == `yy') 
+			qui gen `cohort_ind'  = (`cohortvar' == `yy') 
 			qui _regress `cohort_ind' `nvarlist'  if `touse' & `control_cohort' == 0 [`weight'`exp']  , nocons
 			mat `bb' = e(b) 
 			matrix `ff_w'  = nullmat(`ff_w') \ `bb' 
@@ -254,7 +324,7 @@ program define _eventols, rclass
 		foreach l of varlist `rel_time_list' { 
 			foreach yy of local cohort_list {  
 				tempvar n`n`l''_`yy'
-				qui gen `n`n`l''_`yy''  = (`cohort' == `yy') * `n`l' '
+				qui gen `n`n`l''_`yy''  = (`cohortvar' == `yy') * `n`l' '
 				// TODO: might be more efficient to use the c. operator if format w/o missing
 				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
 				if "`saveint'"!=""{
@@ -783,5 +853,41 @@ program define parsesavek, rclass
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
 	return local saveintl "`saveinteract'"
-end	
+end
+
+* program to parse cohort
+program define parsecohort, rclass
+
+	syntax namelist(min=1 max=2), [force]
+
+	loc words=wordcount("`namelist'")
+
+	if `words' == 1 {
+		if "`namelist'"=="create" {
+			loc cohortvar = ""
+			loc cohorttype = "create"
+		}
+		else {
+			confirm variable `namelist'		
+			di as text _n "Warning: Using old syntax for cohort. New syntax for using a cohort variable is cohort(variable varname)"
+			di as text "The old syntax will be deprecated in the next version of {cmd:xtevent}"
+			loc cohortvar "`namelist'"
+			loc cohorttype "variable"
+		}
+	}
+	else if `words'==2 {
+		loc first: word 1 of `namelist'
+		if "`first'" != "variable" {
+			di as err _n "Invalid syntax for cohort"
+			exit 301
+		}
+		loc second : word 2 of `namelist'
+		loc cohortvar "`second'"
+		loc cohorttype "create"		
+	}
+
+	return local cohortvar = "`cohortvar'"
+	return local cohorttype = "`cohorttype'"
+	return local force = "`force'"
+end
 
