@@ -130,6 +130,8 @@ program define _eventols, rclass
 		loc cohortvar = r(cohortvar)
 		loc cohortforce = r(force)
 		loc cohorttype = r(cohorttype)
+		loc cohortsave = r(save)
+		loc cohortreplace = r(replace)
 
 		* Check consistency: if cohort variable is given, cohort variable should be missing if control_cohort is 1 unless force
 
@@ -150,7 +152,7 @@ program define _eventols, rclass
 				exit 301
 			}			
 		}
-		else if "`cohortvar'"!="" & "`cohortforce'"=="force" {
+		else if "`cohortvar'"!="" & "`cohortforce'"=="force" & "`cohorttype'"=="variable" {
 			di as text _n "Treatment cohort variable `cohortvar' was not checked for consistency with the policy"
 			di as text "variable `policyvar' or the control cohort variable `control_cohort'"
 		}
@@ -254,10 +256,11 @@ program define _eventols, rclass
 				exit 301
 			}
 
-			tempvar timet createdcohortvar
+			tempvar timet 
 			qui gen `timet'=`timevar' if `policyvar'==1 & `touse'
-			qui by `panelvar' : egen `createdcohortvar' = min(`timet')
-			loc cohortvar "`createdcohortvar'"
+			qui by `panelvar' : egen _cohort = min(`timet')
+			loc cohortvar "_cohort"
+
 			*Generate control cohort indicator. We use the never treated units as the control cohort. 
 			* gen never_treat=time_of_treat==.
 		}
@@ -694,7 +697,27 @@ program define _eventols, rclass
 		if "`methodt'"=="ols" ren _ttrend `savek'_trend
 		if "`saveint'"!="" ren _interact* `savek'_interact*
 	}
-	
+	if "`sun_abraham'"!="" & "`cohorttype'"=="create" {
+		if "`cohortsave'"=="save" {
+			cap confirm variable `policyvar'_cohort
+			if !_rc {
+				if "`cohortreplace'"=="replace" {
+					drop `policyvar'_cohort
+					ren _cohort `policyvar'_cohort
+				}
+				else {
+					di as err _n "variable `policyvar'_cohort already exists"
+					drop _cohort
+					exit 301
+				}
+			}
+			else {
+				ren _cohort `policyvar'_cohort
+			}
+		}
+		else drop _cohort		
+	}
+
 	*skip the rest of the program if the user indicated not to estimate
 	return local noestimate "`noestimate'"
 	if "`noestimate'"!="" exit 
@@ -858,7 +881,7 @@ end
 * program to parse cohort
 program define parsecohort, rclass
 
-	syntax namelist(min=1 max=2), [force]
+	syntax namelist(min=1 max=2), [force] [save] [replace]
 
 	loc words=wordcount("`namelist'")
 
@@ -877,17 +900,33 @@ program define parsecohort, rclass
 	}
 	else if `words'==2 {
 		loc first: word 1 of `namelist'
-		if "`first'" != "variable" {
+		if ("`first'" != "variable")  {
 			di as err _n "Invalid syntax for cohort"
 			exit 301
 		}
 		loc second : word 2 of `namelist'
 		loc cohortvar "`second'"
-		loc cohorttype "create"		
+		loc cohorttype "variable"		
+	}
+
+	if "`cohorttype'"=="create" & "`force'"!="" {
+		di _n "cohort variable created, force option ignored"
+	}
+
+	if ("`save'"!="" | "`replace'"!="") & "`cohorttype'"=="variable" {
+		di as err _n "cohort variable can only be saved/replaced if created"
+		exit 301
+	}
+
+	if "`replace'"!="" & "`save'"=="" {
+		di as err _n "cohort variable replace only allowed with save"
+		exit 301
 	}
 
 	return local cohortvar = "`cohortvar'"
 	return local cohorttype = "`cohorttype'"
 	return local force = "`force'"
+	return local save = "`save'"
+	return local replace = "`replace'"
 end
 
