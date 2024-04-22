@@ -25,7 +25,7 @@
 {opth t:imevar(varname)}
 [{it:options}]
 
-{synoptset 25 tabbed}{...}
+{synoptset 50 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
@@ -40,30 +40,31 @@
 {p_end}
 {synopt:{opth norm(integer)}} event-time coefficient to normalize to 0{p_end}
 {synopt:{opth proxy(varname)}} proxy for the confound{p_end}
-{synopt:{opt proxyiv(string)}} instruments for the proxy variable{p_end}
+{synopt:{opth proxyiv:(xtevent##proxyiv_spec:proxyiv_spec)}} instruments for the proxy variable{p_end}
 {synopt:{opt nofe}} omit panel fixed effects {p_end}
 {synopt:{opt note}} omit time fixed effects {p_end}
-{synopt: {opt impute(type [, saveimp])}} impute missing values in policyvar{p_end}
+{synopt: {opth impute:(xtevent##imputetype:type [, saveimp])}} impute missing values in policyvar{p_end}
 {synopt:{opt st:atic}} estimate static model {p_end}
 {synopt:{opt diff:avg}} estimate the difference in averages between the post and pre-periods {p_end}
 {synopt:{opt tr:end(#1 [, subopt])}} extrapolate linear trend from time period #1 before treatment{p_end}
 {synopt:{opt sav:ek(stub [, subopt])}} save time-to-event, event-time, trend, and interaction variables{p_end}
 {synopt: {opt kvars(stub)}} use previously generated event-time variables{p_end}
 {synopt:{opt reghdfe}} use {help reghdfe} for estimation{p_end}
-{synopt:{opt addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
+{synopt:{opth addabsorb(varlist)}} absorb additional variables in {help reghdfe}{p_end}
 {synopt:{opt rep:eatedcs}} indicate that the dataset in memory is repeated cross-sectional{p_end}
-{synopt:{opt cohort(varname)}} variable that identifies the cohorts for Sun and Abraham (2021) estimation{p_end}
-{synopt:{opt control_cohort(varname)}} variable that identifies the control cohort for Sun and Abraham (2021) estimation{p_end}
+{synopt:{opth cohort:(xtevent##cohortspec:cohortspec [, subopt])}} cohorts for Sun and Abraham (2021) estimation{p_end}
+{synopt:{opth control_cohort:(xtevent##controlcohortspec:control_cohort_spec [, subopt])}} control cohort for Sun and Abraham (2021) estimation{p_end}
+{synopt:{opt sunabraham}} Sun and Abraham (2021) estimation automatically creating cohort variables: equivalent to {bf:cohort(create)}{p_end}
 {synopt:{opt plot}} display plot. See {help xteventplot}.{p_end} 
 {synopt:{it: additional_options}} additional options to be passed to the estimation command{p_end}
 {synoptline}
 {p2colreset}{...}
 
-{p 4 6 2} {it: depvar} and {it:indepvars} may contain time-series operators; see{help tsvarlist}.{p_end}
-{p 4 6 2} {it: depvar} and {it:indepvars} may contain factor variables; see{help fvvarlist}.{p_end}
+{p 4 6 2} {it: depvar} and {it:indepvars} may contain time-series operators; see {help tsvarlist}.{p_end}
+{p 4 6 2} {it: depvar} and {it:indepvars} may contain factor variables; see {help fvvarlist}.{p_end}
 
-{p 4 6 2}* {opt policyvar(varname)} is required. {opt window(integer)} is required unless {opt static}, or {opt pre}, {opt post},
-{opt overidpre}, and {opt overidpost} are specified. {opt panelvar(varname)} and {opt timevar(varname)} are required if the data 
+{p 4 6 2}* {opth policyvar(varname)} is required. {opth window(integer)} is required unless {opt static}, or {opt pre}, {opt post},
+{opt overidpre}, and {opt overidpost} are specified. {opth panelvar(varname)} and {opth timevar(varname)} are required if the data 
 have not been {cmd:xtset}, otherwise they are optional. See {help xtset}. {p_end}
 {p 4 6 2}
 See {help xteventtest} for hypothesis testing after estimation and {help xteventplot} for plotting after estimation.{p_end}
@@ -136,8 +137,9 @@ The default is to normalize the coefficient on -1.
 {phang}
 {opth proxy(varlist)} specifies proxy variables for the confound to be included.
 
+{marker proxyiv_spec}{...}
 {phang}
-{opth proxyiv(string)} specifies instruments for the proxy variable for the policy. {cmd:proxyiv()} admits three syntaxes to use 
+{opt proxyiv(proxyiv_spec)} specifies instruments for the proxy variable for the policy. {cmd:proxyiv()} admits three syntaxes to use 
 either leads of the policy variable or additional variables as instruments. The default is to use leads of the difference of the
 policy variable as instruments, selecting the lead with the strongest first stage. 
 
@@ -151,7 +153,7 @@ be used as an instrument.
 {cmd:proxyiv(1 2)} specifies that the two first leads of the difference of the policy variable will be used as instruments.
 
 {phang2}
-{cmd:proxyiv(varlist)} specifies a {it:varlist} with the additional variables to be used as instruments.
+{opth proxyiv(varlist)} specifies a {it:varlist} with the additional variables to be used as instruments.
 
 {phang}
 {opt nofe} excludes panel fixed effects.
@@ -159,9 +161,10 @@ be used as an instrument.
 {phang}
 {opt note} excludes time fixed effects.
 
+{marker imputetype}{...}
 {phang}
 {opt impute(type, [ saveimp])} imputes missing values in {it:policyvar} and uses this new variable as the actual {it:policyvar}. 
-{cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the database as 
+{cmd:type} determines the imputation rule. The suboption {cmd:saveimp} adds the new variable to the dataset as 
 {it:policyvar_imputed}. The following imputation types are available:
 
 {phang2}
@@ -229,29 +232,52 @@ option requires {help reghdfe} and {help ftools} to be installed. For IV estimat
  See Correia (2016).
 
 {phang}
-{opt addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time
+{opth addabsorb(varlist)} specifies additional fixed effects to be absorbed when using {help reghdfe}. By default, {cmd:xtevent} includes time
  and unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
 
 {phang}
 {opt repeatedcs} indicates that the dataset in memory is repeated cross-sectional. In this case, {opt panelvar} should indicate the groups 
 at which {opt policyvar} changes. For instance, {opt panelvar} could indicate states at which {opt policyvar} changes, while the observations 
 in the dataset are individuals in each state. An alternative method to
-estimate the event study in a repeated cross-sectional dataset involves using {cmd:get_unit_time_effects} first, and then {cmd:xtevent}. See the description of the {help get_unit_time_effects} command below. For fixed-effects 
-estimation, {opt repeatedcs} enables {opt reghdfe}.
+estimate the event study in a repeated cross-sectional dataset involves using {cmd:get_unit_time_effects} first, and then {cmd:xtevent}. 
+See the description of the {help get_unit_time_effects} command below. For fixed-effects estimation, {opt repeatedcs} enables {opt reghdfe}.
+
+{marker cohortspec}{...}
+{phang}
+{opt cohort(cohort_spec)} specifies how to identify the treatment cohorts used for estimation of heterogenous effects by cohort using the
+estimator from Sun and Abraham(2021). {opt cohort} requires the  Stata module {cmd:avar}; click {stata ssc install avar :here} to install or 
+type "ssc install avar" from inside Stata.
+
+{phang2}
+{cmd:cohort(variable {help varname}},{cmd: [,force])} specifies that the categorical variable {opth varname} identifies each treatment cohort.
+By default, {cmd:xtevent} checks for consistency of the cohort variable and the policy variable. Option {bf:force} forces {cmd:xtevent} to 
+skip this check. This can be useful when estimating heterogenous treatment effects across groups not defined by treatment cohorts.
+
+{phang2}
+{cmd:cohort(create},{cmd: [,save replace]})  asks {cmd:xtevent} to create the categorical treatment cohort variable based on values of the policy variable.
+{opt save} adds the new cohort variable to the dataset as {it: policyvar_cohort}. {opt replace} replaces the cohort variable if it already exists. 
+The automatic creation of the cohort variable is only available in the staggered adoption case. 
+ 
+{marker controlcohortspec}{...}
+{phang}
+{opt control_cohort(control_cohort_spec)} specifies how to identify the control cohort used for estimation of heterogenous effects by cohort 
+using the estimator from Sun and Abraham(2021). {opt control_cohort} requires {opt cohort} to be specified.
+
+{phang2}
+{cmd:control_cohort(variable {help varname}},{cmd: [,force])} specifies that the binary variable {opth varname} identifies the control cohort.
+
+{phang2}
+{cmd:control_cohort(create},{cmd: [,save replace]}) asks {cmd:xtevent} to create the binary control cohort variable based on the missing values of 
+the cohort variable. {opt save} adds the new control cohort variable to the dataset as {it: policyvar_control_cohort}. {opt replace} replaces
+ the control cohort variable if it already exists. {opt control_cohort(create)} is the default if {opt cohort} is specified but {opt control_cohort}
+ is not specified.
 
 {phang}
-{opt cohort(varname)} specifies the variable that identifies the cohort for each unit. {opt cohort} and {opt control_cohort} indicate {cmd:xtevent}
- to estimate the event-time coefficients with the estimator of Sun and Abraham (2021) for settings with heterogeneous effects by cohort. {opt cohort} requires the
- Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from inside Stata.
+{opt sunabraham} is a shorthand to specify estimation with heterogenous treatment effects by cohort using the estimator from Sun and Abraham (2021). 
+{opt sunabraham} is equivalent to {opt cohort(create)} {opt control_cohort(create)}.
 
 {phang}
-{opt control_cohort(varname)} specifies the binary variable that identifies the control cohort. {opt cohort} and {opt control_cohort} indicate
- {cmd:xtevent} to estimate the event-time coefficients with the estimator of Sun and Abraham (2021) for settings with heterogeneous effects by cohort. 
- {opt control_cohort} requires the Stata module {cmd:avar}; click {stata ssc install avar :here} to install or type "ssc install avar" from 
- inside Stata.
-
-{phang}
-{opt plot} displays a default event-study plot with 95% and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
+{opt plot} displays a default event-study plot with standard and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
 Additional options are available with the postestimation command {help xteventplot}.
 
 {phang}
@@ -316,6 +342,12 @@ that two-way clustering is allowed with {help reghdfe}.
 {hline}
 
 {pstd}Interaction Weighted Estimator proposed by Sun and Abraham (2021){p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union2) window(3) impute(stag) vce(cluster idcode) sunabraham}}
+{p_end}
+
+{hline}
+
+{pstd}Interaction Weighted Estimator proposed by Sun and Abraham (2021) with user-created cohort variables{p_end}
 {pstd}First, create the control and control cohort variables{p_end}
 {pstd}Generate the variable that indicates cohort{p_end}
 {phang2}{cmd:. {stata gen timet=year if union2==1}}
@@ -327,8 +359,10 @@ that two-way clustering is allowed with {help reghdfe}.
 {phang2}{cmd:. {stata gen never_treat=time_of_treat==.}}
 {p_end}
 
-{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union2) window(3) impute(stag) vce(cluster idcode) cohort(time_of_treat) control_cohort(never_treat)}}
+{pstd}Estimate{p_end}
+{phang2}{cmd:. {stata xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, policyvar(union2) window(3) impute(stag) vce(cluster idcode) cohort(variable time_of_treat) control_cohort(variable never_treat)}}
 {p_end}
+
 
 {marker saved}{...}
 {title:Saved Results}
