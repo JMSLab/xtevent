@@ -526,8 +526,9 @@ program define _eventiv, rclass
 		* Calculate mean before change in policy for 2nd axis in plot
 		* This needs to be relative to normalization
 		tempvar temp_k
-		loc absnorm=abs(`norm0')
-		qui gen `temp_k'=_k_eq_m`absnorm' 
+		if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
+		else loc kvomit "p`=abs(`norm')'"
+		qui gen `temp_k'=_k_eq_`kvomit' 
 		
 		tokenize `varlist'
 		qui su `1' if `temp_k'!=0 & `temp_k'!=. & `esample', meanonly

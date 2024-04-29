@@ -605,8 +605,9 @@ program define _eventols, rclass
 	
 	*save a temporary copy of the event-time dummy corresponding to the normalized period before dropping that dummy variable
 	tempvar temp_k
-	loc absnorm=abs(`norm')
-	qui gen `temp_k'=_k_eq_m`absnorm' 
+	if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
+	else loc kvomit "p`=abs(`norm')'"
+	qui gen `temp_k'=_k_eq_`kvomit' 
 	
 	* Drop variables
 	if "`savek'" == "" & "`drop'"!="nodrop" {
