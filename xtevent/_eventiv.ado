@@ -57,7 +57,7 @@ program define _eventiv, rclass
 	*If imputation is specified, _eventiv will call _eventgenvars twice.
 	*The first call only imputes the policyvar, but the second call imputes both the policyvar and the event-time dummies
 	*First call: bring the imputed policyvar calling only _eventgenvars' imputation code. This call is neccesary to choose the lead order using the imputed policyvar
-	if ("`impute'"!="" | "`w_type'"=="string") {
+	if ("`impute'"!="") {
 		*rr is the tempvar to be imputed: create it in _eventiv, so after _eventgenvars we can still have access to it.
 		tempvar rr
 		qui gen double `rr'=.
