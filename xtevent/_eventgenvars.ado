@@ -184,7 +184,7 @@ program define _eventgenvars, rclass
 	loc norever 0
 	loc bounds 0
 	* show a warning message if we don't know treatment time for some units due to missing values in policyvar 
-	if ("`impute'"=="stag" | "`impute'"=="instag" | "`w_type'"=="string") {
+	if ("`impute'"=="stag" | "`impute'"=="instag") {
 	
 		tempvar zwd zwu seq
 		qui gen double `zwd'=`z' if `touse'
@@ -211,7 +211,7 @@ program define _eventgenvars, rclass
 		loc rmaxz=`=r(max)'
 		cap assert inlist(`z',`rminz',`rmaxz',.)
 		if !_rc {
-			if ("`impute'"=="stag" | "`impute'"=="instag" | "`w_type'"=="string"){
+			if ("`impute'"=="stag" | "`impute'"=="instag"){
 				di "Policyvar is binary, but its values are different from 0 and 1. Assuming `=r(min)' as the unadopted policy state and `=r(max)' as the adopted policy state."
 			}
 			loc bin 1
@@ -231,11 +231,9 @@ program define _eventgenvars, rclass
 		di "If event dummies and variables are saved, event-time will be missing."	
 		loc impute =""
 	}
-	
 	if `bin'==0 & "`w_type'"=="string" {
-		di "The policy variable is not binary. Assuming non-staggered adoption."
-		di as err _n "Option {bf:window(`lwindow')} can be used only if policyvar follows staggered adoption."
-		exit 322
+		di as err _n "Cannot use {bf:window(`lwindow')} if policyvar doesn't follow staggered adoption."
+		exit 199
 	}
 		
 	*********** verify no reversion  ****************************
@@ -257,15 +255,13 @@ program define _eventgenvars, rclass
 			di "Policyvar changes more than once for some units. Assuming non-staggered adoption (no imputation)."
 			loc impute=""
 		}
-		
 		if `norever'==0 & "`w_type'"=="string" {
-			di "Policyvar changes more than once for some units. Assuming non-staggered adoption."
-			di as err _n "Option {bf:window(`lwindow')} can be used only if policyvar follows staggered adoption."
-			exit 322
-		}
+		di as err _n "Cannot use {bf:window(`lwindow')} if policyvar doesn't follow staggered adoption."
+		exit 199
+	}
 
 		****** if no-reversion holds, verify "bounds" condition: e.g. if binary 0 and 1, verify 0 as the first observed value and 1 as the last observed value
-	if ("`impute'"=="stag" | "`impute'"=="instag" | "`w_type'"=="string") {
+	if ("`impute'"=="stag" | "`impute'"=="instag") {
 		tempvar notmiss zt minzt maxzt
 		qui{
 			gen byte `notmiss'=!missing(`z')
@@ -306,13 +302,13 @@ program define _eventgenvars, rclass
 			di "For some units, the changes in policyvar are not consistent with no-unobserved-change. Reverting to default (no imputation)."
 			loc impute =""	
 		}
-		if `bounds'==0 & "`w_type'"=="string" {
-			di "For some units, cannot determine whether they are always-treated units or never-treated units due to missing values."
-			di "Assuming non-staggered adoption."
-			di as err _n "Option {bf:window(`lwindow')} can be used only if policyvar follows staggered adoption."
-			exit 322
-		}
 	}
+	
+	if `bounds'==0 & "`w_type'"=="string" {
+		di as err _n "Cannot use {bf:window(`lwindow')} if policyvar doesn't follow staggered adoption."
+		exit 199
+	}
+	
 	
 	***************** apply no unobserved change ***************************
 
@@ -341,8 +337,8 @@ program define _eventgenvars, rclass
 
 **************** find event-time limits based on observed data range ********
 
-	if "`w_type'"=="string" {
-		
+	if "`w_type'"=="string" &  inlist("`impute'", "stag", "instag") {
+				
 		qui xtset `panelvar' `timevar', noquery
 		qui sort `panelvar' `timevar', stable
 		
@@ -394,8 +390,6 @@ program define _eventgenvars, rclass
 		}
 
 	}
-	
-	
 	
 ****************************** event-time dummies ***********************
 	*If impute is specified in the IV setting, note that the following code section is not executed in the first call to _eventgenvars because in the call the option static is added 
