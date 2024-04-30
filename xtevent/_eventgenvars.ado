@@ -119,6 +119,13 @@ program define _eventgenvars, rclass
 		}
 	}
 	
+	*Window(max|balanced) must be specified along with impute(stag|instag) 
+	if "`w_type'"=="string" & !inlist("`impute'","stag","instag") {
+		di as err _n "Options {bf: window(max)} and {bf: window(balanced)} can only be used if the policyvar follows staggered adoption."
+		di as err _n "Add {bf:impute(stag)} or {bf:impute(instag)} to check if the policyvar follows staggered adoption and impute it."
+		exit 197
+	}
+	
 	*** repeated cross section databases
 	if "`repeatedcs'"!=""{
 	
