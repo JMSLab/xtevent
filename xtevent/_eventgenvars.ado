@@ -338,6 +338,9 @@ program define _eventgenvars, rclass
 **************** find event-time limits based on observed data range ********
 
 	if "`w_type'"=="string" &  inlist("`impute'", "stag", "instag") {
+		
+		* save window selection criteria
+		loc ws_type `lwindow'
 				
 		qui xtset `panelvar' `timevar', noquery
 		qui sort `panelvar' `timevar', stable
@@ -367,23 +370,21 @@ program define _eventgenvars, rclass
 		loc lwindow = `lwindow' +1
 		loc rwindow = `rwindow' -1
 		
-		**** Error messages if calculated window limits are not valid  
+		*message about calculated limits 
+		di "Calculated left and right window limits by {bf:window(`ws_type')} are (`lwindow' `rwindow') plus the endpoints (`=`lwindow'-1'+, `=`rwindow'+1'+)"
+		
+		**** Error messages if calculated window limits are not valid 
+		
+		*make sure left window is negative and right window is positive 
 		if  (-`lwindow'<0 | `rwindow'<0) {
-					di "Calculated left and right window limits are `lwindow' and `rwindow'."
 			di as err _n "Left window can not be positive and right window can not be negative."
+			di as err _n "Check for first-treated units and last-treated units. Both types of units might have few common periods around the event-time which causes a narrow calculated window."
 			exit 198
 		}
-		*smallest possible window is (-1,0)
-		*Including the endpoints, the limit are two pre-event periods and one post-event period. 
-		if `lwindow'>-1 | `rwindow'<0 {
-					di "Calculated left and right window limits are `lwindow' and `rwindow'."
-			di as err _n "Minimum possible window range is (-1,0)."
-			exit 322
-		}
+		
 		* Check that normalization is in window
 		if "`norm'"!="" {
 			if (`norm' < `=`lwindow'-1' | `norm' > `rwindow') {
-						di "Calculated left and right window limits are `lwindow' and `rwindow'."
 				di as err _n "The coefficient to be normalized to 0 is outside of the estimation window."
 				exit 498
 			}
