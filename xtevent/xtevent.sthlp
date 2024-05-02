@@ -102,8 +102,14 @@ have not been previously {cmd:xtset}. See {help xtset}.
 is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
 coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<=0 and {it:k2}>=0 are specified, the 
 estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
-and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). Notice that if the event time in your database goes from -2 to 3, the maximum window you can specify is then {it:k1} = -1 and 
-{it:k2} = 2. If {cmd: max} is specified, the estimation will use the maximum possible number of periods before and after the event plus the endpoints. If {cmd: balanced} is specified, the estimation will use the maximum possible number of periods before and after the event plus the endpoints where all units have data. 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). 
+
+{phang} There are two alternatives to having to specify the value(s) of {opth window(string)}. {cmd: window(max)} uses the maximum possible number of periods before and after the event plus the endpoints.
+For example, if {cmd: window(max)} calculates 7 periods before the event and 5 periods after the event, then the estimation window will be (-7 5) and two endpoints (-8+, 6+). 
+{cmd: window(balanced)} uses the maximum possible number of periods before and after the event plus the endpoints where all units have data. 
+For example, if {cmd: window(balanced)} calculates 5 periods before the event and 3 periods after the event, then the estimation window will be (-5 3) and two endpoints (-6+, 4+). 
+{cmd: window(max)} and {cmd: window(balanced)} are allowed only if the policy variable follows staggered adoption. 
+With {cmd: window(max)} or {cmd: window(balanced)}, either of {cmd: impute(stag)} or {cmd: impute(instag)} is required to check that the policy variable follows staggered adoption (see below). 
 {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()}, 
 and {opt overidpost()} (See below).
 
@@ -111,7 +117,7 @@ and {opt overidpost()} (See below).
 {opt pre},
 {opt post}, 
 {opt overidpre} and 
-{opt overidpost} offer an alternative way to specify the estimation window:
+{opt overidpost} offer an alternative way to specify the estimation window with {opth window(string)}:
 
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
