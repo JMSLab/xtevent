@@ -380,7 +380,7 @@ program define _eventgenvars, rclass
 		*make sure left window is negative and right window is positive 
 		if  (-`lwindow'<0 | `rwindow'<0) {
 			di as err _n "Left window can not be positive and right window can not be negative."
-			di as err _n "Check for first-treated units and last-treated units. Both types of units might have few common periods around the event-time which causes a narrow calculated window."
+			di as err _n "Check for first-treated units and last-treated units. Both types of units might have few common periods around treatment time which causes a narrow calculated window."
 			exit 198
 		}
 		
