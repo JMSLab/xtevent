@@ -337,7 +337,6 @@ program define _eventgenvars, rclass
 
 **************** find event-time limits based on observed data range ********
 
-	*if "`w_type'"=="string" &  inlist("`impute'", "stag", "instag") {
 	if "`w_type'"=="string" {
 		
 		* save window selection criteria
