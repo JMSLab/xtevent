@@ -337,7 +337,8 @@ program define _eventgenvars, rclass
 
 **************** find event-time limits based on observed data range ********
 
-	if "`w_type'"=="string" &  inlist("`impute'", "stag", "instag") {
+	*if "`w_type'"=="string" &  inlist("`impute'", "stag", "instag") {
+	if "`w_type'"=="string" {
 		
 		* save window selection criteria
 		loc ws_type `lwindow'
@@ -375,6 +376,8 @@ program define _eventgenvars, rclass
 		
 		**** Error messages if calculated window limits are not valid 
 		
+		*These checks were made earlier for numeric window. We check them again here once we know the calculated window 
+		
 		*make sure left window is negative and right window is positive 
 		if  (-`lwindow'<0 | `rwindow'<0) {
 			di as err _n "Left window can not be positive and right window can not be negative."
@@ -382,6 +385,14 @@ program define _eventgenvars, rclass
 			exit 198
 		}
 		
+		*Normalized coefficient for trend adjustment is outside estimation window
+		if "`trend'"!="" {
+			if `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
+				di as err "{bf:trend} is outside estimation window."
+				exit 301
+			}
+		}
+	
 		* Check that normalization is in window
 		if "`norm'"!="" {
 			if (`norm' < `=`lwindow'-1' | `norm' > `rwindow') {

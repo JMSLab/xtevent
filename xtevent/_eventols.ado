@@ -73,11 +73,14 @@ program define _eventols, rclass
 	*error messages for incorrect specification of the trend option
 	if "`trend'"!="" {
 		tempvar ktrend trendy trendx
-		if `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
-			di as err "{bf:trend} is outside estimation window."
-			exit 301
-		}
 		
+		if "`w_type'"=="numeric" {
+			if  `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
+				di as err "{bf:trend} is outside estimation window."
+				exit 301
+			}
+		}
+	
 		if `trcoef'>=0 {
 			di as err "trend coefficient must be smaller than 0"
 			exit 301
