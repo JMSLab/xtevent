@@ -110,6 +110,7 @@ program define _eventiv, rclass
 		}
 	}
 	
+	
 	loc leads : word count `proxy'
 	if "`proxyiv'"=="" & `leads'==1 loc proxyiv "select"
 	
@@ -158,7 +159,6 @@ program define _eventiv, rclass
 		if _rc loc ++rc
 		loc ++ivwords
 	}
-	
 	* Three possible types of lists: all numbers for leads, all vars for external instruments, or mixed
 	* All numbers
 	if `rc' == 0 {
@@ -225,6 +225,15 @@ program define _eventiv, rclass
 			exit 301
 		}
 	}
+	
+	* Check that leads in provyiv are in the estimation window 
+	foreach v in `proxyiv_numbers' {
+		if (`v' > `=-`lwindow_iter'+1') {
+			di as err "Lead `v' of policy variable to be used as instrument is outside estimation window."
+			exit 301
+		}
+	}
+
 	* Set normalizations in case these are numbers, so we are using leads of delta z
 	loc ivnorm ""
 	if "`instype'"=="numlist" | "`instype'"=="mixed" {
