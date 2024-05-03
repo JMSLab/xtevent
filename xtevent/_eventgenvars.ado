@@ -4,7 +4,7 @@ program define _eventgenvars, rclass
 
 	#d;
 
-	syntax [anything] [if] [in], 
+	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], 
 	Panelvar(varname) /* Panel variable */	
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
@@ -28,6 +28,9 @@ program define _eventgenvars, rclass
 	]	
 	;
 	#d cr	
+	
+	*mark non-missing observations in varlist 
+	marksample tousew
 	
 	tempvar mz kg touse
 	
@@ -347,20 +350,20 @@ program define _eventgenvars, rclass
 		
 		*create relative-to-event-time variable 
 		tempvar d1z ttreat ttreat2 rtime minrtime maxrtime
-		qui gen long `d1z'=d1.`zn2'
-		qui gen long `ttreat' = `timevar' if `d1z'!=0 & !missing(`d1z') & `touse'
-		qui by `panelvar' (`timevar'): egen long `ttreat2' = min(`ttreat') if `touse'
-		qui by `panelvar' (`timevar'): gen long `rtime' = `timevar' - `ttreat2' if `touse'
+		qui gen long `d1z'=d1.`zn2' if `touse' & `tousew'
+		qui gen long `ttreat' = `timevar' if `d1z'!=0 & !missing(`d1z') & `touse' & `tousew'
+		qui by `panelvar' (`timevar'): egen long `ttreat2' = min(`ttreat') if `touse' & `tousew'
+		qui by `panelvar' (`timevar'): gen long `rtime' = `timevar' - `ttreat2' if `touse' & `tousew'
 		
 		if "`lwindow'"=="max" {
-			qui sum `rtime'
+			qui sum `rtime' if `touse' & `tousew'
 			loc lwindow = r(min)
 			loc rwindow = r(max)
 		}
 		if "`lwindow'"=="balanced" {
-			qui by `panelvar' (`timevar'): egen long `minrtime' = min(`rtime') if `touse'
-			qui by `panelvar' (`timevar'): egen long `maxrtime' = max(`rtime') if !missing(`rtime') & `touse' 
-			qui sum `minrtime'
+			qui by `panelvar' (`timevar'): egen long `minrtime' = min(`rtime') if `touse' & `tousew'
+			qui by `panelvar' (`timevar'): egen long `maxrtime' = max(`rtime') if !missing(`rtime') & `touse'  & `tousew'
+			qui sum `minrtime' if `touse' & `tousew'
 			loc lwindow = r(max)
 			qui sum `maxrtime'
 			loc rwindow = r(min)

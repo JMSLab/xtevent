@@ -137,7 +137,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
+		_eventgenvars `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)

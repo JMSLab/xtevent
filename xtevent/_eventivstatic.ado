@@ -47,7 +47,7 @@ program define _eventivstatic, rclass
 		tempvar rr
 		qui gen double `rr'=.
 		
-	_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
+	_eventgenvars `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
 		
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
