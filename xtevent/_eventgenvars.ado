@@ -371,7 +371,7 @@ program define _eventgenvars, rclass
 		loc rwindow = `rwindow' -1
 		
 		*message about calculated limits 
-		di "The calculated window by {bf:window(`ws_type')} is (`lwindow' `rwindow'), excluding the endpoints (`=`lwindow'-1', `=`rwindow'+1')."
+		di "The calculated window by {bf:window(`ws_type')} is (`lwindow',`rwindow'), plus the endpoints `=`lwindow'-1' and `=`rwindow'+1'."
 		
 		**** Error messages if calculated window limits are not valid 
 		
