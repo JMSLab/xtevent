@@ -4,7 +4,7 @@ program define _eventgenvars, rclass
 
 	#d;
 
-	syntax varlist(fv ts numeric) [aw fw pw] [if] [in], 
+	syntax [anything] [if] [in], 
 	Panelvar(varname) /* Panel variable */	
 	Timevar(varname) /* Time variable */
 	POLicyvar(varname) /* Policy variable */
@@ -23,14 +23,11 @@ program define _eventgenvars, rclass
 	trcoef(real 0) /*inferior limit to start the trend*/
 	methodt(string) /* method for the trend computation*/
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional datasets*/
-
+	mkvarlist(name) /* marker of non-missing observations in local varlist */ 
 	
 	]	
 	;
 	#d cr	
-	
-	*mark non-missing observations in varlist 
-	marksample tousew
 	
 	tempvar mz kg touse
 	
@@ -350,20 +347,20 @@ program define _eventgenvars, rclass
 		
 		*create relative-to-event-time variable 
 		tempvar d1z ttreat ttreat2 rtime minrtime maxrtime
-		qui gen long `d1z'=d1.`zn2' if `touse' & `tousew'
-		qui gen long `ttreat' = `timevar' if `d1z'!=0 & !missing(`d1z') & `touse' & `tousew'
-		qui by `panelvar' (`timevar'): egen long `ttreat2' = min(`ttreat') if `touse' & `tousew'
-		qui by `panelvar' (`timevar'): gen long `rtime' = `timevar' - `ttreat2' if `touse' & `tousew'
+		qui gen long `d1z'=d1.`zn2' if `touse' & `mkvarlist'
+		qui gen long `ttreat' = `timevar' if `d1z'!=0 & !missing(`d1z') & `touse' & `mkvarlist'
+		qui by `panelvar' (`timevar'): egen long `ttreat2' = min(`ttreat') if `touse' & `mkvarlist'
+		qui by `panelvar' (`timevar'): gen long `rtime' = `timevar' - `ttreat2' if `touse' & `mkvarlist'
 		
 		if "`lwindow'"=="max" {
-			qui sum `rtime' if `touse' & `tousew'
+			qui sum `rtime' if `touse' & `mkvarlist'
 			loc lwindow = r(min)
 			loc rwindow = r(max)
 		}
 		if "`lwindow'"=="balanced" {
-			qui by `panelvar' (`timevar'): egen long `minrtime' = min(`rtime') if `touse' & `tousew'
-			qui by `panelvar' (`timevar'): egen long `maxrtime' = max(`rtime') if !missing(`rtime') & `touse'  & `tousew'
-			qui sum `minrtime' if `touse' & `tousew'
+			qui by `panelvar' (`timevar'): egen long `minrtime' = min(`rtime') if `touse' & `mkvarlist'
+			qui by `panelvar' (`timevar'): egen long `maxrtime' = max(`rtime') if !missing(`rtime') & `touse'  & `mkvarlist'
+			qui sum `minrtime' if `touse' & `mkvarlist'
 			loc lwindow = r(max)
 			qui sum `maxrtime'
 			loc rwindow = r(min)

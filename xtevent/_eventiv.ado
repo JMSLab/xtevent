@@ -29,6 +29,9 @@ program define _eventiv, rclass
 	#d cr
 	
 	marksample touse
+	
+	tempvar mkvarlist
+	qui gen byte `mkvarlist' = `touse'
 		
 	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 deltaov Vdeltaov deltax Vdeltax deltaxsc bby bbx VVy VVx tousegen
 	* bb delta coefficients
@@ -63,7 +66,7 @@ program define _eventiv, rclass
 		qui gen double `rr'=.
 
 		*call _eventgenvars
-		_eventgenvars `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') lwindow(`lwindow') w_type(`w_type') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') static rr(`rr') lwindow(`lwindow') w_type(`w_type') mkvarlist(`mkvarlist') `repeatedcs' //with option static, we skip the code that generates the event-time dummies 
 		// Include options lwindow and w_type because when selecting lead order for proxyiv we need to evaluate all lead orders limited by the calculated left window in case the user specified window(max) or window(balanced)
 
 		loc impute=r(impute)
@@ -304,7 +307,7 @@ program define _eventiv, rclass
 	
 	if "`gen'" != "nogen" {	
 		*If impute was specified, this is the second call to _eventgenvars: this time, both the policyvar and the event-time dummies will be imputed. Additional computations will happen as well  (e.g., macros, etc.).
-		_eventgenvars `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') `trend' norm(`norm') impute(`impute') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') `trend' norm(`norm') impute(`impute') mkvarlist(`mkvarlist') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)

@@ -32,6 +32,9 @@ program define _eventols, rclass
 	#d cr
 	
 	marksample touse
+	
+	tempvar mkvarlist
+	qui gen byte `mkvarlist' = `touse'
 		
 	tempname delta Vdelta bb VV
 	* delta - event coefficients
@@ -137,7 +140,7 @@ program define _eventols, rclass
 			qui gen double `rr'=.
 		}
 	
-		_eventgenvars `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') `repeatedcs'
+		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') mkvarlist(`mkvarlist') `repeatedcs'
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)

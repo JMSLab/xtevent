@@ -22,6 +22,9 @@ program define _eventolsstatic, rclass
 	
 	marksample touse
 	
+	tempvar mkvarlist
+	qui gen byte `mkvarlist' = `touse'
+	
 	tempname delta Vdelta bb VV bb2 VV2 delta2 Vdelta2 tousegen
 	
 	* For eventgenvars, ignore missings in varlist
@@ -37,7 +40,7 @@ program define _eventolsstatic, rclass
 		tempvar rr
 		qui gen double `rr'=.
 
-	_eventgenvars `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr')
+	_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') impute(`impute') `repeatedcs' `static' rr(`rr') mkvarlist(`mkvarlist')
 	
 		loc impute=r(impute)
 		if "`impute'"=="." loc impute = ""
