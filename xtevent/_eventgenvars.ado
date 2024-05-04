@@ -148,7 +148,7 @@ program define _eventgenvars, rclass
 	
 		*proceed with generation of event-time dummies in the repeated cs setting
 		preserve 
-		qui keep `panelvar' `timevar' `policyvar' `touse' `rr'
+		qui keep `panelvar' `timevar' `policyvar' `touse' `rr' `mkvarlist'
 		*sorting by policyvar guarantees not choosing a missing value 
 		qui keep if `touse'
 		qui bysort `panelvar' `timevar' (`policyvar'): keep if _n==1 //altervative: collapse (min) z if `touse', by(state t)
