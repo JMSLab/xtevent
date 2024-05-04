@@ -32,7 +32,7 @@
 {p2coldent:* {opth pol:icyvar(varname)}} policy variable{p_end}
 {synopt: {opth p:anelvar(varname)}} variable that identifies the panels{p_end}
 {synopt: {opth t:imevar(varname)}} variable that identifies the time periods{p_end}
-{synopt: {opth w:indow(string)}} # of periods in the estimation window{p_end}
+{synopt: {opth w:indow(xtevent##windowspec:windowspec)}} estimation window{p_end}
 {synopt: {opth pre(integer)}} # of periods with anticipation effects{p_end}
 {synopt: {opth post(integer)}} # of periods with policy effects{p_end}
 {synopt: {opth overidpre(integer)}} # of periods to test pre-trends{p_end}
@@ -97,19 +97,27 @@ have not been previously {cmd:xtset}. See {help xtset}.
 {opth timevar(varname)} specifies the time variable. {cmd:timevar()} is required if the data have not been previously {cmd:xtset}. See
 {help xtset}.
 
+{marker windowspec}{...}
 {phang}
-{opth window(string)} specifies the window around the policy change event to estimate dynamic effects. If a single positive integer {it:k}>0 
-is specified, the estimation will use a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
-coefficients in the window (-2,-1,0,1,2) and two endpoints (-3+, 3+). If two distinct integers {it:k1}<=0 and {it:k2}>=0 are specified, the 
-estimation will use an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
-and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints (-2+,3+). 
+{opt window(windowspec)} specifies the window around the policy change event to estimate dynamic effects. 
 
-{phang} There are two alternatives to having to specify the value(s) of {opth window(string)}. {cmd: window(max)} uses the maximum possible number of periods before and after the event plus the endpoints.
-For example, if {cmd: window(max)} calculates 7 periods before the event and 5 periods after the event, then the estimation window will be (-7 5) and two endpoints (-8+, 6+). 
-{cmd: window(balanced)} uses the maximum possible number of periods before and after the event plus the endpoints where all units have data. 
-For example, if {cmd: window(balanced)} calculates 5 periods before the event and 3 periods after the event, then the estimation window will be (-5 3) and two endpoints (-6+, 4+). 
-{cmd: window(max)} and {cmd: window(balanced)} are allowed only if the policy variable follows staggered adoption. 
-With {cmd: window(max)} or {cmd: window(balanced)}, either of {cmd: impute(stag)} or {cmd: impute(instag)} is required to check that the policy variable follows staggered adoption (see below). 
+{phang2}
+{opt window(k)} with a single positive integer {it:k}>0 uses a symmetric window of {it:k} periods around the event. For example, if {it:k} = 2, there will be five 
+coefficients in the window (-2,-1,0,1,2) and two endpoints: -3 and +3. 
+
+{phang2}
+{opt window(k1 k2)} with two distinct integers {it:k1}<=0 and {it:k2}>=0 uses an asymmetric window with {it:k1} periods before the event and {it:k2} periods after the event. For example, with {it:k1} = -1 
+and {it:k2} = 2, there will be four coefficients in the window (-1,0,1,2) and two endpoints: -2 and +3. 
+
+{phang2}
+{cmd: window(max)} uses the largest possible window with the minimum and maximum event times in the estimation sample, accounting for the endpoints.
+{cmd: window(max)} is only allowed if the policy follows staggered adoption and requires {cmd: impute(stag)} or {cmd: impute(instag)} to be specified (see below). 
+
+{phang2}
+{cmd: window(balanced)} uses the largest possible window with the minimum and maximum event times in the estimation sample for which all cross sectional units have data. 
+{cmd: window(balanced)} is only allowed if the policy follows staggered adoption and requires {cmd: impute(stag)} or {cmd: impute(instag)} to be specified (see below). 
+
+{phang}
 {opt window()} is required unless {opt static} is specified, or if the estimation window is specified using  options {opt pre()}, {opt post()}, {opt overidpre()}, 
 and {opt overidpost()} (See below).
 
