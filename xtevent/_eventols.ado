@@ -300,8 +300,8 @@ program define _eventols, rclass
 				di as err _n "Please rename this variable before proceeding."
 				exit 110
 			}
-
-			qui by `panelvar' : egen _cohort = min(`timet') if `tousegen'
+			
+			qui bys `panelvar' : egen _cohort = min(`timet') if `tousegen'
 			loc cohortvar "_cohort"			
 		}
 
