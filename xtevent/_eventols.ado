@@ -293,6 +293,14 @@ program define _eventols, rclass
 
 			tempvar timet 
 			qui gen `timet'=`timevar' if `policyvar'==1 & `tousegen'
+
+			cap confirm var _cohort 
+			if !_rc {
+				di as err _n "You have a variable named _cohort. _cohort is reserved for internal -xtevent- variables."
+				di as err _n "Please rename this variable before proceeding."
+				exit 110
+			}
+
 			qui by `panelvar' : egen _cohort = min(`timet') if `tousegen'
 			loc cohortvar "_cohort"			
 		}
@@ -301,6 +309,14 @@ program define _eventols, rclass
 		if "`cohortvar'"!="" & "`control_cohorttype'"=="create" {
 			if "`control_cohort'"=="" di as txt _n "Control cohort not specified. Using values with cohort variable == . as the control cohort"
 			else di as txt _n "Using values with cohort variable == . as the control cohort"
+
+			cap confirm var _control_cohort 
+			if !_rc {
+				di as err _n "You have a variable named _control_cohort. _control_cohort is reserved for internal -xtevent- variables."
+				di as err _n "Please rename this variable before proceeding."
+				exit 110
+			}
+
 			gen _control_cohort = (`cohortvar' == .)
 			loc control_cohortvar "_control_cohort"
 		}
