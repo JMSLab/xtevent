@@ -34,8 +34,9 @@ program define xtevent, eclass
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
-	cohort(varname) /*categorial variable to indicate cohort in SA estimation*/ 
-	control_cohort(varname) /* dummy variable to indicate cohort to be used as control in SA estimation*/
+	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
+	control_cohort(string) /* dummy variable to indicate cohort to be used as control in SA estimation*/
+	SUNABraham /* Alias for cohort(create) */
 	plot /* Produce plot */
 	*
 	/*
@@ -138,17 +139,28 @@ program define xtevent, eclass
 	if "`repeatedcs'"!=""{
 		di as txt _n "Option {bf:repeatedcs} was specified. Using {bf:`panelvar'} as the panel variable and {bf:`timevar'} as the time variable."
 	}
-
-	if ("`cohort'" != "" & "`control_cohort'" == "") | ("`cohort'" == "" & "`control_cohort'" != "")  {
-		di as err _n "options {bf:cohort} and {bf:control_cohort} must be specified simultaneously"
-		exit 199
-	}
-	if "`cohort'"!="" & "`control_cohort'"!=""  {
+	
+	if "`cohort'"!="" {
 		cap which avar 
 		if _rc {
 			di as err _n "Sun-and-Abraham estimation requires {cmd: avar} to be installed"
 			exit 199
 		}
+	}
+
+	if "`control_cohort'"!="" & "`cohort'"=="" {
+		di as err _n "{bf:control_cohort} requires {bf:cohort} to be specified"
+		exit 198
+	}
+
+	if "`sunabraham'"!="" {		
+		if "`cohort'"=="" loc cohort "create"		
+	}
+
+	* SA estimation not implemented with IV estimation yet
+	if ("`cohort'"!="" | "`control_cohort'"!="" | "`sunabraham'"!="") & ("`proxy'"!="" | "`proxyiv'"!="") {
+		di as err _n "Sun-and-Abraham estimation not allowed with proxy or instruments"
+		exit 198
 	}
 		
 	tempvar sample tousegen

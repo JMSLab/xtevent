@@ -323,7 +323,6 @@ program define _eventgenvars, rclass
 		exit 199
 	}
 	
-	
 	***************** apply no unobserved change ***************************
 
 	if "`impute'"!="" {

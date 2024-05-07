@@ -22,8 +22,8 @@ program define _eventols, rclass
 	impute(string) /*imputation on policyvar*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	DIFFavg /* Obtain regular DiD estimate implied by the model */
-	cohort(varname) /* categorical variable indicating cohort */
-	control_cohort(varname) /* dummy variable indicating the control cohort */
+	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
+	control_cohort(string) /* dummy variable indicating the control cohort */
   REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 
 	*
@@ -41,7 +41,7 @@ program define _eventols, rclass
 	* bb - regression coefficients
 	tempvar esample	tousegen
 	
-	* For eventgenvars, ignore missings in varlist
+	* For eventgenvars and for cohort generation, ignore missings in varlist
 	mark `tousegen' `if' `in'
 	
 
@@ -76,7 +76,7 @@ program define _eventols, rclass
 	*error messages for incorrect specification of the trend option
 	if "`trend'"!="" {
 		tempvar ktrend trendy trendx
-		
+
 		if "`w_type'"=="numeric" {
 			if  `trcoef'<`lwindow'-1 | `trcoef'>`rwindow'+1 {
 				di as err "{bf:trend} is outside estimation window."
@@ -89,11 +89,11 @@ program define _eventols, rclass
 			exit 301
 		}
 		if `trcoef'==-1 {
-			di as err "Trend extrapolation requires at least two pre-treatment points."
+			di as err "Trend extrapolation requires at least two pre-treatment points"
 			exit 301
 		}			
 		if !inlist("`methodt'","ols","gmm"){
-			di as err "{bf:method(`methodt')} is not a valid suboption."		
+			di as err "{bf:method(`methodt')} is not a valid suboption"		
 			exit 301
 		}
 		if "`methodt'"=="ols" {
@@ -104,23 +104,22 @@ program define _eventols, rclass
 	
 	* error messages for sun_abraham
 	loc sun_abraham ""
-	if "`cohort'"!="" & "`control_cohort'"!="" {
-		di as text _n "You have specified {bf:cohort} and {bf:control_cohort} options."
-		di as text _n "Event-time coefficients will be estimated with"
-		di as text _n "the Interaction Weighted Estimator of Sun and Abraham (2021)."
+	if "`cohort'"!="" {
+		di as text _n "You have specified the {bf:cohort} or the {bf:sunabraham} option"
+		di as text "Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)"
 		loc sun_abraham "sun_abraham"
 	}
 	if "`saveint'"!="" & "`sun_abraham'"==""{
-		di as err _n "Suboption {bf:saveint} can only be specified if options {bf:cohort} and {bf:control_cohort} have been specified as well."
+		di as err _n "Suboption {bf:saveint} can only be specified with {bf:cohort}"
 		exit 301
 	}
 	* Check for vars named _interact
 	if "`saveint'"!=""{
 		cap unab old_interact_vars : `savek'_interact*
 		if !_rc {
-			di as err _n "You have variable names with the {bf:`savek'_interact} prefix."
-			di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation."
-			di as err _n "Please rename or drop these variables before proceeding."
+			di as err _n "You have variable names with the {bf:`savek'_interact} prefix"
+			di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation"
+			di as err _n "Please rename or drop these variables before proceeding"
 			exit 110
 		}
 	}
@@ -129,6 +128,64 @@ program define _eventols, rclass
 		di as err _n "Options -nogen- and -kvars- must be specified together"
 		exit 301
 	}
+
+	* Parse cohort and control_cohort
+
+	if "`cohort'"!="" {
+
+		* Parse to distinguish if cohort variable is given or should be created
+		parsecohort `cohort'	
+		loc cohortvar = r(cohortvar)
+		loc cohortforce = r(force)
+		loc cohorttype = r(cohorttype)
+		loc cohortsave = r(save)
+		loc cohortreplace = r(replace)
+
+		* Parse control_cohort
+
+		if "`control_cohort'" == "" {
+			loc control_cohorttype "create"
+			loc control_cohortvar = "."
+		}
+		else {
+			parsecontrol_cohort `control_cohort'
+			loc control_cohortvar = r(control_cohortvar)
+			loc control_cohorttype = r(control_cohorttype)
+			loc control_cohortsave = r(save)
+			loc control_cohortreplace = r(replace)
+		}
+
+		* Check consistency: if cohort and control_cohort are both given, the cohort variable should be missing if control_cohort is 1 unless force
+
+		if "`cohorttype'"=="variable" & "`cohortforce'"=="." & "`control_cohorttype'"=="variable" {
+			cap assert `cohortvar'==. if `control_cohortvar' == 1 & `touse'
+			if _rc {
+				di as err _n "Cohort variable `cohortvar' is not missing for the control cohort selected by `control_cohort'"
+				exit 301
+			}
+			cap assert `control_cohortvar'==0 | `control_cohortvar'==1 if `touse'
+			if _rc {
+				di as err _n "Control cohort indicator variable `control_cohortvar' is not binary"
+				exit 301 
+			}
+			cap assert `control_cohortvar'==0 if `cohortvar'!=. & `touse'
+			if _rc {
+				di as err _n "Control cohort variable `control_cohortvar' is not zero for treated cohorts defined by `cohortvar'"
+				exit 301
+			}			
+		}
+		else if "`cohortvar'"!="" & "`cohortforce'"=="force" & "`cohorttype'"=="variable" {
+			di as text _n "Treatment cohort variable `cohortvar' was not checked for consistency with the policy"
+			di as text "variable `policyvar' or the control cohort variable `control_cohortvar'"
+		}	
+
+
+
+	}
+
+
+
+	***
 	
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
@@ -141,10 +198,11 @@ program define _eventols, rclass
 		}
 	
 		_eventgenvars if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trcoef(`trcoef') methodt(`methodt') norm(`norm') impute(`impute') rr(`rr') mkvarlist(`mkvarlist') `repeatedcs'
+
 		loc included=r(included)
 		loc names=r(names)
 		loc komittrend=r(komittrend)
-		loc bin = r(bin)
+		loc binnorev = r(binnorev)
 		if "`komittrend'"=="." loc komittrend = ""
 
 		*bring the imputed policyvar
@@ -203,6 +261,66 @@ program define _eventols, rclass
 		
 	******** SA *******
 	if "`sun_abraham'"!=""{
+
+		* Another consistency check: obs with cohort should have some treated values, obs with control_cohort should have some untreated values
+		* Not checking that all cohorts have treated values, not checking that z is always zero for never treat, so these are minimal checks
+
+		if "`cohorttype'"=="" {
+			qui levelsof z if `cohortvar'!=. & `tousegen|'
+			if r(levels)=="0" {
+				di as err _n "Treated observations according to cohort variable `cohortvar' are inconsistent"
+				di as err "with values of the policy variable `z'"
+				exit 301
+			}
+
+			if "`control_cohorttype'"=="variable" {
+				qui count if `z'==0 & `control_cohortvar' & `tousegen'
+				if r(N)==0 {
+					di as err _n "Untreated observations according to control cohort variable `control_cohortvar'"
+					di as err "are inconsistent with values of the policy variable `z'"
+				}
+			}
+		}
+
+		* Create the cohort variable if requested
+		if "`cohorttype'"=="create" {
+			cap assert `binnorev'==1
+			if _rc {
+				di as err _n "The policy variable is not binary or treatment reverts"
+				di as err "Cannot create treatment cohort variables"
+				exit 301
+			}
+
+			tempvar timet 
+			qui gen `timet'=`timevar' if `policyvar'==1 & `tousegen'
+
+			cap confirm var _cohort 
+			if !_rc {
+				di as err _n "You have a variable named _cohort. _cohort is reserved for internal -xtevent- variables."
+				di as err _n "Please rename this variable before proceeding."
+				exit 110
+			}
+			
+			qui bys `panelvar' : egen _cohort = min(`timet') if `tousegen'
+			loc cohortvar "_cohort"			
+		}
+
+		* If control_cohort is missing, take the values with cohort = .
+		if "`cohortvar'"!="" & "`control_cohorttype'"=="create" {
+			if "`control_cohort'"=="" di as txt _n "Control cohort not specified. Using values with cohort variable == . as the control cohort"
+			else di as txt _n "Using values with cohort variable == . as the control cohort"
+
+			cap confirm var _control_cohort 
+			if !_rc {
+				di as err _n "You have a variable named _control_cohort. _control_cohort is reserved for internal -xtevent- variables."
+				di as err _n "Please rename this variable before proceeding."
+				exit 110
+			}
+
+			gen _control_cohort = (`cohortvar' == .)
+			loc control_cohortvar "_control_cohort"
+		}
+
 		* Parse the dependent variable
 		local lhs = "`depenvar'"
 		local rel_time_list = "`included'"
@@ -214,12 +332,12 @@ program define _eventols, rclass
 			local dvarlist "`dvarlist' `l'"
 			tempname n`l'
 			qui gen `n`l'' = `l'
-			qui replace `n`l'' = 0 if  `control_cohort' == 1 
+			qui replace `n`l'' = 0 if  `control_cohortvar' == 1 
 			local nvarlist "`nvarlist' `n`l''" 
 		}	
 
 		* Get cohort count  and count of relative time
-		qui levelsof `cohort' if  `control_cohort' == 0, local(cohort_list) 
+		qui levelsof `cohortvar' if  `control_cohortvar' == 0, local(cohort_list) 
 		local nrel_times: word count `nvarlist' 
 		local ncohort: word count `cohort_list'  
 		
@@ -231,8 +349,8 @@ program define _eventols, rclass
 		local nresidlist ""
 		foreach yy of local cohort_list {
 			tempvar cohort_ind resid`yy'
-			qui gen `cohort_ind'  = (`cohort' == `yy') 
-			qui _regress `cohort_ind' `nvarlist'  if `touse' & `control_cohort' == 0 [`weight'`exp']  , nocons
+			qui gen `cohort_ind'  = (`cohortvar' == `yy') 
+			qui _regress `cohort_ind' `nvarlist'  if `touse' & `control_cohortvar' == 0 [`weight'`exp']  , nocons
 			mat `bb' = e(b) 
 			matrix `ff_w'  = nullmat(`ff_w') \ `bb' 
 			*di "`yy'"
@@ -245,10 +363,10 @@ program define _eventols, rclass
 		* In case users have not set relative time indicators to zero for control cohort
 		* Manually restrict the sample to non-control cohort
 		tempname XX Sxx Sxxi S KSxxi Sigma_ff
-		qui mat accum `XX' = `nvarlist' if  `touse' & `control_cohort' == 0 [`weight'`exp'], nocons
+		qui mat accum `XX' = `nvarlist' if  `touse' & `control_cohortvar' == 0 [`weight'`exp'], nocons
 		mat `Sxx' = `XX'*1/r(N) 
 		mat `Sxxi' = syminv(`Sxx') 
-		qui avar (`nresidlist') (`nvarlist')  if `touse' & `control_cohort' == 0 [`weight'`exp'], nocons robust
+		qui avar (`nresidlist') (`nvarlist')  if `touse' & `control_cohortvar' == 0 [`weight'`exp'], nocons robust
 		mat `S' = r(S) 
 		mat `KSxxi' = I(`ncohort')#`Sxxi' 
 		mat `Sigma_ff' = `KSxxi'*`S'*`KSxxi'*1/r(N) 
@@ -265,11 +383,11 @@ program define _eventols, rclass
 		foreach l of varlist `rel_time_list' { 
 			foreach yy of local cohort_list {  
 				tempvar n`n`l''_`yy'
-				qui gen `n`n`l''_`yy''  = (`cohort' == `yy') * `n`l' '
+				qui gen `n`n`l''_`yy''  = (`cohortvar' == `yy') * `n`l' '
 				// TODO: might be more efficient to use the c. operator if format w/o missing
 				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
 				if "`saveint'"!=""{
-					loc lnumber=substr("`l'",7,2)
+					loc lnumber : subinstr local l "_k_eq_" ""					
 					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
 				}
 			}
@@ -636,7 +754,49 @@ program define _eventols, rclass
 		if "`methodt'"=="ols" ren _ttrend `savek'_trend
 		if "`saveint'"!="" ren _interact* `savek'_interact*
 	}
-	
+	if "`sun_abraham'"!="" {
+		if "`control_cohorttype'"=="create" {
+			if "`control_cohortsave'"=="save" {
+				cap confirm variable `policyvar'_control_cohort
+				if !_rc {
+					if "`control_cohortreplace'"=="replace" {
+						drop `policyvar'_control_cohort
+						ren _control_cohort `policyvar'_control_cohort
+					}
+					else {
+						di as err _n "variable `policyvar'_control_cohort already exists"
+						drop _control_cohort
+						exit 301
+					}
+				}
+				else {
+					ren _control_cohort `policyvar'_control_cohort
+				}
+			}
+			else drop _control_cohort	
+		}
+		if "`cohorttype'"=="create"	{	
+			if "`cohortsave'"=="save" {
+				cap confirm variable `policyvar'_cohort
+				if !_rc {
+					if "`cohortreplace'"=="replace" {
+						drop `policyvar'_cohort
+						ren _cohort `policyvar'_cohort
+					}
+					else {
+						di as err _n "variable `policyvar'_cohort already exists"
+						drop _cohort
+						exit 301
+					}
+				}
+				else {
+					ren _cohort `policyvar'_cohort
+				}
+			}
+			else drop _cohort	
+		}	
+	}
+
 	*skip the rest of the program if the user indicated not to estimate
 	return local noestimate "`noestimate'"
 	if "`noestimate'"!="" exit 
@@ -799,5 +959,105 @@ program define parsesavek, rclass
 	return local savekl "`anything'"
 	return local noestimatel "`noestimate'"
 	return local saveintl "`saveinteract'"
-end	
+end
+
+* program to parse cohort
+program define parsecohort, rclass
+
+	syntax namelist(min=1 max=2), [force] [save] [replace]
+
+	loc words=wordcount("`namelist'")
+
+	if `words' == 1 {
+		if "`namelist'"=="create" {
+			loc cohortvar = ""
+			loc cohorttype = "create"
+		}
+		else {
+			confirm variable `namelist'		
+			di as text _n "Warning: Using old syntax for cohort. New syntax for using a cohort variable is cohort(variable varname)"
+			di as text "The old syntax will be deprecated in the next version of {cmd:xtevent}"
+			loc cohortvar "`namelist'"
+			loc cohorttype "variable"
+		}
+	}
+	else if `words'==2 {
+		loc first: word 1 of `namelist'
+		if ("`first'" != "variable")  {
+			di as err _n "Invalid syntax for cohort"
+			exit 301
+		}
+		loc second : word 2 of `namelist'
+		loc cohortvar "`second'"
+		loc cohorttype "variable"		
+	}
+
+	if "`cohorttype'"=="create" & "`force'"!="" {
+		di _n "cohort variable created, force option ignored"
+	}
+
+	if ("`save'"!="" | "`replace'"!="") & "`cohorttype'"=="variable" {
+		di as err _n "cohort variable can only be saved/replaced if created"
+		exit 301
+	}
+
+	if "`replace'"!="" & "`save'"=="" {
+		di as err _n "cohort variable replace only allowed with save"
+		exit 301
+	}
+
+	return local cohortvar = "`cohortvar'"
+	return local cohorttype = "`cohorttype'"
+	return local force = "`force'"
+	return local save = "`save'"
+	return local replace = "`replace'"
+end
+
+* program to parse control_cohort
+program define parsecontrol_cohort, rclass
+
+	syntax namelist(min=1 max=2), [save] [replace]
+
+	loc words=wordcount("`namelist'")
+
+	if `words' == 1 {
+		if "`namelist'"=="create" {
+			loc control_cohortvar = ""
+			loc control_cohorttype = "create"
+		}
+		else {
+			confirm variable `namelist'		
+			di as text _n "Warning: Using old syntax for control_cohort. New syntax for using a control cohort variable is"
+			di as text "control_cohort(variable varname)"
+			di as text "The old syntax will be deprecated in the next version of {cmd:xtevent}"
+			loc control_cohortvar "`namelist'"
+			loc control_cohorttype "variable"
+		}
+	}
+	else if `words'==2 {
+		loc first: word 1 of `namelist'
+		if ("`first'" != "variable")  {
+			di as err _n "Invalid syntax for control_cohort"
+			exit 301
+		}
+		loc second : word 2 of `namelist'
+		loc control_cohortvar "`second'"
+		loc control_cohorttype "variable"		
+	}
+
+	if ("`save'"!="" | "`replace'"!="") & "`control_cohorttype'"=="variable" {
+		di as err _n "control cohort variable can only be saved/replaced if created"
+		exit 301
+	}
+
+	if "`replace'"!="" & "`save'"=="" {
+		di as err _n "control cohort variable replace only allowed with save"
+		exit 301
+	}
+
+	return local control_cohortvar = "`control_cohortvar'"
+	return local control_cohorttype = "`control_cohorttype'"	
+	return local save = "`save'"
+	return local replace = "`replace'"
+end
 
