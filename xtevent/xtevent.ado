@@ -156,6 +156,12 @@ program define xtevent, eclass
 	if "`sunabraham'"!="" {		
 		if "`cohort'"=="" loc cohort "create"		
 	}
+
+	* SA estimation not implemented with IV estimation yet
+	if ("`cohort'"!="" | "`control_cohort'"!="" | "`sunabraham'"!="") & ("`proxy'"!="" | "`proxyiv'"!="") {
+		di as err _n "Sun-and-Abraham estimation not allowed with proxy or instruments"
+		exit 198
+	}
 		
 	tempvar sample tousegen
 	

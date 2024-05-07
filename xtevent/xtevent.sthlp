@@ -54,8 +54,8 @@
 {synopt:{opt rep:eatedcs}} indicate that the dataset in memory is repeated cross-sectional{p_end}
 {synopt:{opth cohort:(xtevent##cohortspec:cohortspec [, subopt])}} cohorts for Sun and Abraham (2021) estimation{p_end}
 {synopt:{opth control_cohort:(xtevent##controlcohortspec:control_cohort_spec [, subopt])}} control cohort for Sun and Abraham (2021) estimation{p_end}
-{synopt:{opt sunabraham}} Sun and Abraham (2021) estimation automatically creating cohort variables: equivalent to {bf:cohort(create)}{p_end}
-{synopt:{opt plot}} display plot. See {help xteventplot}.{p_end} 
+{synopt:{opt sunabraham}} Sun and Abraham (2021) estimation automatically creating cohort variables{p_end}
+{synopt:{opt plot}} display plot. See {help xteventplot}{p_end} 
 {synopt:{it: additional_options}} additional options to be passed to the estimation command{p_end}
 {synoptline}
 {p2colreset}{...}
@@ -150,17 +150,18 @@ is the number of periods before the event.
 The default is to normalize the coefficient on -1.
 
 {phang}
-{opth proxy(varlist)} specifies proxy variables for the confound to be included.
+{opth proxy(varlist)} specifies proxy variables for the confound to be included. {opt proxy} is not allowed with {opt cohort}, 
+{opt control_cohort} or {opt sunabraham}.
 
 {marker proxyiv_spec}{...}
 {phang}
 {opt proxyiv(proxyiv_spec)} specifies instruments for the proxy variable for the policy. {cmd:proxyiv()} admits three syntaxes to use 
-either leads of the policy variable or additional variables as instruments. The default is to use leads of the difference of the
-policy variable as instruments, selecting the lead with the strongest first stage. 
+either leads of the policy variable or additional variables as instruments. {opt proxy} is not allowed with {opt cohort}, 
+{opt control_cohort} or {opt sunabraham}. 
 
 {phang2}
-{cmd:proxyiv(select)} selects the lead with the strongest first stage among all possible leads of the differenced policy variable to 
-be used as an instrument.
+{cmd:proxyiv(select)} is the default and selects the lead with the strongest first stage among all possible leads of the 
+differenced policy variable to be used as an instrument.
 {cmd:proxyiv(select)} is the default for the one proxy, one instrument case, and it is only available in this case. 
 
 {phang2}
@@ -261,7 +262,7 @@ See the description of the {help get_unit_time_effects} command below. For fixed
 {phang}
 {opt cohort(cohort_spec)} specifies how to identify the treatment cohorts used for estimation of heterogenous effects by cohort using the
 estimator from Sun and Abraham(2021). {opt cohort} requires the  Stata module {cmd:avar}; click {stata ssc install avar :here} to install or 
-type "ssc install avar" from inside Stata.
+type "ssc install avar" from inside Stata. {opt cohort} is not allowed with {opt proxy} or {opt proxyiv}.
 
 {phang2}
 {cmd:cohort(variable {help varname}},{cmd: [,force])} specifies that the categorical variable {opth varname} identifies each treatment cohort.
@@ -276,7 +277,8 @@ The automatic creation of the cohort variable is only available in the staggered
 {marker controlcohortspec}{...}
 {phang}
 {opt control_cohort(control_cohort_spec)} specifies how to identify the control cohort used for estimation of heterogenous effects by cohort 
-using the estimator from Sun and Abraham(2021). {opt control_cohort} requires {opt cohort} to be specified.
+using the estimator from Sun and Abraham(2021). {opt control_cohort} requires {opt cohort} to be specified. {opt control_cohort} is not 
+allowed with {opt proxy} or {opt proxyiv}.
 
 {phang2}
 {cmd:control_cohort(variable {help varname}},{cmd: [,force])} specifies that the binary variable {opth varname} identifies the control cohort.
@@ -289,7 +291,7 @@ the cohort variable. {opt save} adds the new control cohort variable to the data
 
 {phang}
 {opt sunabraham} is a shorthand to specify estimation with heterogenous treatment effects by cohort using the estimator from Sun and Abraham (2021). 
-{opt sunabraham} is equivalent to {opt cohort(create)} {opt control_cohort(create)}.
+{opt sunabraham} is equivalent to {opt cohort(create)} and {opt control_cohort(create)}.
 
 {phang}
 {opt plot} displays a default event-study plot with standard and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
