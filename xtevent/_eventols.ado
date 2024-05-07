@@ -387,7 +387,7 @@ program define _eventols, rclass
 				// TODO: might be more efficient to use the c. operator if format w/o missing
 				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
 				if "`saveint'"!=""{
-					loc lnumber=substr("`l'",7,2)
+					loc lnumber : subinstr local l "_k_eq_" ""					
 					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
 				}
 			}
