@@ -38,7 +38,7 @@ program define _eventols, rclass
 	* bb - regression coefficients
 	tempvar esample	tousegen
 	
-	* For eventgenvars, ignore missings in varlist
+	* For eventgenvars and for cohort generation, ignore missings in varlist
 	mark `tousegen' `if' `in'
 	
 
@@ -254,7 +254,7 @@ program define _eventols, rclass
 		* Not checking that all cohorts have treated values, not checking that z is always zero for never treat, so these are minimal checks
 
 		if "`cohorttype'"=="" {
-			qui levelsof z if `cohortvar'!=. & `touse'
+			qui levelsof z if `cohortvar'!=. & `tousegen|'
 			if r(levels)=="0" {
 				di as err _n "Treated observations according to cohort variable `cohortvar' are inconsistent"
 				di as err "with values of the policy variable `z'"
@@ -262,7 +262,7 @@ program define _eventols, rclass
 			}
 
 			if "`control_cohorttype'"=="variable" {
-				qui count if `z'==0 & `control_cohortvar' & `touse'
+				qui count if `z'==0 & `control_cohortvar' & `tousegen'
 				if r(N)==0 {
 					di as err _n "Untreated observations according to control cohort variable `control_cohortvar'"
 					di as err "are inconsistent with values of the policy variable `z'"
@@ -280,8 +280,8 @@ program define _eventols, rclass
 			}
 
 			tempvar timet 
-			qui gen `timet'=`timevar' if `policyvar'==1 & `touse'
-			qui by `panelvar' : egen _cohort = min(`timet')
+			qui gen `timet'=`timevar' if `policyvar'==1 & `tousegen'
+			qui by `panelvar' : egen _cohort = min(`timet') if `tousegen'
 			loc cohortvar "_cohort"			
 		}
 
