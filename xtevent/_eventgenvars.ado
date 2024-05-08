@@ -547,7 +547,7 @@ program define _eventgenvars, rclass
 			qui {
 				* Left
 				gen double _k_eq_m`=-`lwindow'+1' = (1-f`=-`lwindow''.`zn2') if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse' 
-				order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
+				order _k_eq_m`=-`lwindow'+1', before(`f_evs')
 				* Right
 				gen double _k_eq_p`=`rwindow'+1'= l`=`rwindow'+1'.`zn2' if ((`timevar'>=`minz2') & (`timevar'<=`maxz2')) & `touse' 		
 				order __k, after(_k_eq_p`=`rwindow'+1')
