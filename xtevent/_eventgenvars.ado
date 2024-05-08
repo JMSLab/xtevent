@@ -463,6 +463,7 @@ program define _eventgenvars, rclass
 					la var _k_eq_`plus'`absk' "Event-time = + `absk'"
 					*this to impute zeros and complete the observed range 
 					cap drop `minp' `minp2' `maxp' `maxp2' 
+					tempvar minp minp2 maxp maxp2
 					if "`impute'"!=""{
 						by `panelvar' (`timevar'): egen long `minp'=min(`timevar') if !missing(_k_eq_`plus'`absk')
 						by `panelvar' (`timevar'): egen long `minp2'=min(`minp')
@@ -502,7 +503,10 @@ program define _eventgenvars, rclass
 			qui drop __k
 			exit 301
 		}
-			
+		
+		*Ordered list of event-time dummies 
+		unab evs : _k_eq_*
+		loc f_evs : word 1 of `evs'
 		
 		* Generate endpoint dummies
 		* Left
@@ -520,7 +524,7 @@ program define _eventgenvars, rclass
 				by `panelvar' (`timevar'): egen long `maxl2'=max(`maxl')
 				*replace with zeros (the last observed for the endpoint)
 				replace _k_eq_m`=-`lwindow'+1' = _k_eq_m`=-`lwindow'+1'[_n-1] if _k_eq_m`=-`lwindow'+1' == . & (`timevar'>`maxl2') & (`timevar'<=`maxz2') & `touse' 
-				order _k_eq_m`=-`lwindow'+1', before(_k_eq_m`=-`lwindow'')
+				order _k_eq_m`=-`lwindow'+1', before(`f_evs')
 				
 				* Right
 				tempvar seq3
