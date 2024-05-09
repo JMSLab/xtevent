@@ -23,6 +23,7 @@ program define _eventiv, rclass
 	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
+	DIFFavg /* Obtain regular DiD estimate implied by the model */
 	*
 	]
 	;
@@ -546,6 +547,29 @@ program define _eventiv, rclass
 		
 		tempvar esample
 		gen byte `esample' = e(sample)
+
+		if "`diffavg'"!=""{
+		*list of omitted coefficients
+		loc komit_comma : subinstr local komit " " ",", all
+		* fill in lists of pre and post coefficients 
+		loc pre_plus ""
+		loc post_plus ""
+		forvalues v = `=`lwindow'-1'/`=`rwindow'+1' {
+			if inlist(`v', `komit_comma') continue 
+			if `v'<0 {
+				loc pre_plus "`pre_plus' _k_eq_m`=-`v''"
+			}
+			else {
+				loc post_plus "`post_plus' _k_eq_p`=`v''"
+			}
+		}
+		loc pre_plus = strtrim("`pre_plus'")
+		loc post_plus = strtrim("`post_plus'")
+		loc pre_plus : subinstr local pre_plus " " " + ", all
+		loc post_plus : subinstr local post_plus " " " + ", all
+		di as text _n "Difference in pre and post-period averages from lincom:"
+		lincom ((`post_plus') / (`rwindow' + 2)) - ((`pre_plus') / (`=-`lwindow'' + 1)), cformat(%9.4g)
+	}
 	
 		
 		* Plots	
