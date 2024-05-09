@@ -235,7 +235,7 @@ program define _eventiv, rclass
 		}
 	}
 	
-	* Check that leads in provyiv are in the estimation window 
+	* Check that leads in proxyiv are in the estimation window 
 	foreach v in `proxyiv_numbers' {
 		if (`v' > `=-`lwindow_iter'+1') {
 			di as err "Lead `v' of policy variable to be used as instrument is outside estimation window."
@@ -250,6 +250,10 @@ program define _eventiv, rclass
 			if `=-`v''==`norm' {
 				loc ivnorm "`ivnorm' `=-`v'-1'"
 				di as txt _n "The corresponding coefficient of lead `v' and the normalized coefficient were the same. Lead `=`v'' has been changed to `=`v'+1'."
+				if (-`ivnorm' > `=-`lwindow_iter'+1') {
+					di as err "Lead `= - `ivnorm'' of policy variable to be used as instrument is outside estimation window."
+					exit 301
+				}
 				loc repeatlead=strmatch("`proxyiv_numbers'","*`=`v'+1'*")
 				if "`repeatlead'"=="0"{
 					di as txt _n "The coefficient at `norm' is normalized to zero."
