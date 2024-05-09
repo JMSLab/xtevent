@@ -383,6 +383,11 @@ program define xteventplot
 	
 	if `"`smpath'"'!="" {	
 		* "
+		* Do not allow if left window is zero
+		if `kmin'== -1 {
+			di as err "Smoothest path cannot be calculated when the left window is zero."
+			exit 301
+		}
 		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'%"
 		parsesmpath `smpath'
 		loc postwindow = r(postwindow)	
@@ -503,9 +508,17 @@ program define xteventplot
 	if "`overlay'"!="trend" {
 		if "`y'"=="" & "`proxy'"=="" & "`overlay'"!="static" & "`overlay'"!="iv"& "`=e(trend)'"=="." {
 			if ("`prepval'"!="noprepval") | ("`postpval'"!="nopostpval") {
-				qui xteventtest, overid
-				loc pvalpre : di %9.2f r(pre_p)
-				loc pvalpost: di % 9.2f r(post_p)
+				* Skip this test if left window is zero
+				if `kmin'!= -1 {
+					qui xteventtest, overid
+					loc pvalpre : di %9.2f r(pre_p)
+					loc pvalpost: di % 9.2f r(post_p)					
+				}
+				else {
+					loc pvalpre = ""
+					qui xteventtest, overidpost(2)
+					loc pvalpost: di % 9.2f r(p)					
+				}
 				if "`overidpre'"!="" {
 					qui xteventtest, overidpre(`overidpre')
 					loc pvalpre : di %9.2f r(p)

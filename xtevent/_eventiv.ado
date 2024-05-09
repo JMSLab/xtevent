@@ -137,6 +137,11 @@ program define _eventiv, rclass
 		else {
 			di as text _n "proxyiv=select. Selecting lead order of differenced policy variable to use as instrument."
 			loc Fstart = 0
+			if `lwindow_iter'== 0 {
+				di as err _n "Estimation window must contain at least 1 period before the policy change"
+				di as err  "for proxy instrument selection."
+				exit 301
+			}
 			forv v=1(1)`=-`lwindow_iter'' {
 				if "`repeatedcs'"=="" {
 					tempvar _fd`v'`z'
@@ -230,7 +235,7 @@ program define _eventiv, rclass
 		}
 	}
 	
-	* Check that leads in provyiv are in the estimation window 
+	* Check that leads in proxyiv are in the estimation window 
 	foreach v in `proxyiv_numbers' {
 		if (`v' > `=-`lwindow_iter'+1') {
 			di as err "Lead `v' of policy variable to be used as instrument is outside estimation window."
@@ -245,6 +250,10 @@ program define _eventiv, rclass
 			if `=-`v''==`norm' {
 				loc ivnorm "`ivnorm' `=-`v'-1'"
 				di as txt _n "The corresponding coefficient of lead `v' and the normalized coefficient were the same. Lead `=`v'' has been changed to `=`v'+1'."
+				if (-`ivnorm' > `=-`lwindow_iter'+1') {
+					di as err "Lead `= - `ivnorm'' of policy variable to be used as instrument is outside estimation window."
+					exit 301
+				}
 				loc repeatlead=strmatch("`proxyiv_numbers'","*`=`v'+1'*")
 				if "`repeatlead'"=="0"{
 					di as txt _n "The coefficient at `norm' is normalized to zero."
@@ -564,7 +573,15 @@ program define _eventiv, rclass
 			}
 		}
 		loc pre_plus = strtrim("`pre_plus'")
+		if "`pre_plus'"=="" {
+			di as err "No pre-event coefficients to calulate the difference in averages"
+			exit 301
+		}
 		loc post_plus = strtrim("`post_plus'")
+		if "`post_plus'"=="" {
+			di as err "No post-event coefficients to calulate the difference in averages"
+			exit 301
+		}
 		loc pre_plus : subinstr local pre_plus " " " + ", all
 		loc post_plus : subinstr local post_plus " " " + ", all
 		di as text _n "Difference in pre and post-period averages from lincom:"
@@ -577,8 +594,8 @@ program define _eventiv, rclass
 		* Calculate mean before change in policy for 2nd axis in plot
 		* This needs to be relative to normalization
 		tempvar temp_k
-		if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
-		else loc kvomit "p`=abs(`norm')'"
+		if `norm0' < 0 loc kvomit = "m`=abs(`norm0')'"
+		else loc kvomit "p`=abs(`norm0')'"
 		qui gen `temp_k'=_k_eq_`kvomit' 
 		
 		tokenize `varlist'

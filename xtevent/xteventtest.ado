@@ -239,6 +239,10 @@ program define xteventtest, rclass
 		}
 		loc d : word count `tt'
 		scalar `dim' = `d'
+		if `dim'<2 {
+			di as err _n "Cannot test linear pre-trend with less than 2 pre-event coefficients"
+			exit 199
+		}	
 		mata: trendtest("`dim'")
 		* scalar li Q
 		
