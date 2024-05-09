@@ -383,6 +383,11 @@ program define xteventplot
 	
 	if `"`smpath'"'!="" {	
 		* "
+		* Do not allow if left window is zero
+		if `kmin'== -1 {
+			di as err "Smoothest path cannot be calculated when the left window is zero."
+			exit 301
+		}
 		di _n "Note: Smoothest line drawn for system confidence level = `=c(level)'%"
 		parsesmpath `smpath'
 		loc postwindow = r(postwindow)	
