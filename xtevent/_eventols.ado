@@ -663,7 +663,21 @@ program define _eventols, rclass
 		* fill in lists of pre and post coefficients 
 		loc pre_plus ""
 		loc post_plus ""
-		forvalues v = `=`lwindow'-1'/`=`rwindow'+1' {
+		if "`trend'"!="" {
+			di as txt _n "When trend is included, the endpoints are excluded from the calculation of the difference"
+			di as txt "in average coefficients between the pre and post periods."
+			loc llimit = `lwindow'
+			loc rlimit = `rwindow'
+			loc postden = `rwindow'+1
+			loc preden = -`lwindow'
+		}
+		else {
+			loc llimit = `lwindow'-1
+			loc rlimit = `rwindow'+1
+			loc postden = `rwindow'+2
+			loc preden = -`lwindow'+1
+		}
+		forvalues v = `llimit'/`rlimit' {
 			if inlist(`v', `komit_comma') continue 
 			if `v'<0 {
 				loc pre_plus "`pre_plus' _k_eq_m`=-`v''"
@@ -677,7 +691,7 @@ program define _eventols, rclass
 		loc pre_plus : subinstr local pre_plus " " " + ", all
 		loc post_plus : subinstr local post_plus " " " + ", all
 		di as text _n "Difference in pre and post-period averages from lincom:"
-		lincom ((`post_plus') / (`rwindow' + 2)) - ((`pre_plus') / (`=-`lwindow'' + 1)), cformat(%9.4g)
+		lincom ((`post_plus') / (`postden')) - ((`pre_plus') / (`preden')), cformat(%9.4g)
 	}
 	
 	* Variables for overlay plot if trend
