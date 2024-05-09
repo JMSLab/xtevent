@@ -687,7 +687,15 @@ program define _eventols, rclass
 			}
 		}
 		loc pre_plus = strtrim("`pre_plus'")
+		if "`pre_plus'"=="" {
+			di as err "No pre-event coefficients to calulate the difference in averages"
+			exit 301
+		}
 		loc post_plus = strtrim("`post_plus'")
+		if "`post_plus'"=="" {
+			di as err "No post-event coefficients to calulate the difference in averages"
+			exit 301
+		}
 		loc pre_plus : subinstr local pre_plus " " " + ", all
 		loc post_plus : subinstr local post_plus " " " + ", all
 		di as text _n "Difference in pre and post-period averages from lincom:"
