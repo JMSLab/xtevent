@@ -580,30 +580,6 @@ program define _eventols, rclass
 		gen byte `esample' = e(sample)
 	}
 	
-	* DiD estimate 
-	
-	if "`diffavg'"!=""{
-		unab pre : _k_eq_m*
-		unab post_p : _k_eq_p*
-		loc norma = abs(`norm')
-		if `norm' < 0{
-			loc pre : subinstr local pre "_k_eq_m`norma'" "", all
-			loc pre_plus : subinstr local pre " " " + ", all
-			loc reverse = ustrreverse("`pre_plus'")
-			loc reverse = subinstr("`reverse'", " + ", "", 1)
-			loc pre_plus = ustrreverse("`reverse'")
-		}
-		if `norm' >= 0{
-			loc post_p : subinstr local post_p "_k_eq_p`norma' " "", all
-			loc pre_plus : subinstr local pre " " " + ", all
-		}
-		loc post_plus : subinstr local post_p " " " + ", all
-		loc lwindow = abs(`lwindow')
-		loc rwindow = `rwindow'
-		di as text _n "Difference in pre and post-period averages from lincom:"
-		lincom ((`post_plus') / (`rwindow' + 2)) - ((`pre_plus') / (`lwindow' + 1)), cformat(%9.4g)
-	}
-	
 	* Trend adjustment by GMM
 	
 	if "`methodt'"=="gmm" {
@@ -677,6 +653,45 @@ program define _eventols, rclass
 		
 		`cmd'
 		
+	}
+	
+	* DiD estimate 
+	
+	if "`diffavg'"!=""{
+		*list of omitted coefficients
+		loc komit_comma : subinstr local komit " " ",", all
+		* fill in lists of pre and post coefficients 
+		loc pre_plus ""
+		loc post_plus ""
+		if "`trend'"!="" {
+			di as txt _n "When trend is included, the endpoints are excluded from the calculation of the difference"
+			di as txt "in average coefficients between the pre and post periods."
+			loc llimit = `lwindow'
+			loc rlimit = `rwindow'
+			loc postden = `rwindow'+1
+			loc preden = -`lwindow'
+		}
+		else {
+			loc llimit = `lwindow'-1
+			loc rlimit = `rwindow'+1
+			loc postden = `rwindow'+2
+			loc preden = -`lwindow'+1
+		}
+		forvalues v = `llimit'/`rlimit' {
+			if inlist(`v', `komit_comma') continue 
+			if `v'<0 {
+				loc pre_plus "`pre_plus' _k_eq_m`=-`v''"
+			}
+			else {
+				loc post_plus "`post_plus' _k_eq_p`=`v''"
+			}
+		}
+		loc pre_plus = strtrim("`pre_plus'")
+		loc post_plus = strtrim("`post_plus'")
+		loc pre_plus : subinstr local pre_plus " " " + ", all
+		loc post_plus : subinstr local post_plus " " " + ", all
+		di as text _n "Difference in pre and post-period averages from lincom:"
+		lincom ((`post_plus') / (`postden')) - ((`pre_plus') / (`preden')), cformat(%9.4g)
 	}
 	
 	* Variables for overlay plot if trend
