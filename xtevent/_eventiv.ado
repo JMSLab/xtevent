@@ -137,6 +137,11 @@ program define _eventiv, rclass
 		else {
 			di as text _n "proxyiv=select. Selecting lead order of differenced policy variable to use as instrument."
 			loc Fstart = 0
+			if `lwindow_iter'== 0 {
+				di as err _n "Estimation window must contain at least 1 period before the policy change"
+				di as err  "for proxy instrument selection."
+				exit 301
+			}
 			forv v=1(1)`=-`lwindow_iter'' {
 				if "`repeatedcs'"=="" {
 					tempvar _fd`v'`z'
@@ -585,8 +590,8 @@ program define _eventiv, rclass
 		* Calculate mean before change in policy for 2nd axis in plot
 		* This needs to be relative to normalization
 		tempvar temp_k
-		if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
-		else loc kvomit "p`=abs(`norm')'"
+		if `norm0' < 0 loc kvomit = "m`=abs(`norm0')'"
+		else loc kvomit "p`=abs(`norm0')'"
 		qui gen `temp_k'=_k_eq_`kvomit' 
 		
 		tokenize `varlist'
