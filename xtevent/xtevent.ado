@@ -18,7 +18,7 @@ program define xtevent, eclass
 	syntax varlist(fv ts numeric) [aw fw pw] [if] [in] , /* Proxy for eta and covariates go in varlist. Can add fv ts later */	
 	POLicyvar(varname) /* Policy variable */	
 	[
-	Window(numlist min=1 max=2 integer) /* Estimation window */
+	Window(string) /* Estimation window */
 	pre(numlist >=0 min=1 max=1 integer) /* Pre-event time periods where anticipation effects are allowed */
 	post(numlist >=0 min=1 max=1 integer) /* Post-event time periods where dynamic effects are allowed */
 	overidpre(numlist >=0 min=1 max=1 integer) /* Pre-event time periods for overidentification */
@@ -34,8 +34,9 @@ program define xtevent, eclass
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	norm(integer -1) /* Normalization */
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
-	cohort(varname) /*categorial variable to indicate cohort in SA estimation*/ 
-	control_cohort(varname) /* dummy variable to indicate cohort to be used as control in SA estimation*/
+	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
+	control_cohort(string) /* dummy variable to indicate cohort to be used as control in SA estimation*/
+	SUNABraham /* Alias for cohort(create) */
 	plot /* Produce plot */
 	*
 	/*
@@ -138,17 +139,28 @@ program define xtevent, eclass
 	if "`repeatedcs'"!=""{
 		di as txt _n "Option {bf:repeatedcs} was specified. Using {bf:`panelvar'} as the panel variable and {bf:`timevar'} as the time variable."
 	}
-
-	if ("`cohort'" != "" & "`control_cohort'" == "") | ("`cohort'" == "" & "`control_cohort'" != "")  {
-		di as err _n "options {bf:cohort} and {bf:control_cohort} must be specified simultaneously"
-		exit 199
-	}
-	if "`cohort'"!="" & "`control_cohort'"!=""  {
+	
+	if "`cohort'"!="" {
 		cap which avar 
 		if _rc {
 			di as err _n "Sun-and-Abraham estimation requires {cmd: avar} to be installed"
 			exit 199
 		}
+	}
+
+	if "`control_cohort'"!="" & "`cohort'"=="" {
+		di as err _n "{bf:control_cohort} requires {bf:cohort} to be specified"
+		exit 198
+	}
+
+	if "`sunabraham'"!="" {		
+		if "`cohort'"=="" loc cohort "create"		
+	}
+
+	* SA estimation not implemented with IV estimation yet
+	if ("`cohort'"!="" | "`control_cohort'"!="" | "`sunabraham'"!="") & ("`proxy'"!="" | "`proxyiv'"!="") {
+		di as err _n "Sun-and-Abraham estimation not allowed with proxy or instruments"
+		exit 198
 	}
 		
 	tempvar sample tousegen
@@ -158,29 +170,49 @@ program define xtevent, eclass
 	mark `tousegen' `if' `in'
 	
 	loc flagerr=0
-				
+	
+	
+	* first parsing of window 
+	if "`window'"!="" {
+		parsewindow `window'
+		loc swindow = r(window)
+		loc w_type = r(w_type)	
+	}
+
 	if "`static'"=="" {
 		if "`window'"!="" {
 			* Parse window
 			loc nw : word count `window'
-			if `nw'==1 {
-				loc lwindow = -`window'
-				loc rwindow = `window'
+			
+			* if window is numeric 
+			if "`w_type'"=="numeric"{
+				if `nw'==1 {
+					loc lwindow = -`window'
+					loc rwindow = `window'
+				}
+				else if `nw'==2 {
+					loc lwindow : word 1 of `window'
+					loc rwindow : word 2 of `window'
+				}
 			}
-			else if `nw'==2 {
+			* if window is string (max or balanced)
+			if "`w_type'"=="string"{
 				loc lwindow : word 1 of `window'
-				loc rwindow : word 2 of `window'
+				loc rwindow : word 1 of `window'
 			}
 			
-			if -`lwindow'<0 | `rwindow'<0 {
-				di as err _n "Window can not be negative"
-				exit 198
+			if "`w_type'"=="numeric" {
+				if  (-`lwindow'<0 | `rwindow'<0) {
+					di as err _n "Window can not be negative"
+					exit 198
+				}
 			}
 		}
 		else if "`window'"=="" & ("`pre'"!="" & "`post'"!="" & "`overidpre'"!="" & "`overidpost'"!="") {
 			loc lwindow = `pre' + `overidpre'
 			loc lwindow = -`lwindow'
 			loc rwindow = `post' + `overidpost' -1 
+			loc w_type = "numeric"
 		}
 		
 		* If allowing for anticipation effects, change the normalization if norm is missing, or warn the user
@@ -192,11 +224,12 @@ program define xtevent, eclass
 		}
 		
 		* Check that normalization is in window
-		if `norm' < `=`lwindow'-1' | `norm' > `rwindow' {
-			di as err _n "The coefficient to be normalized to 0 is outside of the estimation window"
-			exit 498
+		if "`w_type'"=="numeric" { 
+			if (`norm' < `=`lwindow'-1' | `norm' > `rwindow') {
+				di as err _n "The coefficient to be normalized to 0 is outside of the estimation window"
+				exit 498
+			}
 		}
-		
 		* Do not allow norm and trend 
 		if "`norm'" !="-1" & "`trend'" != "" {
 			di as err _n "Option {bf:trend} not allowed with a value for option {bf:norm} different from -1."
@@ -210,18 +243,23 @@ program define xtevent, eclass
 	
 		if "`proxy'" == "" & "`proxyiv'" == "" {
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
-			cap noi _eventols `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' cohort(`cohort') control_cohort(`control_cohort') `options' 
+			cap noi _eventols `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' cohort(`cohort') control_cohort(`control_cohort') `options' 
 			if _rc {
 				errpostest
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
-			cap noi _eventiv `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
+			cap noi _eventiv `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
 			if _rc {
 				errpostest
 			}
 		}		
+		* if window was max or balanced, return the found limits 
+		if "`w_type'"=="string" {
+			loc lwindow = r(lwindow)
+			loc rwindow = r(rwindow)
+		}
 	}
 	else if "`static'"=="static" {
 		loc lwindow=.
@@ -347,6 +385,67 @@ program define xtevent, eclass
 	if "`plot'"!="" xteventplot
 
 end
+
+* Program to parse window 
+program define parsewindow, rclass
+
+	syntax [anything] 
+		
+	tokenize "`anything'"
+	loc nwwindow = wordcount("`anything'")
+	if !inlist(`nwwindow',1,2) {
+		di as err _n "{bf:window} can only have one or two elements."
+		exit 198
+	}
+	
+	*check that all words are numeric or string 
+	loc isnum = 0
+	forvalues i=1/`nwwindow'{
+		cap confirm number ``i''
+		if !_rc loc ++ isnum 
+	}
+	if `isnum'>0 & `isnum'<`nwwindow'{
+		di as err _n "Invalid {bf:window} option."
+		exit 198
+	}
+	
+	* tell if all words are numeric or strings 
+	if `isnum' == 0 loc w_type ="string"
+	if `isnum' == `nwwindow' loc w_type ="numeric"
+	
+	* if all words are numbers, check that they are integers 
+	if "`w_type'"=="numeric" {
+		loc isnotint = 0
+		forvalues i=1/`nwwindow'{
+			cap confirm integer number ``i''
+			if _rc!=0 loc ++ isnotint 
+		}
+		if `isnotint'>0 {
+			di as err _n "Number in {bf:window} must be integer."
+			exit 126
+		}
+	}
+	
+	* if all words are string, check that it is only one word and it is a valid option name 
+	if "`w_type'"=="string" {
+		
+		if `nwwindow'>1 {
+			di as err _n "If string, {bf:window} must have only one element."
+			exit 198
+		}
+		
+		if `nwwindow'==1 {
+			if !inlist("`anything'","max","balanced"){
+				di as err _n "{bf:window} must be {bf:max} or {bf:balanced}."
+				exit 198
+			}
+		}
+		
+	}
+
+	return local swindow "`anything'"
+	return local w_type "`w_type'"
+end	
 
 program define cleanup
 	cap drop _k_eq*
