@@ -102,6 +102,10 @@ drop a*
 * Test different prefix
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b)
 
+*savek + suboption replace 
+cap noi xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b)
+xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) savek(b, replace)
+
 * Test factor variables in varlist
 cap gen pois=rpoisson(5)
 xtevent y eta i.pois, panelvar(i) timevar(t) policyvar(z) window(5) plot
