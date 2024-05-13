@@ -162,7 +162,15 @@ program define xtevent, eclass
 		di as err _n "Sun-and-Abraham estimation not allowed with proxy or instruments"
 		exit 198
 	}
-		
+
+	* Keep old vars that have reserved names to avoid dropping them if cleanup
+	loc oldvars ""
+	foreach x in _k_eq* _ttrend* __k* _f* _interact* {
+		cap unab oldvarsadd: `x'
+		loc oldvars "`oldvars' `oldvarsadd'"
+		loc oldvarsadd ""
+	}	
+
 	tempvar sample tousegen
 	
 	* Do not mark variables, only if in here
@@ -245,14 +253,14 @@ program define xtevent, eclass
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
 			cap noi _eventols `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') trend(`trend') savek(`savek') norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' cohort(`cohort') control_cohort(`control_cohort') `options' 
 			if _rc {
-				errpostest
+				errpostest `oldvars'
 			}
 		}
 		else {
 			di as txt _n "Proxy for the confound specified. Implementing FHS estimator"
 			cap noi _eventiv `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') lwindow(`lwindow') rwindow(`rwindow') w_type(`w_type') proxyiv(`proxyiv') proxy (`proxy') savek(`savek')    norm(`norm') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' 		
 			if _rc {
-				errpostest
+				errpostest `oldvars'
 			}
 		}		
 		* if window was max or balanced, return the found limits 
@@ -270,7 +278,7 @@ program define xtevent, eclass
 			di as txt _n "No proxy or instruments provided. Implementing OLS estimator"
 			cap noi _eventolsstatic `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' `static'
 			if _rc {
-				errpostest
+				errpostest `oldvars'
 			}
 		}
 		
@@ -279,7 +287,7 @@ program define xtevent, eclass
 			
 			cap noi _eventivstatic `varlist' [`weight'`exp'] if `tousegen', panelvar(`panelvar') timevar(`timevar') policyvar(`policyvar') proxyiv(`proxyiv') proxy (`proxy') `reghdfe' addabsorb(`addabsorb') `repeatedcs' `options' `static'
 			if _rc {
-				errpostest
+				errpostest `oldvars'
 			}
 		}
 	}
@@ -448,16 +456,26 @@ program define parsewindow, rclass
 end	
 
 program define cleanup
-	cap drop _k_eq*
-	cap drop _ttrend
-	cap drop __k	
-	cap drop _f*
-	cap drop _interact*
+
+	syntax [anything]
+
+	loc oldvars = "`anything'"
+
+	foreach x in _k_eq* _ttrend* __k* _f* _interact* {
+		cap unab todrop: `x'		
+		loc todrop: list local todrop - oldvars
+		cap drop `todrop'
+		loc todrop ""	
+		
+	}
 	cap _estimates clear
 end
 
 program define errpostest, rclass
-	cleanup _rc	
+	
+	syntax [anything]
+
+	cleanup `anything' _rc	
 	return local flagerr=1
 end
 
