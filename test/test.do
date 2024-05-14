@@ -1,6 +1,3 @@
-
-cd "C:\Users\B18945\Downloads\xtevent-191-drop-of-variable-if-it-matches-event-time-dummy-variables-name\test"
-
 cap log close
 
 cap log using test.log, replace text
