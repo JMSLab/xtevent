@@ -116,11 +116,11 @@ xtevent y f.eta , panelvar(i) timevar(t) policyvar(z) window(5) plot
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(-4 2) plot
 
 * Test finding and estimating with the widest window 
-xtevent y eta , panelvar(i) timevar(t) policyvar(z) impute(nuchange) window(max) plot 
+xtevent y eta , panelvar(i) timevar(t) policyvar(z) impute(stag) window(max) plot 
 
 * Test finding and estimating with the widest window with balanced time periods for all units 
 * expect an error message because balanced window is too narrow 
-cap noi xtevent y eta , panelvar(i) timevar(t) policyvar(z) impute(nuchange) window(balanced) plot 
+cap noi xtevent y eta , panelvar(i) timevar(t) policyvar(z) impute(stag) window(balanced) plot 
 
 * Test normalizations
 
