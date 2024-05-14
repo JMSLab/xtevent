@@ -346,6 +346,7 @@ program define _eventiv, rclass
 		loc included=r(included)
 		loc names=r(names)	
 		loc komittrend=r(komittrend)
+		loc ambiguous = r(ambiguous)
 		if "`komittrend'"=="." loc komittrend = ""
 		*if window was max or balanced, use calculated left and right window limits 
 		if "`w_type'"=="string" {
@@ -717,6 +718,7 @@ program define _eventiv, rclass
 	return local df = `df'
 	return local komit = "`komit'"
 	return local kmiss = "`kmiss'"
+	return local ambiguous = "`ambiguous'"
 	return local y1 = `y1'
 	return local depvar = "`depvar'"
 	if `x1'!=. return local x1 = `x1'

@@ -581,7 +581,8 @@ program define _eventgenvars, rclass
 				foreach j in `mis' {
 					di as txt _n "Unit `j' not used because of ambiguous event-time due to missing values in policyvar."
 				}
-				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse' 			
+				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'
+				return local ambiguous = "`mis'" 			
 			}
 		}	
 		

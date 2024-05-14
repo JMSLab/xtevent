@@ -319,6 +319,7 @@ program define xtevent, eclass
 		ereturn local cmd2 "xtevent"
 		ereturn local stub = "`savek'"
 		ereturn local noestimate = "`noestimate'"
+		ereturn local ambiguous = r(ambiguous)
 		*don't return the remaining if the user indicated not to estimate  
 		if "`noestimate'"!="" exit
 	
