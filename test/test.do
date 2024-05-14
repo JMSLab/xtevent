@@ -119,13 +119,6 @@ xtevent y f.eta , panelvar(i) timevar(t) policyvar(z) window(5) plot
 * Test asymmetric window
 xtevent y eta , panelvar(i) timevar(t) policyvar(z) window(-4 2) plot
 
-* Test finding and estimating with the widest window 
-xtevent y eta , panelvar(i) timevar(t) policyvar(z) impute(nuchange) window(max) plot 
-
-* Test finding and estimating with the widest window with balanced time periods for all units 
-* expect an error message because balanced window is too narrow 
-cap noi xtevent y eta , panelvar(i) timevar(t) policyvar(z) impute(nuchange) window(balanced) plot 
-
 * Test normalizations
 
 xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) norm(-1) plot
@@ -213,19 +206,10 @@ gen timet=t if z==1
 by i: egen time_of_treat=min(timet)
 *Generate control cohort indicator. We use the never treated units as the control cohort. 
 gen never_treat=time_of_treat==.
-*Could also use last trated as the control group
-egen last_treat_time = max(time_of_treat)
-gen last_treat = (time_of_treat == last_treat_time)
-replace last_treat = . if time_of_treat == .
-gen cohort_for_last_treat = time_of_treat
-replace cohort_for_last_treat = . if last_treat
-
 *Estimate the event-time coefficients with the Sun-and-Abraham Estimator.
-xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(variable time_of_treat) control_cohort(variable never_treat) 
+xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) 
 *Use reghdfe as the underlying estimation command
-xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(variable time_of_treat) control_cohort(variable never_treat) reghdfe
-* Automatic generation of cohort and control_cohort variables
-xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(create) reghdfe
+xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(time_of_treat) control_cohort(never_treat) reghdfe
 
 *Overlay trend plot
 xtevent y eta, policyvar(z) timevar(t) window(5) trend(-3, method(gmm) saveov)
