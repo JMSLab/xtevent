@@ -51,37 +51,12 @@ program define _eventiv, rclass
 
 	*parse savek 
 	if "`savek'"!="" parsesavek `savek'
-	foreach l in savek noestimate kreplace {
-		loc `l' = r(`l')
-		if "``l''"=="." loc `l' ""
-		return loc `l' = "``l''"
-	}
-	
-	if "`savek'"!=""{
-		
-		*drop existing variables 
-		if "`kreplace'"!="" {
-			*event-time dummies 
-			cap unab savekvars : `savek'_eq_*
-			if "`savekvars'"!="" drop `savekvars'
-			*event-time variable 
-			cap confirm variable `savek'_evtime
-			if !_rc drop `savek'_evtime
-			*trend 
-			cap confirm variable `savek'_trend
-			if !_rc drop `savek'_trend
-			*SA's interactions 
-			cap unab saveintvars : `savek'_interact_*
-			if "`saveintvars'"!="" drop `saveintvars'
-		}
-		* Check for vars named savek
-		cap unab savekvars2 : `savek'_eq_*
-		if !_rc {
-			di as err _n "You specified to save the event-time dummy variables using the prefix {bf:`savek'}, but you already have event-time dummy variables saved with that prefix."
-			di as err _n "Use the {bf:replace} suboption to replace the existing variables."
-			exit 110
-		}
-	}
+	loc savek = r(savekl)
+	if "`savek'"=="." loc savek ""
+	return loc savek = "`savek'"
+	loc noestimate = r(noestimatel)
+	if "`noestimate'"=="." loc noestimate ""
+	return loc noestimate = "`noestimate'"
 	
 	*If imputation is specified, _eventiv will call _eventgenvars twice.
 	*The first call only imputes the policyvar, but the second call imputes both the policyvar and the event-time dummies
@@ -727,11 +702,10 @@ end
 *program to parse savek
 program define parsesavek, rclass
 
-	syntax [anything] , [NOEstimate replace]
+	syntax [anything] , [NOEstimate]
 		
-	return local savek "`anything'"
-	return local noestimate "`noestimate'"
-	return local kreplace "`replace'"
+	return local savekl "`anything'"
+	return local noestimatel "`noestimate'"
 end	
 
 *program to parse standar error specification 

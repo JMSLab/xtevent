@@ -46,39 +46,12 @@ program define _eventols, rclass
 	
 
 	**** parsers
-
 	*parse savek 
 	if "`savek'"!="" parsesavek `savek'
-	foreach l in savek noestimate saveint kreplace {
-		loc `l' = r(`l')
-		if "``l''"=="." loc `l' ""
-		return loc `l' = "``l''"
-	}
-	
-	if "`savek'"!=""{
-		
-		*drop existing variables 
-		if "`kreplace'"!="" {
-			*event-time dummies 
-			cap unab savekvars : `savek'_eq_*
-			if "`savekvars'"!="" drop `savekvars'
-			*event-time variable 
-			cap confirm variable `savek'_evtime
-			if !_rc drop `savek'_evtime
-			*trend 
-			cap confirm variable `savek'_trend
-			if !_rc drop `savek'_trend
-			*SA's interactions 
-			cap unab saveintvars : `savek'_interact_*
-			if "`saveintvars'"!="" drop `saveintvars'
-		}
-		* Check for vars named savek
-		cap unab savekvars2 : `savek'_eq_* 
-		if !_rc {
-			di as err _n "You specified to save the event-time dummy variables using the prefix {bf:`savek'}, but you already have event-time dummy variables saved with that prefix."
-			di as err _n "Use the {bf:replace} suboption to replace the existing variables."
-			exit 110
-		}
+	foreach ll in savek noestimate saveint{
+		loc `ll' = r(`ll'l)
+		if "``ll''"=="." loc `ll' ""
+		return loc `ll' = "``ll''"
 	}
 	
 	*error messages for incorrect specification of noestimate 
@@ -1004,12 +977,11 @@ end
 *program to parse savek
 program define parsesavek, rclass
 
-	syntax [anything] , [NOEstimate SAVEINTeract replace]
+	syntax [anything] , [NOEstimate SAVEINTeract]
 		
-	return local savek "`anything'"
-	return local noestimate "`noestimate'"
-	return local saveint "`saveinteract'"
-	return local kreplace "`replace'"
+	return local savekl "`anything'"
+	return local noestimatel "`noestimate'"
+	return local saveintl "`saveinteract'"
 end
 
 * program to parse cohort
