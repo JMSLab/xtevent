@@ -555,8 +555,8 @@ program define _eventgenvars, rclass
 		}
 		
 		
-		la var _k_eq_m`=-`lwindow'+1' "Event time <= - `=-`lwindow'+1'"
-		la var _k_eq_p`=`rwindow'+1' "Event time >= + `=`rwindow'+1'"
+		la var _k_eq_m`=-`lwindow'+1' "Left endpoint"
+		la var _k_eq_p`=`rwindow'+1' "Right endpoint"
 		
 		* Drop units where treatment can not be timed
 		
