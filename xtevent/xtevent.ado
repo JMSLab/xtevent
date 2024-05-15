@@ -171,7 +171,7 @@ program define xtevent, eclass
 		loc oldvarsadd ""
 	}	
 
-	tempvar sample tousegen
+	tempvar tousegen
 	
 	* Do not mark variables, only if in here
 	
@@ -327,8 +327,7 @@ program define xtevent, eclass
 		mat Vdelta=r(Vdelta)
 		mat b = r(b)
 		mat V = r(V)
-		gen byte `sample' = e(sample)
-		ereturn repost b=b V=V, esample(`sample')		
+		ereturn repost b=b V=V, esample(`tousegen')
 		ereturn matrix delta = delta
 		ereturn matrix Vdelta = Vdelta
 		if "`=r(method)'"=="iv" {
