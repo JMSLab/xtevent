@@ -555,8 +555,8 @@ program define _eventgenvars, rclass
 		}
 		
 		
-		la var _k_eq_m`=-`lwindow'+1' "Event time <= - `=-`lwindow'+1'"
-		la var _k_eq_p`=`rwindow'+1' "Event time >= + `=`rwindow'+1'"
+		la var _k_eq_m`=-`lwindow'+1' "Left endpoint"
+		la var _k_eq_p`=`rwindow'+1' "Right endpoint"
 		
 		* Drop units where treatment can not be timed
 		
@@ -581,7 +581,8 @@ program define _eventgenvars, rclass
 				foreach j in `mis' {
 					di as txt _n "Unit `j' not used because of ambiguous event-time due to missing values in policyvar."
 				}
-				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse' 			
+				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'
+				return local ambiguous = "`mis'" 			
 			}
 		}	
 		

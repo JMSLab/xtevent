@@ -411,6 +411,7 @@ that two-way clustering is allowed with {help reghdfe}.
 {synopt:{cmd:e(df)}}degrees of freedom{p_end}
 {synopt:{cmd:e(komit)}}list of lags/leads omitted from regression{p_end}
 {synopt:{cmd:e(kmiss)}}list of lags/leads to be omitted from plot{p_end}
+{synopt:{cmd:e(ambiguous)}}list of cross sectional units omitted because of ambiguous event times{p_end}
 {synopt:{cmd:e(method)}}"ols" or "iv"{p_end}
 {synopt:{cmd:e(cmd2)}}"xtevent"{p_end}
 {synopt:{cmd:e(depvar)}}dependent variable{p_end}

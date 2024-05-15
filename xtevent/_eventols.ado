@@ -230,6 +230,7 @@ program define _eventols, rclass
 		loc names=r(names)
 		loc komittrend=r(komittrend)
 		loc binnorev = r(binnorev)
+		loc ambiguous = r(ambiguous)
 		if "`komittrend'"=="." loc komittrend = ""
 
 		*bring the imputed policyvar
@@ -875,6 +876,7 @@ program define _eventols, rclass
 	return local df =  `df'
 	return local komit = "`komit'"
 	return local kmiss = "`kmiss'"
+	return local ambiguous = "`ambiguous'"
 	return local y1 = `y1'
 	return local depvar = "`depvar'"
 	if "`sun_abraham'"!=""{
