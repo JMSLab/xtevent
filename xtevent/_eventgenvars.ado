@@ -102,7 +102,7 @@ program define _eventgenvars, rclass
 	
 	* Check for a variable named as the imputed policyvar
 	if "`saveimp'"!="" {
-		cap unab oldkvars : `policyvar'_imputed
+		cap confirm var `policyvar'_imputed, exact
 		if !_rc {
 			di as err _n "You have a variable named `policyvar'_imputed. This name is reserved for the imputed policy variable."
 			di as err _n "Please drop or rename this variable before proceeding."
@@ -581,7 +581,8 @@ program define _eventgenvars, rclass
 				foreach j in `mis' {
 					di as txt _n "Unit `j' not used because of ambiguous event-time due to missing values in policyvar."
 				}
-				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse' 			
+				qui replace `touse' = 0 if `etmismax'==1 & `mz'>0 & `minz'==0 & `touse'
+				return local ambiguous = "`mis'" 			
 			}
 		}	
 		
