@@ -165,7 +165,7 @@ program define xtevent, eclass
 
 	* Keep old vars that have reserved names to avoid dropping them if cleanup
 	loc oldvars ""
-	foreach x in _k_eq* _ttrend* __k* _f* _interact* {
+	foreach x in _k_eq* _ttrend* __k* _f* _interact* _cohort _control_cohort {
 		cap unab oldvarsadd: `x'
 		loc oldvars "`oldvars' `oldvarsadd'"
 		loc oldvarsadd ""
@@ -461,7 +461,7 @@ program define cleanup
 
 	loc oldvars = "`anything'"
 
-	foreach x in _k_eq* _ttrend* __k* _f* _interact* {
+	foreach x in _k_eq* _ttrend* __k* _f* _interact* _cohort _control_cohort {
 		cap unab todrop: `x'		
 		loc todrop: list local todrop - oldvars
 		cap drop `todrop'
