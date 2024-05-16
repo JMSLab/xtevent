@@ -55,32 +55,6 @@ program define _eventols, rclass
 		return loc `l' = "``l''"
 	}
 
-	if "`savek'"!=""{
-
-		*drop existing variables 
-		if "`kreplace'"!="" {
-			*event-time dummies 
-			cap unab savekvars : `savek'_eq_*
-			if "`savekvars'"!="" drop `savekvars'
-			*event-time variable 
-			cap confirm variable `savek'_evtime
-			if !_rc drop `savek'_evtime
-			*trend 
-			cap confirm variable `savek'_trend
-			if !_rc drop `savek'_trend
-			*SA's interactions 
-			cap unab saveintvars : `savek'_interact_*
-			if "`saveintvars'"!="" drop `saveintvars'
-		}
-		* Check for vars named savek
-		cap unab savekvars2 : `savek'_eq_* 
-		if !_rc {
-			di as err _n "You specified to save the event-time dummy variables using the prefix {bf:`savek'}, but you already have event-time dummy variables saved with that prefix."
-			di as err _n "Use the {bf:replace} suboption to replace the existing variables."
-			exit 110
-		}
-	}
-	
 	*error messages for incorrect specification of noestimate 
 	if "`noestimate'"!="" & "`diffavg'"!="" {
 		di as err _n "{bf:noestimate} and {bf: diffavg} not allowed simultaneously"
@@ -140,16 +114,7 @@ program define _eventols, rclass
 		di as err _n "Suboption {bf:saveint} can only be specified with {bf:cohort}"
 		exit 301
 	}
-	* Check for vars named _interact
-	if "`saveint'"!=""{
-		cap unab old_interact_vars : `savek'_interact*
-		if !_rc {
-			di as err _n "You have variable names with the {bf:`savek'_interact} prefix"
-			di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation"
-			di as err _n "Please rename or drop these variables before proceeding"
-			exit 110
-		}
-	}
+
 	*gen & kvars
 	if ("`gen'"!="" & "`kvars'"=="") |  ("`gen'"=="" & "`kvars'"!="") {
 		di as err _n "Options -nogen- and -kvars- must be specified together"
@@ -407,7 +372,8 @@ program define _eventols, rclass
 		
 		**** step 1 
 		* Prepare interaction terms for the interacted regression
-		local cohort_rel_varlist "" // hold the temp varnames	
+		local cohort_rel_varlist "" // hold the temp varnames
+		local interact_varlist "" // fill in with name of interaction variables
 		foreach l of varlist `rel_time_list' { 
 			foreach yy of local cohort_list {  
 				tempvar n`n`l''_`yy'
@@ -417,6 +383,7 @@ program define _eventols, rclass
 				if "`saveint'"!=""{
 					loc lnumber : subinstr local l "_k_eq_" ""					
 					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
+					loc interact_varlist "`interact_varlist' _interact_`lnumber'_c`yy'"
 				}
 			}
 		}
@@ -783,28 +750,6 @@ program define _eventols, rclass
 		_estimates unhold mainols 
 	}
 	
-	*save a temporary copy of the event-time dummy corresponding to the normalized period before dropping that dummy variable
-	tempvar temp_k
-	if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
-	else loc kvomit "p`=abs(`norm')'"
-	qui gen `temp_k'=_k_eq_`kvomit' 
-	
-	* Drop variables
-	if "`savek'" == "" & "`drop'"!="nodrop" {
-		cap confirm var _k_eq_p0
-		if !_rc drop _k_eq*		
-		cap confirm var __k
-		if !_rc qui drop __k
-		if "`methodt'"=="ols" qui drop _ttrend
-		if "`saveint'"!="" qui drop _interact*
-	}
-	else if "`savek'" != "" & "`drop'"!="nodrop"  {
-		ren __k `savek'_evtime
-		ren _k_eq* `savek'_eq*
-
-		if "`methodt'"=="ols" ren _ttrend `savek'_trend
-		if "`saveint'"!="" ren _interact* `savek'_interact*
-	}
 	if "`sun_abraham'"!="" {
 		if "`control_cohorttype'"=="create" {
 			if "`control_cohortsave'"=="save" {
@@ -847,6 +792,108 @@ program define _eventols, rclass
 			else drop _cohort	
 		}	
 	}
+	
+
+	*save a temporary copy of the event-time dummy corresponding to the normalized period before dropping that dummy variable
+	tempvar temp_k
+	if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
+	else loc kvomit "p`=abs(`norm')'"
+	qui gen `temp_k'=_k_eq_`kvomit' 
+	
+	
+	*recover omitted k vars 
+	loc kvars_omit ""
+	if "`komit'"!=""{
+		foreach k in `komit' {
+			if `k'<0 loc kvars_omit "`kvars_omit' _k_eq_m`=abs(`k')'"
+			else loc kvars_omit "`kvars_omit' _k_eq_p`=abs(`k')'"
+		}
+	}
+	*full list of event-time dummies (included + omitted)
+	loc eventtd = "`included' `kvars_omit'"
+	
+	* Drop variables
+	if "`savek'" == "" & "`drop'"!="nodrop" {
+		cap confirm var `eventtd', exact 
+		if !_rc drop `eventtd'		
+		cap confirm var __k, exact
+		if !_rc qui drop __k
+		if "`methodt'"=="ols" {
+			cap confirm var _ttrend, exact
+			if !_rc qui drop _ttrend
+		} 
+		if "`saveint'"!="" {
+			cap confirm var `interact_varlist', exact
+			if !_rc qui drop `interact_varlist'
+		}
+	}
+
+	else if "`savek'" != "" & "`drop'"!="nodrop"  {
+	
+		*change prefix
+		loc eventtd_savek : subinstr local eventtd "_k" "`savek'", all
+	
+		*If replace suboption, drop the existing variables before renaming the recently created ones 
+		if "`kreplace'"!="" {
+			*event-time dummies 
+			foreach v in `eventtd_savek' {
+				cap confirm variable `v', exact 
+				if !_rc drop `v'
+			}
+			*event-time variable 
+			cap confirm variable `savek'_evtime, exact
+			if !_rc drop `savek'_evtime
+			*trend 
+			cap confirm variable `savek'_trend, exact 
+			if !_rc drop `savek'_trend
+			*interaction variables
+			foreach v in `interact_varlist' {
+				cap confirm variable `savek'`v', exact 
+				if !_rc drop `savek'`v'
+			}
+		}
+		
+		*Check that variables don't exist 
+		cap confirm variable `eventtd_savek', exact
+		if !_rc {
+			di as err _n "You specified to save the event-time dummy variables using the prefix {bf:`savek'}, but you already have event-time dummy variables saved with that prefix."
+			di as err _n "Use the {bf:replace} suboption to replace the existing variables."
+			exit 110
+		}
+		cap confirm variable `savek'_evtime, exact
+		if !_rc {
+			di as err _n "You specified to save the event-time variable using the prefix {bf:`savek'}, but you already have an event-time variable saved with that prefix."
+			di as err _n "Use the {bf:replace} suboption to replace the existing variable."
+			exit 110
+		}
+		if "`trend'"!=""{
+			cap confirm variable `savek'_trend, exact
+			if !_rc {
+				di as err _n "You specified to save the trend variable using the prefix {bf:`savek'}, but you already have a trend variable saved with that prefix."
+				di as err _n "Use the {bf:replace} suboption to replace the existing variable."
+				exit 110
+			}
+		}
+		if "`sun_abraham'"!="" {
+			foreach v in `interact_varlist' {
+			cap confirm variable `savek'`v', exact 
+				if !_rc {
+					di as err _n "You have variable names with the {bf:`savek'_interact} prefix"
+					di as err _n "{bf:`savek'_interact} is reserved for the interaction variables in Sun-and-Abraham estimation"
+					di as err _n "Use the {bf:replace} suboption to replace the existing variables."
+					exit 110
+				}
+			}
+		}
+		
+		ren __k `savek'_evtime
+		ren (`eventtd') (`eventtd_savek')
+
+		if "`methodt'"=="ols" ren _ttrend `savek'_trend
+		loc interact_varlist_savek : subinstr local interact_varlist "_interact" "`savek'_interact", all
+		if "`saveint'"!="" ren (`interact_varlist') (`interact_varlist_savek')
+	}
+	
 
 	*skip the rest of the program if the user indicated not to estimate
 	return local noestimate "`noestimate'"
