@@ -17,7 +17,7 @@ program define _eventiv, rclass
 	SAVek(string) /* Generate the time-to-event dummies, trend and keep them in the dataset */	
 	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */		
-	norm(integer -1) /* Normalization */	
+	norm(numlist integer max=1) /* Normalization */	
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
 	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
@@ -44,6 +44,9 @@ program define _eventiv, rclass
 	
 	* For eventgenvars, ignore missings in varlist
 	mark `tousegen' `if' `in'
+
+	* Set norm to -1 if missing
+	if "`norm'"=="" loc norm -1
 	
 	loc i = "`panelvar'"
 	loc t = "`timevar'"

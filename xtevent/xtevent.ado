@@ -32,7 +32,7 @@ program define xtevent, eclass
 	STatic /* Estimate static model */			
 	reghdfe /* Estimate with reghdfe */
 	addabsorb(string) /* Absorb additional variables in reghdfe */
-	norm(integer -1) /* Normalization */
+	norm(numlist integer max=1) /* Normalization */
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
 	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
 	control_cohort(string) /* dummy variable to indicate cohort to be used as control in SA estimation*/
@@ -186,6 +186,9 @@ program define xtevent, eclass
 		loc swindow = r(window)
 		loc w_type = r(w_type)	
 	}
+
+	* Set norm to -1 if not specified
+	if "`norm'"=="" loc norm = -1
 
 	if "`static'"=="" {
 		if "`window'"!="" {

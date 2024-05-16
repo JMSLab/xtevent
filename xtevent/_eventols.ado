@@ -17,7 +17,7 @@ program define _eventols, rclass
 	nogen /* Do not generate k variables */
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */				
 	nodrop /* Do not drop _k variables */
-	norm(integer -1) /* Coefficiente to normalize */
+	norm(numlist integer max=1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
 	impute(string) /*imputation on policyvar*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */
@@ -182,6 +182,10 @@ program define _eventols, rclass
 	loc i = "`panelvar'"
 	loc t = "`timevar'"
 	loc z = "`policyvar'"
+
+	* Set norm to -1 if missing
+
+	if "`norm'"=="" loc norm = -1
 	
 	if "`gen'" != "nogen" {
 		if "`impute'"!=""{
