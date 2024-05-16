@@ -56,32 +56,6 @@ program define _eventiv, rclass
 		if "``l''"=="." loc `l' ""
 		return loc `l' = "``l''"
 	}
-
-	if "`savek'"!=""{
-
-		*drop existing variables 
-		if "`kreplace'"!="" {
-			*event-time dummies 
-			cap unab savekvars : `savek'_eq_*
-			if "`savekvars'"!="" drop `savekvars'
-			*event-time variable 
-			cap confirm variable `savek'_evtime
-			if !_rc drop `savek'_evtime
-			*trend 
-			cap confirm variable `savek'_trend
-			if !_rc drop `savek'_trend
-			*SA's interactions 
-			cap unab saveintvars : `savek'_interact_*
-			if "`saveintvars'"!="" drop `saveintvars'
-		}
-		* Check for vars named savek
-		cap unab savekvars2 : `savek'_eq_*
-		if !_rc {
-			di as err _n "You specified to save the event-time dummy variables using the prefix {bf:`savek'}, but you already have event-time dummy variables saved with that prefix."
-			di as err _n "Use the {bf:replace} suboption to replace the existing variables."
-			exit 110
-		}
-	}
 	
 	*If imputation is specified, _eventiv will call _eventgenvars twice.
 	*The first call only imputes the policyvar, but the second call imputes both the policyvar and the event-time dummies
@@ -675,18 +649,56 @@ program define _eventiv, rclass
 		mat `deltaxsc' = `factor'*`deltax'	
 	}
 	
+	*recover omitted k vars 
+	loc kvars_omit ""
+	if "`komit'"!=""{
+		foreach k in `komit' {
+			if `k'<0 loc kvars_omit "`kvars_omit' _k_eq_m`=abs(`k')'"
+			else loc kvars_omit "`kvars_omit' _k_eq_p`=abs(`k')'"
+		}
+	}
+	*full list of event-time dummies (included + omitted)
+	loc eventtd = "`included' `kvars_omit'"
+
 	* Drop variables
 	if "`savek'" == "" {
-		cap confirm var _k_eq_p0
-		if !_rc drop _k_eq*	
-		cap confirm var __k
-		if !_rc qui drop __k
-		if "`trend'"!="" qui drop _ttrend		
+		cap confirm var `eventtd', exact 
+		if !_rc drop `eventtd'
+		cap confirm var __k, exact
+		if !_rc qui drop __k	
 	}
 	else {
+		*change prefix
+		loc eventtd_savek : subinstr local eventtd "_k" "`savek'", all
+		
+		*If replace suboption, drop the existing variables before renaming the recently created ones 
+		if "`kreplace'"!="" {
+			*event-time dummies 
+			foreach v in `eventtd_savek' {
+				cap confirm variable `v', exact 
+				if !_rc drop `v'
+			}
+			*event-time variable 
+			cap confirm variable `savek'_evtime, exact
+			if !_rc drop `savek'_evtime
+		}
+		
+		*Check that variables don't exist 
+		cap confirm variable `eventtd_savek', exact
+		if !_rc {
+			di as err _n "You specified to save the event-time dummy variables using the prefix {bf:`savek'}, but you already have event-time dummy variables saved with that prefix."
+			di as err _n "Use the {bf:replace} suboption to replace the existing variables."
+			exit 110
+		}
+		cap confirm variable `savek'_evtime, exact
+		if !_rc {
+			di as err _n "You specified to save the event-time variable using the prefix {bf:`savek'}, but you already have an event-time variable saved with that prefix."
+			di as err _n "Use the {bf:replace} suboption to replace the existing variable."
+			exit 110
+		}
+		
 		ren __k `savek'_evtime
-		ren _k_eq* `savek'_eq*
-		if "`trend'"!="" ren _ttrend `savek'_trend	
+		ren (`eventtd') (`eventtd_savek')
 	}
 	if "`instype'"=="numlist" | "`instype'"=="mixed" {
 		foreach v in `leadivs' {
