@@ -12,7 +12,7 @@ program define xteventplot
 	NONORMLabel /* Supress label for value of dependent variable at event time = -1 */
 	noprepval /* Supress p-value for pre-trends test */
 	nopostpval /* Supress p-value for leveling-off test */
-	suptreps(integer 10000) /* Draws from multivariate normal for sup-t CI calculations */
+	suptreps(numlist integer max=1) /* Draws from multivariate normal for sup-t CI calculations */
 	overlay(string) /* Overlay plots: Trend, IV, or static */	
 	y /* Plot for dependent variable in IV setting */
 	proxy /* Plot for proxy variable in IV setting */	
@@ -73,6 +73,9 @@ program define xteventplot
 		di as err "option {bf:overlay(iv)} only allowed after {cmd:xtevent, proxy() proxyiv()}"
 		exit 301
 	}
+
+	* Set suptreps to 1000 if missing
+	if "`suptreps'"=="" loc suptreps = 1000
 			
 	* Get info from e
 	loc df = e(df)
