@@ -14,7 +14,7 @@ program define _eventgenvars, rclass
 	w_type(string) /* Window defined by the user (numeric) or define window based on the data time limits (string: max or balanced) */
 	norm(numlist) /* Coefficients to normalize */
 	
-	impute(string) /*impute policyvar. There are three options: */
+	IMPute(string) /*impute policyvar. There are three options: */
 	/*nuchange  imputes outer missing values of policyvar without verifying staggered adoption*/
 	/*stag  imputes outer missing values of policyvar verifying staggered adoption*/
 	/*instag  imputes outer and inner missing values verifying staggered adoption*/

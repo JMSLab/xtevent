@@ -19,7 +19,7 @@ program define _eventiv, rclass
 	kvars(string) /* Stub for event dummies to include, if they have been generated already */		
 	norm(numlist integer max=1) /* Normalization */	
 	reghdfe /* Use reghdfe for estimation */	
-	impute(string) /*imputation on policyvar*/
+	IMPute(string) /*imputation on policyvar*/
 	*static /* in this ado used for calling the part of _eventgenvars that imputes*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
 	REPeatedcs /*indicate that the input data is a repeated cross-sectional dataset*/
