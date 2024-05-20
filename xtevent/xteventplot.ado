@@ -343,7 +343,7 @@ program define xteventplot
 				loc mcolor ""
 				gen double `ul' = `coef' + `ta2'*`se'
 				gen double `ll' = `coef' - `ta2'*`se'				
-				loc cigraph "rcap `ul' `ll' `kxaxis', pstyle(ci)"
+				loc cigraph "rcap `ul' `ll' `kxaxis', pstyle(p1)"
 			}
 			else if "`levels'"!="" {
 				loc cigraph = ""		
@@ -355,7 +355,7 @@ program define xteventplot
 					tempvar ul`l' ll`l'
 					gen double `ul`l'' = `coef' + `ta2'*`se'
 					gen double `ll`l'' = `coef' - `ta2'*`se'
-					loc cigraph "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(ci)"				
+					loc cigraph "`cigraph' rcap `ul`l'' `ll`l'' `kxaxis', pstyle(p1)"				
 					if `j'!=`tot' loc cigraph "`cigraph' ||"
 					loc ++j
 				}				
@@ -376,7 +376,7 @@ program define xteventplot
 				tempvar ulsupt llsupt
 				gen double `ulsupt' = `coef' + q*`se'
 				gen double `llsupt' = `coef' - q*`se'
-				loc cigraphsupt "rspike `ulsupt' `llsupt' `kxaxis', pstyle(ci)"
+				loc cigraphsupt "rspike `ulsupt' `llsupt' `kxaxis', pstyle(p1)"
 			}
 			else loc cigraphsupt ""
 		}		
