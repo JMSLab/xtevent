@@ -190,7 +190,7 @@ coefficients periods. It also calculates its standard error with {help lincom}. 
 {opt savek(stub [, subopt])} saves variables for time-to-event, event-time, trend, and interaction variables. Event-time dummies are stored as 
 {it: stub}_eq_m# for the dummy variable # periods before the policy change, and {it:stub}_eq_p# for the dummy variable # periods after the 
 policy change. The dummy variable for the policy change time is {it:stub}_eq_p0. Event time is stored as {it:stub}_evtime. The trend is stored
- as {it:stub}_trend. For estimation with the Sun and Abrahm (2021) method, such that {opt cohort} and {opt control_cohort} are active, the
+ as {it:stub}_trend. For estimation with the Sun and Abrahm (2021) method, such that {opt cohort} and {opt control_cohort} or {opt sunabraham} are active, the
  interaction variables are stored as {it:stub}_m#_c# or {it:stub}_p#_c#, where c# indicates the cohort. The following suboptions can be
  specified:
 
