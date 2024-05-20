@@ -176,6 +176,9 @@ unadopted-policy state. See Freyaldenhoven et al. (2021) for detailed explanatio
 value or a group of them will be imputed only if they are both preceded and followed by the unadopted-policy state or by the 
 adopted-policy state. 
 
+{phang2}
+See {browse "https://rawcdn.githack.com/JMSLab/xtevent/cf16d12f90ddf363df62c397cf0e9dc05bbd9875/impute_option_description.html":this} for a detailed example of the {opt impute} option.
+
 {phang} {opth norm(integer)} specifies the event-time coefficient to be normalized to 0.
 The default is to normalize the coefficient on -1.
 
