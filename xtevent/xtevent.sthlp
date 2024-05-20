@@ -313,7 +313,7 @@ skip this check. This can be useful when estimating heterogenous treatment effec
 {phang2}
 {cmd:control_cohort(create},{cmd: [,save replace]}) asks {cmd:xtevent} to create the binary control cohort variable based on the missing values of 
 the cohort variable. {opt save} adds the new control cohort variable to the dataset as {it: policyvar_control_cohort}. {opt replace} replaces
- the control cohort variable if it already exists. {opt control_cohort(create)} is the default if {opt cohort} is specified but {opt control_cohort}
+ the control cohort variable if it already exists. {opt control_cohort(create)} is the default if {opt cohort(create)} is specified but {opt control_cohort}
  is not specified.
 
 {phang}
