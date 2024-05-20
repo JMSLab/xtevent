@@ -27,9 +27,9 @@
 {p2coldent: {opt cumul}} test sum of coefficients{p_end}
 {p2coldent: {opt allpre}} test all pre-event coefficients{p_end}
 {p2coldent: {opt allpost}} test all post-event coefficients{p_end}
-{p2coldent: {opt lin:pretrend}} test for a linear pre-trend{p_end}
+{p2coldent: {opt lin:pretrend}} test for a linear pretrend{p_end}
 {p2coldent: {opt tr:end(#1)}} tests for a linear trend from time period #1 before treatment{p_end}
-{p2coldent: {opt const:anteff}} test for constant post-event coefficients{p_end}
+{p2coldent: {opt cons:tanteff}} test for constant post-event coefficients{p_end}
 {p2coldent: {opt overid}} test overidentifyng restrictions for pretrends and effects leveling off{p_end}
 {p2coldent: {opth overidpre(integer)}} test overidentifyng restriction for pretrends{p_end}
 {p2coldent: {opth overidpost(integer)}} test overidentifyng restriction for effects leveling off{p_end}

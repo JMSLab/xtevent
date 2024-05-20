@@ -9,7 +9,7 @@ program define xteventtest, rclass
 	coefs(numlist) /*Coefficients to test */
 	cumul /* Test sum of coefficients */
 	LINpretrend /* Test for linear pre-trend */
-	CONSTanteff /* Test for constant effects */
+	CONStanteff /* Test for constant effects */
 	TRend(numlist <0 integer min=1 max=1) /* Test significance of a linear trend from time a*/
 	overidpre(numlist >0 integer min=1 max=1) /* Test the leftmost coefficients as overid restriction */
 	overidpost(numlist >1 integer min=1 max=1) /* Test the rightmost coefficients as overid restriction */
