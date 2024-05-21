@@ -204,46 +204,42 @@ table:not([class]) tbody:last-child tr:last-child td {border-bottom:1px solid bl
 </head>
 <body>
 <h1 id="impute-option">Impute option</h1>
-<p><strong>impute(type, [saveimp])</strong> imputes missing values in
-<em>policyvar</em> and uses the imputed variable as the independent
-policy variable in estimation. <strong>type</strong> determines the
+<p><strong>impute(type, [saveimp])</strong> imputes leads, lags, and
+missing values of <em>policyvar</em> and uses this new variable as the
+actual <em>policyvar</em>. <strong>type</strong> determines the
 imputation rule. The suboption <strong>saveimp</strong> adds the new
-variable to the database as <em>policyvar_imputed</em>. The following
+variable to the dataset as <em>policyvar_imputed</em>. The following
 imputation types are available:</p>
 <ul>
-<li><p><strong>impute(nuchange)</strong> imputes missing values in
-<em>policyvar</em> under an assumption of <em>no unobserved
-changes</em>. It assumes that for each unit: i) The policy variable’s
-value is the same as the first observed value in periods before the
-first observed value, and ii) The policy variable’s value is the same as
-the last observed value in periods after the last observed
-value</p></li>
-<li><p><strong>impute(stag)</strong> imputes missing values in the
-<em>policyvar</em> under an assumption of no unobserved changes and
-staggered adoption. <em>policyvar</em> must satisfy staggered-adoption
-assumptions for all units: i) <em>policyvar</em> must be binaryl; ii)
-once <em>policyvar</em> reaches the adopted-policy state, it never
-reverts to the unadopted-policy state; iii) the first-observed value
-must be the unadopted-policy-state value, and the last-observed value
-must be the adopted-policy-state value, and iv) all <em>policyvar</em>
-values in the observed data range must be either adopted-policy-state
-values or unadopted-policy-state values.</p></li>
-<li><p><strong>impute(instag)</strong> imputes missing values in the
-<em>policyvar</em> under staggered adoption assumptions and additionally
-imputes missing values inside the observed data range: <em>xtevent</em>
-imputes a missing value or a group of them only if they are both
-preceded and followed by values corresponding to the unadopted-policy
-state or the adopted-policy state.</p></li>
+<li><p><strong>impute(<a href="#nuchange">nuchange</a>)</strong> imputes
+missing values in <em>policyvar</em> according to <em>no unobserved
+change</em>: it assumes that, for each unit: i) in periods before the
+first observed value, the policy value is the same as the first observed
+value and; ii) in periods after the last observed value, the policy
+value is the same as the last observed value.</p></li>
+<li><p><strong>impute(<a href="#stag">stag</a>)</strong> applies <em>no
+unobserved change</em> if <em>policyvar</em> satisfies
+staggered-adoption assumptions for all units: i) <em>policyvar</em> must
+be binary; and ii) once <em>policyvar</em> reaches the adopted-policy
+state, it never reverts to the unadopted-policy state. See <a
+href="https://www.nber.org/papers/w29170">Freyaldenhoven et
+al. (2021)</a> for detailed explanation of the staggered case.</p></li>
+<li><p><strong>impute(<a href="#instag">instag</a>)</strong> applies
+<strong>impute(stag)</strong> and additionally imputes missing values
+inside the observed data range: a missing value or a group of them will
+be imputed only if they are both preceded and followed by the
+unadopted-policy state or by the adopted-policy state.</p></li>
 </ul>
 <h2 id="examples">Examples</h2>
-<p>We want to estimate the dynamic effects of being a union member on
-the wage. We will use the National Longitudinal Survey data from Stata’s
-example datasets.</p>
+<p>Let’s see some examples of the different imputation rules of the
+<strong>impute</strong> option. We want to estimate dynamic effects of
+being a union member on the wage. We will use the National Longitudinal
+Survey.</p>
 <pre class='stata'>. webuse nlswork, clear
 (National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
 </pre>
-<p>This dataset has many missing observations. For the sake of the
-example, we will create a time variable that ignores these gaps.</p>
+<p>This dataset has many missing observations. For the example, we will
+create a time variable that ignores these gaps.</p>
 <pre class='stata'>. by idcode (year): gen time=_n
 
 . xtset idcode time
@@ -251,9 +247,9 @@ example, we will create a time variable that ignores these gaps.</p>
         time variable:  time, 1 to 15
                 delta:  1 unit
 </pre>
-<p>The <em>policyvar</em> <em>union</em> reverts to the
-unadopted-policy-state for several units. We generate a
-<em>policyvar</em> that follows staggered adoption.</p>
+<p>For several units, the <em>policyvar</em> <em>union</em> reverts to
+the unadopted-policy-state. Let’s generate a <em>policyvar</em> that
+follows staggered-adoption.</p>
 <pre class='stata'>. by idcode (time): gen union2=sum(union)
 
 . replace union2=1 if union2>1 
@@ -261,8 +257,8 @@ unadopted-policy-state for several units. We generate a
 
 . order time union union2, after(year)
 </pre>
-<p>Now we add some missing values to the <em>policyvar</em> for this
-example and display how the <em>policyvar</em> looks for unit 2.</p>
+<p>Let’s add some missing values for the example and see how the
+<em>policyvar</em> looks for unit 2.</p>
 <pre class='stata'>. replace union2=. if idcode==2 &amp; inlist(time, 1,8,9,11,12)
 (5 real changes made, 5 to missing)
 
@@ -288,11 +284,11 @@ example and display how the <em>policyvar</em> looks for unit 2.</p>
   └────────────────────────┘
 </pre>
 <h4 id="nuchange">nuchange</h4>
-<p>First, we estimate an event-study where we impute outer missing
-values in the <em>policyvar</em> without verifying staggered adoption,
+<p>Now, let’s estimate an event-study where we will impute outer missing
+values in the <em>policyvar</em> without verifying staggered-adoption,
 i.e., according to <strong>nuchange</strong>. We also want to add the
-new <em>policyvar</em> to the database. We can do this using the
-<strong>saveimp</strong> suboption.</p>
+new <em>policyvar</em> to the database by the <strong>saveimp</strong>
+suboption.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >     policyvar(union2) window(3) impute(nuchange, saveimp)
 
@@ -376,8 +372,8 @@ F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
 <pre class='stata'>. drop union2_imputed
 </pre>
 <h4 id="stag">stag</h4>
-<p>Now, we estimate an event-study imputing outer missing values in the
-<em>policyvar</em> verifying staggered adoption, i.e., according to
+<p>Now, let’s estimate an event-study imputing outer missing values in
+the <em>policyvar</em> verifying staggered-adoption, i.e., according to
 <strong>stag</strong>, and save the imputed <em>policyvar</em>.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >             policyvar(union2) window(3) impute(stag, saveimp)
@@ -462,8 +458,8 @@ F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
 <pre class='stata'>. drop union2_imputed
 </pre>
 <h4 id="instag">instag</h4>
-<p>Last, we estimate an event-study imputing outer and inner missing
-values in the <em>policyvar</em> verifying staggered adoption, i.e.,
+<p>Now, let’s estimate an event-study imputing outer and inner missing
+values in the <em>policyvar</em> verifying staggered-adoption, i.e.,
 according to <strong>instag</strong>, and save the imputed
 <em>policyvar</em>.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
@@ -547,12 +543,12 @@ F test of absorbed indicators: F(2770, 20743) = 9.924         Prob > F = 0.000
 </pre>
 <h2 id="how-the-imputation-works-on-the-event-time-dummies">How the
 imputation works on the event-time dummies</h2>
-<p>Now we display how the imputation works on the event-time dummies.
-First, we differentiate the <em>policyvar</em>.</p>
+<p>Finally, let’s see how the imputation works on the event-time
+dummies. First, we differentiate the <em>policyvar</em>.</p>
 <pre class='stata'>. gen union2_d=d.union2
 (4,717 missing values generated)
 </pre>
-<p>Estimate an event study without imputing the <em>policyvar</em> and
+<p>Estimate an event-study without imputing the <em>policyvar</em> and
 save the event-time dummies by the <em>savek</em> option.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 >     policyvar(union2) window(3) savek(vv)
@@ -603,11 +599,11 @@ c.ttl_exp#c.ttl_exp │  -.0006165   .0004356    -1.42   0.157    -.0014706    .
 ────────────────────┴────────────────────────────────────────────────────────────────
 F test of absorbed indicators: F(1599, 4052) = 8.310          Prob > F = 0.000
 </pre>
-<p>Now, we display the event-time dummies for a unit. We can verify that
-this set of event-time dummies corresponds to different leads of the
-differentiated <em>policyvar</em> (see equation 2 in <a
+<p>Now, let’s see some of the event-time dummies for a unit. We can
+verify that this set of event-time dummies correspond to different leads
+of the differentiated <em>policyvar</em> (see equation 2 in <a
 href="https://www.nber.org/papers/w29170">Freyaldenhoven et
-al. (2021)</a>).</p>
+al. (2021)</a>).</p>
 <pre class='stata'>. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
 
   ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -635,7 +631,7 @@ al. (2021)</a>).</p>
 <p>Drop the event-time dummies.</p>
 <pre class='stata'>. drop vv*
 </pre>
-<p>Estimate the same model, but with imputation according to
+<p>Estimate the same model, but indicating to impute according to
 <strong>stag</strong>.</p>
 <pre class='stata'>. xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 > policyvar(union2) window(3) savek(vv) impute(stag)
@@ -693,11 +689,11 @@ c.ttl_exp#c.ttl_exp │  -.0004481   .0001315    -3.41   0.001     -.000706   -.
 ────────────────────┴────────────────────────────────────────────────────────────────
 F test of absorbed indicators: F(2770, 20735) = 9.920         Prob > F = 0.000
 </pre>
-<p>Now, we display the event-time dummies for the same unit. We can
-verify that <em>xtevent</em> imputed event-time dummies despite the
+<p>Now, let’s see some of the event-time dummies for the same unit. We
+can verify that the event-time dummies have been imputed despite of the
 <em>policyvar</em> not having missing values in its observed data range.
-This imputation happens because the imputation works on both the
-observed and the unobserved data range of the <em>policyvar</em>.</p>
+This happens because the imputation works on both the observed and the
+unobserved data range of the <em>policyvar</em>.</p>
 <pre class='stata'>. list idcode time union2 union2_d vv_eq_m4 vv_eq_m3 vv_eq_m2 vv_eq_m1 if idcode==24, noobs
 
   ┌───────────────────────────────────────────────────────────────────────────────┐
