@@ -233,7 +233,7 @@ imputation works on the event-time dummies</a>
 missing values of <em>policyvar</em> and uses this new variable as the
 actual <em>policyvar</em>. <strong>type</strong> determines the
 imputation rule. The suboption <strong>saveimp</strong> adds the new
-variable to the dataset as <em>policyvar_imputed</em>. The following
+variable to the database as <em>policyvar_imputed</em>. The following
 imputation types are available:</p>
 <ul>
 <li><p><strong>impute(<a href="#nuchange">nuchange</a>)</strong> imputes
@@ -258,9 +258,9 @@ unadopted-policy state or by the adopted-policy state.</p></li>
 </ul>
 </div>
 <h2 id="examples">Examples</h2>
-<p>We want to estimate dynamic effects of being a union member on the
+<p>We want to estimate the dynamic effects of being a union member on
 wage. We will use the National Longitudinal Survey data from Stata’s
-example dataset.</p>
+example datasets.</p>
 <pre class='stata'>. webuse nlswork, clear
 (National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
 </pre>
@@ -310,7 +310,7 @@ example and display how the <em>policyvar</em> looks for unit 2.</p>
   └────────────────────────┘
 </pre>
 <h4 id="nuchange">nuchange</h4>
-<p>First, we estimate an event-study where we impute outer missing
+<p>First, we estimate an event study where we impute outer missing
 values in the <em>policyvar</em> without verifying staggered adoption,
 i.e., according to <strong><a href="#description">nuchange</a></strong>.
 We also want to add the new <em>policyvar</em> to the database. We can
@@ -627,7 +627,7 @@ c.ttl_exp#c.ttl_exp │  -.0006165   .0004356    -1.42   0.157    -.0014706    .
 F test of absorbed indicators: F(1599, 4052) = 8.310          Prob > F = 0.000
 </pre>
 <p>Now, we display the event-time dummies for a unit. We can verify that
-this set of event-time dummies correspond to different leads of the
+this set of event-time dummies corresponds to different leads of the
 differentiated <em>policyvar</em> (see equation 2 in <a
 href="https://www.nber.org/papers/w29170">Freyaldenhoven et
 al. (2021)</a>).</p>
