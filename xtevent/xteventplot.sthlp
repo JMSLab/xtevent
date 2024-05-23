@@ -71,13 +71,13 @@ the dynamic effects. The default is 10000. See {help xtevent}.
 {opt overlay(string)} creates overlay plots for trend extrapolation, instrumental variables estimation in presence of pre-trends, and constant 
 policy effects over time.
 
-{phang2} {opt overlay(trend)} overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
-{opt overlay(trend)} is only available after {cmd: xtevent, trend(, saveoverlay)}.
+{phang2} {bf: overlay(trend)} overlays the event-time coefficients for the trajectory of the dependent variable and the extrapolated linear trend.
+{bf: overlay(trend)} is only available after {cmd: xtevent, trend(, saveoverlay)}.
 
-{phang2} {opt overlay(iv)} overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
-trend of the confounder. {opt overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
+{phang2} {bf: overlay(iv)} overlays the event-time coefficients trajectory of the dependent variable and the proxy variable used to infer the 
+trend of the confounder. {bf: overlay(iv)} is only available after {cmd: xtevent, proxy() proxyiv()}.
 
-{phang2} {opt overlay(static)} overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
+{phang2} {bf: overlay(static)} overlays the event-time coefficients from the estimated model and the coefficients implied by a constant policy
 effect over time. These coefficients are calculated by (i) estimating a model where the policy affects the outcome contemporaneously and 
 its effect is constant, (ii) obtaining predicted values of the outcome variable from this constant effects model, and (iii) regressing 
 the predicted values on event-time dummy variables.
@@ -96,7 +96,7 @@ the predicted values on event-time dummy variables.
 confidence intervals, along with a sup-t confidence interval for Stata's default confidence level.
 
 {phang}
-{opt smpath([type , subopt])}} displays the ``least wiggly`` path through the Wald confidence region of the event-time coefficients.
+{opt smpath([type , subopt])}} displays the "least wiggly" path through the Wald confidence region of the event-time coefficients.
 {opt type} determines the line type, which may be {opt scatter} or {opt line}. {opt smpath} is not allowed with {opt noci}. 
 
 {phang} The following suboptions for {opt smpath} control the optimization process. Because of the nature of the 
@@ -104,21 +104,21 @@ optimization problem, optimization error messages 4 and 5 (missing derivatives) 
  frequent. Nevertheless, the approximate results from the optimization should be close to the results that would be obtained with convergence of the optimization process. Modifying these optimization suboptions may improve optimization behavior.
 
 {phang2}
-{opt , postwindow(scalar > 0)} sets the number of post event coefficient estimates to use for calculating the 
+{opt postwindow(scalar > 0)} sets the number of post event coefficient estimates to use for calculating the 
 smoothest line. The default is to use all the estimates in the post event window.
 
 {phang2}
-{opt , maxiter(integer)} sets the maximum number of inner iterations for optimization. The default is 100.
+{opt maxiter(integer)} sets the maximum number of inner iterations for optimization. The default is 100.
 
 {phang2}
-{opt , maxorder(integer)} sets the maximum order for the polynomial smoothest line. Maxorder must be between 1 and 10. The default is 10.
+{opt maxorder(integer)} sets the maximum order for the polynomial smoothest line. Maxorder must be between 1 and 10. The default is 10.
 
 {phang2} 
-{opt , technique(string)} sets the optimization technique for the inner iterations of the smoothest-path optimization.
+{opt technique(string)} sets the optimization technique for the inner iterations of the smoothest-path optimization.
 "nr", "bfgs", "dfp", and combinations are allowed. See {help maximize}. The default is "nr 5 bfgs". 
 
 {phang}
-{opt overidpre} changes the coefficients to be tested for the pre-trends overidentification test. 
+{opt overidpre(integer)} changes the coefficients to be tested for the pre-trends overidentification test. 
 The default is to test all pre-event coefficients. {opt overidpre(#1)} tests if the coefficients 
 for the earliest #1 periods before the event are equal to 0, including the endpoints.  
 For example, with a window of 3, {opt overidpre(2)} tests that the coefficients for event-times -4+ 
@@ -126,7 +126,7 @@ For example, with a window of 3, {opt overidpre(2)} tests that the coefficients 
  See {help xteventtest}.
 
 {phang}
-{opt overidpost} changes the coefficients to be tested for the leveling-off overidentification
+{opt overidpost(integer)} changes the coefficients to be tested for the leveling-off overidentification
  test. The default is to test that the rightmost coefficient and the previous coefficient are
  equal. {opt overidpost(#1)} tests if the coefficients for the latest
  #1 periods after the event  are equal to each other, including the endpoints. For example, with a window of 3, 

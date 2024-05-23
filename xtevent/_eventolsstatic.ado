@@ -12,7 +12,7 @@ program define _eventolsstatic, rclass
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
-	impute(string) /*impute policyvar */
+	IMPute(string) /*impute policyvar */
 	STatic /* Estimate static model */
 	REPeatedcs /*data is repeated cross-sectional*/
 	*

@@ -19,7 +19,7 @@ program define _eventols, rclass
 	nodrop /* Do not drop _k variables */
 	norm(numlist integer max=1) /* Coefficiente to normalize */
 	reghdfe /* Use reghdfe for estimation */	
-	impute(string) /*imputation on policyvar*/
+	IMPute(string) /*imputation on policyvar*/
 	addabsorb(string) /* Absorb additional variables in reghdfe */
 	DIFFavg /* Obtain regular DiD estimate implied by the model */
 	cohort(string) /* create or variable varname, where varname is categorical variable indicating cohort */
