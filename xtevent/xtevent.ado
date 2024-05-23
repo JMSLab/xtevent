@@ -45,7 +45,7 @@ program define xtevent, eclass
 	nofe /* No fixed effects */
 	note /* No time effects */
 	Kvars(string) /* Use previously generated dummies */
-	impute(string) /* impute policyvar */
+	IMPute(string) /* impute policyvar */
 	*/
 	]
 	;

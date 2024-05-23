@@ -13,7 +13,7 @@ program define _eventivstatic, rclass
 	note /* No time effects */	
 	reghdfe /* Use reghdfe for estimation */
 	addabsorb(string) /* Absorb additional variables in reghdfe */ 
-	impute(string)
+	IMPute(string)
 	REPeatedcs /*data is repeated cross-sectional*/
 	STatic
 	*
