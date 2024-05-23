@@ -427,6 +427,8 @@ program define _eventols, rclass
 			_estimates hold `reg_base', copy
 			if "`sun_abraham'"!=""{
 				qui `cmd' `depenvar' `cohort_rel_varlist' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
+				loc sadof = e(df_m)
+				noi di "`sadof'"
 			}			
 		}
 		else {
@@ -469,6 +471,8 @@ program define _eventols, rclass
 			_estimates hold `reg_base', copy
 			if "`sun_abraham'"!=""{
 				qui reghdfe `depenvar' `cohort_rel_varlist' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
+				loc sadof = e(df_m)
+				noi di "`sadof'"
 			}
 		}
 		
@@ -561,7 +565,8 @@ program define _eventols, rclass
 			}
 		}
 
-		repostdelta `b_sa_adj' `v_sa_adj'
+		noi di `sadof'
+		repostdelta `b_sa_adj' `v_sa_adj' `sadof'
 		* Display results	
 		if "`methodt'"=="gmm" loc qq "quietly" 
 		`qq' _coef_table_header
@@ -1041,6 +1046,7 @@ end
 
 program define repostdelta, eclass
 	ereturn repost b=`1' V=`2'
+	if `3' ereturn scalar df_m = `3'
 end
 
 * Program to parse trend
