@@ -422,13 +422,11 @@ program define _eventols, rclass
 				loc abs "absorb(`i')"
 				loc cmd "areg"
 			}
-		
+			if "`sun_abraham'"=="" {
 			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
-			_estimates hold `reg_base', copy
-			if "`sun_abraham'"!=""{
+			}
+			else {
 				qui `cmd' `depenvar' `cohort_rel_varlist' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
-				loc sadof = e(df_m)
-				noi di "`sadof'"
 			}			
 		}
 		else {
@@ -467,12 +465,11 @@ program define _eventols, rclass
 			else {
 				loc abs "absorb(`i' `t' `addabsorb')"	
 			}
+			if "`sun_abraham'"=="" {
 			`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-			_estimates hold `reg_base', copy
-			if "`sun_abraham'"!=""{
+			}
+			else {
 				qui reghdfe `depenvar' `cohort_rel_varlist' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-				loc sadof = e(df_m)
-				noi di "`sadof'"
 			}
 		}
 		
@@ -552,21 +549,9 @@ program define _eventols, rclass
 		matrix rownames `evt_VV' =  `cohort_list'
 
 		*insert SA's estimations into base regresion
-		tempname b_sa_adj v_sa_adj est_sun_abraham
-		_estimates unhold `reg_base'
-		mat `b_sa_adj'=e(b)
-		mat `v_sa_adj'=e(V)
-
-		loc deltanames : colnames(`b_iw')
-		foreach i in `deltanames' {
-			mat `b_sa_adj'[1,colnumb("`b_sa_adj'","`i'")]=`b_iw'[1,"`i'"]
-			foreach j in `deltanames' {
-			mat `v_sa_adj'[rownumb("`v_sa_adj'","`j'"),colnumb("`v_sa_adj'","`i'")]= `V_iw'["`j'","`i'"]	
-			}
-		}
-
-		noi di `sadof'
-		repostdelta `b_sa_adj' `v_sa_adj' `sadof'
+		
+		tempname est_sun_abraham
+		repostdelta `b_iw' `V_iw'
 		* Display results	
 		if "`methodt'"=="gmm" loc qq "quietly" 
 		`qq' _coef_table_header
@@ -655,7 +640,8 @@ program define _eventols, rclass
 		*repostdelta `bbadj' `VVadj'
 		repostdelta `bbadj' `VValladj'
 		
-		`cmd'
+		_coef_table_header
+		_coef_table , bmatrix(e(b)) vmatrix(e(V))
 		
 	}
 	
@@ -1045,8 +1031,8 @@ mata
 end
 
 program define repostdelta, eclass
-	ereturn repost b=`1' V=`2'
-	if `3' ereturn scalar df_m = `3'
+	*https://www.statalist.org/forums/forum/general-stata-discussion/general/1496551-ereturn-repost-resize-displays-resize-option-not-allowed
+	ereturn post `1' `2', noclear
 end
 
 * Program to parse trend
