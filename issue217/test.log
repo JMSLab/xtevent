@@ -2659,7 +2659,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7545
                                                     Adj R-squared     = 0.7231
                                                     Root MSE          = 0.9954
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -2689,7 +2688,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.314217   .1041623    12.62   0.000     1.110031    1.518402
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 . 
 . *Trend adjustment. Use OLS instead
@@ -2799,7 +2797,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7545
                                                     Adj R-squared     = 0.7231
                                                     Root MSE          = 0.9954
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -2829,7 +2826,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.314217   .1041623    12.62   0.000     1.110031    1.518402
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 . xteventplot, name(g2)
 
@@ -2924,13 +2920,13 @@ No proxy or instruments provided. Implementing OLS estimator
 You have specified the cohort or the sunabraham option
 Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)
 
-Linear regression, absorbing indicators            Number of obs     =  20,000
-Absorbed variable: i                               No. of categories =   1,000
-                                                   F(32, 999)        = 1319.19
-                                                   Prob > F          =  0.0000
-                                                   R-squared         =  0.8019
-                                                   Adj R-squared     =  0.7911
-                                                   Root MSE          =  1.0025
+Linear regression, absorbing indicators             Number of obs     = 20,000
+Absorbed variable: i                                No. of categories =  1,000
+                                                    F(198, 999)       =      .
+                                                    Prob > F          =      .
+                                                    R-squared         = 0.8038
+                                                    Adj R-squared     = 0.7913
+                                                    Root MSE          = 1.0020
                                   (Std. err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
@@ -2948,30 +2944,6 @@ Absorbed variable: i                               No. of categories =   1,000
     _k_eq_p4 |   .9859918   .0880341    11.20   0.000     .8132388    1.158745
     _k_eq_p5 |    1.13976   .0920912    12.38   0.000     .9590461    1.320475
     _k_eq_p6 |   .9998216   .0864235    11.57   0.000     .8302292    1.169414
-         eta |   .2525003    .004768    52.96   0.000     .2431439    .2618567
-             |
-           t |
-          2  |    .131826   .0457042     2.88   0.004     .0421387    .2215133
-          3  |   .3236485   .0456104     7.10   0.000     .2341453    .4131517
-          4  |   .5422926   .0461881    11.74   0.000     .4516557    .6329296
-          5  |   .7656458   .0462201    16.57   0.000     .6749462    .8563454
-          6  |   .9441123   .0466213    20.25   0.000     .8526255    1.035599
-          7  |   1.110485   .0462219    24.03   0.000     1.019782    1.201188
-          8  |   1.391892   .0456709    30.48   0.000      1.30227    1.481514
-          9  |   1.569177   .0458476    34.23   0.000     1.479208    1.659145
-         10  |   1.798732   .0457135    39.35   0.000     1.709027    1.888438
-         11  |   1.944693    .045547    42.70   0.000     1.855314    2.034071
-         12  |   2.118919   .0472219    44.87   0.000     2.026253    2.211584
-         13  |   2.358402   .0486343    48.49   0.000     2.262965    2.453839
-         14  |   2.508353   .0471617    53.19   0.000     2.415806    2.600901
-         15  |   2.743864   .0474198    57.86   0.000      2.65081    2.836918
-         16  |    2.96558   .0471802    62.86   0.000     2.872996    3.058164
-         17  |   3.171225    .048172    65.83   0.000     3.076695    3.265755
-         18  |   3.334319   .0476294    70.01   0.000     3.240854    3.427784
-         19  |   3.537133   .0477691    74.05   0.000     3.443394    3.630872
-         20  |   3.737882   .0478568    78.11   0.000     3.643971    3.831794
-             |
-       _cons |   .2224166   .0715959     3.11   0.002      .081921    .3629121
 ------------------------------------------------------------------------------
 
 . *Use reghdfe as the underlying estimation command
@@ -2986,11 +2958,11 @@ You have specified the cohort or the sunabraham option
 Event-time coefficients will be estimated with the Interaction Weighted Estimator of Sun and Abraham (2021)
 
 HDFE Linear regression                                  Number of obs = 20,000
-Absorbing 2 HDFE groups                                 F(13, 999)    = 619.55
+Absorbing 2 HDFE groups                                 F(186, 999)   = 121.84
                                                         Prob > F      = 0.0000
-                                                        R-squared     = 0.8019
-                                                        Adj R-squared = 0.7911
-                                                        Root MSE      = 1.0026
+                                                        R-squared     = 0.8038
+                                                        Adj R-squared = 0.7913
+                                                        Root MSE      = 1.0022
                                   (Std. err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
@@ -3008,8 +2980,6 @@ Absorbing 2 HDFE groups                                 F(13, 999)    = 619.55
     _k_eq_p4 |   .9859918   .0858694    11.48   0.000     .8174868    1.154497
     _k_eq_p5 |    1.13976   .0897592    12.70   0.000     .9636221    1.315899
     _k_eq_p6 |   .9998216   .0842215    11.87   0.000     .8345503    1.165093
-         eta |   .2525003   .0046472    54.33   0.000     .2433809    .2616196
-       _cons |   2.072326   .0593099    34.94   0.000     1.955939    2.188712
 ------------------------------------------------------------------------------
 
 . * Automatic generation of cohort and control_cohort variables
@@ -3025,11 +2995,11 @@ Event-time coefficients will be estimated with the Interaction Weighted Estimato
 Control cohort not specified. Using values with cohort variable == . as the control cohort
 
 HDFE Linear regression                                  Number of obs = 20,000
-Absorbing 2 HDFE groups                                 F(13, 999)    = 619.55
+Absorbing 2 HDFE groups                                 F(186, 999)   = 121.84
                                                         Prob > F      = 0.0000
-                                                        R-squared     = 0.8019
-                                                        Adj R-squared = 0.7911
-                                                        Root MSE      = 1.0026
+                                                        R-squared     = 0.8038
+                                                        Adj R-squared = 0.7913
+                                                        Root MSE      = 1.0022
                                   (Std. err. adjusted for 1,000 clusters in i)
 ------------------------------------------------------------------------------
              |               Robust
@@ -3047,8 +3017,6 @@ Absorbing 2 HDFE groups                                 F(13, 999)    = 619.55
     _k_eq_p4 |   .9859918   .0858694    11.48   0.000     .8174868    1.154497
     _k_eq_p5 |    1.13976   .0897592    12.70   0.000     .9636221    1.315899
     _k_eq_p6 |   .9998216   .0842215    11.87   0.000     .8345503    1.165093
-         eta |   .2525003   .0046472    54.33   0.000     .2433809    .2616196
-       _cons |   2.072326   .0593099    34.94   0.000     1.955939    2.188712
 ------------------------------------------------------------------------------
 
 . 
@@ -3066,7 +3034,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7545
                                                     Adj R-squared     = 0.7231
                                                     Root MSE          = 0.9954
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -3096,7 +3063,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.314217   .1041623    12.62   0.000     1.110031    1.518402
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 . xteventplot, overlay(trend)
 
@@ -3329,7 +3295,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7090
                                                     Adj R-squared     = 0.6718
                                                     Root MSE          = 0.9954
-
 ------------------------------------------------------------------------------
           y2 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -3359,7 +3324,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.314217   .1041623    12.62   0.000     1.110031    1.518402
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 . xteventplot, overlay(trend) trendplotopts(lcolor(red))
 
@@ -6914,7 +6878,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7320
                                                     Adj R-squared     = 0.6978
                                                     Root MSE          = 1.0399
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -6943,7 +6906,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.936722   .1061248    18.25   0.000     1.728689    2.144754
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7980) = 11.903          Prob > F = 0.000
 
 . 
 . * Test overlay plot
@@ -6984,13 +6946,12 @@ option nonormlabel has been specified. The label for the value of the dependent 
 
 No proxy or instruments provided. Implementing OLS estimator
 
-      Source |       SS           df       MS      Number of obs   =     9,000
--------------+----------------------------------   F(20, 8979)     =    223.83
-       Model |  10714.0449        20  535.702247   Prob > F        =    0.0000
-    Residual |  21489.5662     8,979  2.39331398   R-squared       =    0.3327
--------------+----------------------------------   Adj R-squared   =    0.3312
-       Total |  32203.6112     8,999  3.57857664   Root MSE        =     1.547
-
+Linear regression                                       Number of obs =  9,000
+                                                        F(20, 8979)   = 223.83
+                                                        Prob > F      = 0.0000
+                                                        R-squared     = 0.3327
+                                                        Adj R-squared = 0.3312
+                                                        Root MSE      = 1.5470
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7024,13 +6985,12 @@ No proxy or instruments provided. Implementing OLS estimator
 
 No proxy or instruments provided. Implementing OLS estimator
 
-      Source |       SS           df       MS      Number of obs   =     9,000
--------------+----------------------------------   F(12, 8987)     =    294.16
-       Model |  9081.69274        12  756.807728   Prob > F        =    0.0000
-    Residual |  23121.9184     8,987  2.57281834   R-squared       =    0.2820
--------------+----------------------------------   Adj R-squared   =    0.2810
-       Total |  32203.6112     8,999  3.57857664   Root MSE        =     1.604
-
+Linear regression                                       Number of obs =  9,000
+                                                        F(12, 8987)   = 294.16
+                                                        Prob > F      = 0.0000
+                                                        R-squared     = 0.2820
+                                                        Adj R-squared = 0.2810
+                                                        Root MSE      = 1.6040
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7062,7 +7022,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7320
                                                     Adj R-squared     = 0.6978
                                                     Root MSE          = 1.0399
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7091,7 +7050,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.936722   .1061248    18.25   0.000     1.728689    2.144754
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7980) = 11.903          Prob > F = 0.000
 
 . des a_eq*, s
 
@@ -7136,7 +7094,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7323
                                                     Adj R-squared     = 0.6975
                                                     Root MSE          = 1.0404
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7183,7 +7140,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   2.025283   .1901152    10.65   0.000     1.652608    2.397959
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7964) = 11.888          Prob > F = 0.000
 
 . cap drop pois
 
@@ -7200,7 +7156,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7410
                                                     Adj R-squared     = 0.7079
                                                     Root MSE          = 1.0225
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7232,7 +7187,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.626315    .106004    15.34   0.000      1.41852    1.834111
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7979) = 9.944           Prob > F = 0.000
 
 . 
 . * Test asymmetric window
@@ -7249,7 +7203,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7425
                                                     Adj R-squared     = 0.7097
                                                     Root MSE          = 1.0393
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7278,7 +7231,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   2.120945   .1026868    20.65   0.000     1.919652    2.322238
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7980) = 12.245          Prob > F = 0.000
 
 . 
 . * Test overlay plot
@@ -7293,7 +7245,6 @@ Absorbed variable: i                                No. of categories =  1,000
                                                     R-squared         = 0.7320
                                                     Adj R-squared     = 0.6978
                                                     Root MSE          = 1.0399
-
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
@@ -7322,7 +7273,6 @@ Absorbed variable: i                                No. of categories =  1,000
              |
        _cons |   1.936722   .1061248    18.25   0.000     1.728689    2.144754
 ------------------------------------------------------------------------------
-F test of absorbed indicators: F(999, 7980) = 11.903          Prob > F = 0.000
 
 . xteventplot, overlay(trend)
 
