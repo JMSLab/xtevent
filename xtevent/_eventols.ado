@@ -255,7 +255,7 @@ program define _eventols, rclass
 		}
 	}
 	else loc indepvars ""
-		
+	
 	******** SA *******
 	if "`sun_abraham'"!=""{
 
@@ -587,18 +587,25 @@ program define _eventols, rclass
 
 		* Get vector of other coefficients, and their variance
 		tempname Omegapsi_st Omegadeltapsi_st Valladj gmm_trcoefs
-		loc deltanames : colnames(`delta')
-		loc deltanames1: word 1 of `deltanames'
-		loc deltanamesw: word count `deltanames'
-		loc deltanamesl: word `deltanamesw' of `deltanames'
-		loc Vnames : colnames(`VV')
-		loc psinames: list Vnames - deltanames
-		loc psinames1 : word 1 of `psinames'
-		mat psi = `bb'[1,"`psinames1'"...]
-		mat `Omegapsi_st' = `VV'["`psinames1'"...,"`psinames1'"...]
-		mat `Omegadeltapsi_st' = `VV'["`deltanames1'".."`deltanamesl'","`psinames1'"...]
+		* Check whether output included covariates 
+		local bnames : colnames e(b)
+		loc covars: list bnames - included
+		if "`covars'"!="" loc icovars 1
+		else  loc icovars 0
+		if `icovars'==1 { 
+			loc deltanames : colnames(`delta')
+			loc deltanames1: word 1 of `deltanames'
+			loc deltanamesw: word count `deltanames'
+			loc deltanamesl: word `deltanamesw' of `deltanames'
+			loc Vnames : colnames(`VV')
+			loc psinames: list Vnames - deltanames
+			loc psinames1 : word 1 of `psinames'
+			mat psi = `bb'[1,"`psinames1'"...]
+			mat `Omegapsi_st' = `VV'["`psinames1'"...,"`psinames1'"...]
+			mat `Omegadeltapsi_st' = `VV'["`deltanames1'".."`deltanamesl'","`psinames1'"...]	
+		}
 		
-		mata: adjdelta(`gmmtrendsc',`lwindow',`rwindow',"`deltatoadj'","`Vdelta'","`Vtoadj'","`delta'","`Omegapsi_st'","`Omegadeltapsi_st'","`gmm_trcoefs'","`deltaadj'","`Vadj'","`Valladj'")
+		mata: adjdelta(`gmmtrendsc',`lwindow',`rwindow', `icovars',"`deltatoadj'","`Vdelta'","`Vtoadj'","`delta'","`Omegapsi_st'","`Omegadeltapsi_st'","`gmm_trcoefs'","`deltaadj'","`Vadj'","`Valladj'")
 
 		* Post the new results 
 		loc dnames : colnames(`delta')
@@ -949,6 +956,7 @@ mata
 	void adjdelta( real scalar trend,
 					real scalar lwindow,
 					real scalar rwindow,
+					real scalar icovars,
 					string scalar getDeltaL,
 					string scalar getOmega,
 					string scalar getOmegaL,
@@ -969,8 +977,10 @@ mata
 	delta = st_matrix(getdelta)
 	delta = delta'
 	
-	Omegapsi=st_matrix(getOmegapsi)
-	Omegadeltapsi=st_matrix(getOmegadeltapsi)
+	if (icovars == 1) {
+		Omegapsi=st_matrix(getOmegapsi)
+		Omegadeltapsi=st_matrix(getOmegadeltapsi)
+	}
 	/*
 	deltaL
 	Omega
@@ -1007,10 +1017,14 @@ mata
 	
 	/* Get variance of entire adjusted vector. Other coefs do not change but their covariance with delta does */
 	V_star11 = (I(rows(delta)) - H*Lambda)* Omega * (I(rows(delta)) - Lambda'*H')
-	V_star12 = (I(rows(delta)) - H*Lambda) * Omegadeltapsi
-	V_star21 = Omegadeltapsi' * (I(rows(delta)) - Lambda'*H') 
-	V_star22 = Omegapsi
-	V_star = (V_star11,V_star12\V_star21,V_star22)
+	if (icovars == 1) {
+		V_star12 = (I(rows(delta)) - H*Lambda) * Omegadeltapsi
+		V_star21 = Omegadeltapsi' * (I(rows(delta)) - Lambda'*H') 
+		V_star22 = Omegapsi
+		V_star = (V_star11,V_star12\V_star21,V_star22)
+	}
+	else V_star = V_star11
+
 	/* Average to kill eps errors */
 	V_star = 0.5*(V_star + V_star') 
 	
