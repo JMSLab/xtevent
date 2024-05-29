@@ -350,10 +350,14 @@ program define xtevent, eclass
 		loc sun_abraham = r(sun_abraham)
 		if "`sun_abraham'"=="." loc sun_abraham ""
 		if "`sun_abraham'"!="" {
+			mat b_ir = r(b_ir)
+			mat V_ir = r(V_ir)
 			mat b_interact = r(b_interact)
 			mat V_interact = r(V_interact)
 			mat ff_w = r(ff_w)
 			mat Sigma_ff = r(Sigma_ff)
+			ereturn matrix b_ir = b_ir
+			ereturn matrix V_ir = V_ir
 			ereturn matrix b_interact = b_interact
 			ereturn matrix V_interact = V_interact
 			ereturn matrix ff_w = ff_w

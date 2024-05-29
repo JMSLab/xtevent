@@ -384,10 +384,10 @@ program define _eventols, rclass
 				qui gen `n`n`l''_`yy''  = (`cohortvar' == `yy') * `n`l' '
 				// TODO: might be more efficient to use the c. operator if format w/o missing
 				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
-				if "`saveint'"!=""{
-					loc lnumber : subinstr local l "_k_eq_" ""					
+				loc lnumber : subinstr local l "_k_eq_" ""
+				loc interact_varlist "`interact_varlist' _interact_`lnumber'_c`yy'"
+				if "`saveint'"!=""{				
 					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
-					loc interact_varlist "`interact_varlist' _interact_`lnumber'_c`yy'"
 				}
 			}
 		}
@@ -547,8 +547,34 @@ program define _eventols, rclass
 		matrix rownames `evt_bb' =  `cohort_list'
 		matrix colnames `evt_VV' =  `dvarlist'
 		matrix rownames `evt_VV' =  `cohort_list'
+		
+		*save b and V from the interacted regression 
+		tempname b_ir V_ir
+		mat `b_ir' = e(b)
+		mat `V_ir' = e(V)
+		loc n_interact_varlist = wordcount("`interact_varlist'")
+		loc b_ir_cl : colnames `b_ir'
+		loc n_b_ir_cl = wordcount("`b_ir_cl'")
 
-		*insert SA's estimations into base regresion
+		loc b_ir_varlist = ""
+		forvalues i=1/`n_b_ir_cl' {
+			if `i' <= `n_interact_varlist' {
+				loc j = word("`interact_varlist'" ,`i')
+				loc h = word("`b_ir_cl'", `i')
+				loc k = regexr("`h'", "__\w+", "`j'")
+				loc b_ir_varlist = "`b_ir_varlist' `k'"
+			}
+			else {
+				loc k = word("`b_ir_cl'" ,`i')
+				loc b_ir_varlist = "`b_ir_varlist' `k'"
+			}
+		}
+
+		matrix colnames `b_ir' = `b_ir_varlist'
+		matrix rownames `V_ir' = `b_ir_varlist'
+		matrix colnames `V_ir' = `b_ir_varlist'
+		
+		*replace b and V in the interacted regression
 		
 		tempname est_sun_abraham
 		repostdelta `b_iw' `V_iw'
@@ -929,8 +955,10 @@ program define _eventols, rclass
 	return local y1 = `y1'
 	return local depvar = "`depvar'"
 	if "`sun_abraham'"!=""{
-		return matrix b_interact `evt_bb' //interactions: cohort-relative time effects
-		return matrix V_interact `evt_VV' // variance of the interactions
+		return matrix b_ir `b_ir' // coefficients of variables in the interacted regression 
+		return matrix V_ir `V_ir' // covariance matrix of variables in the interacted regression 
+		return matrix b_interact `evt_bb' //cohort-specific effect for the given relative time
+		return matrix V_interact `evt_VV' // variance estimate of the cohort-specific effect estimator 
 		return matrix ff_w `ff_w' //cohort shares
 		return matrix Sigma_ff `Sigma_ff' //variance estimate of the cohort share estimators
 		return loc sun_abraham = "sun_abraham"
