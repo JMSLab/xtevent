@@ -455,11 +455,14 @@ See {help get_unit_time_effects}. For fixed-effects estimation, {opt repeatedcs}
 {synopt:{cmd:e(Vdeltaov)}} variance-covariance matrix of event-study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
-{synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(ff_w)}} Each column vector contains estimates of cohort shares underlying the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(V_interact)}} each column vector contains variance estimate of the cohort-specific effect estimator for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(b_ir)}} each column vector contains estimates of each cohort-relative-time interaction and controls included in the interaction regression. The interaction variables are named {it:_interact_m#_c#} or {it:_interact_p#_c#}, 
+where {it:m#} indicates {it:#} periods before the policy change, {it:p#} indicates {it:#} periods after the policy change, and {it:c#} indicates the cohort. Available only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(V_ir)}} covariance matrix of the cohort-relative-time interactions and controls included in the interaction regression. The interaction variables are named {it:_interact_m#_c#} or {it:_interact_p#_c#}, 
+where {it:m#} indicates {it:#} periods before the policy change, {it:p#} indicates {it:#} periods after the policy change, and {it:c#} indicates the cohort. Available only when {opt cohort} and {opt control_cohort} are specified{p_end}
 {synopt:{cmd:e(b_interact)}} each column vector contains estimates of cohort-specific effect for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
-
+{synopt:{cmd:e(V_interact)}} each column vector contains variance estimate of the cohort-specific effect estimator for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(ff_w)}} Each column vector contains estimates of cohort shares underlying the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort} are specified{p_end}
 
 {synoptset 20 tabbed}{...}
 {p2col 5 20 24 2: Functions}{p_end}

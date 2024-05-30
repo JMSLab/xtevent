@@ -255,7 +255,7 @@ program define _eventols, rclass
 		}
 	}
 	else loc indepvars ""
-		
+	
 	******** SA *******
 	if "`sun_abraham'"!=""{
 
@@ -384,10 +384,10 @@ program define _eventols, rclass
 				qui gen `n`n`l''_`yy''  = (`cohortvar' == `yy') * `n`l' '
 				// TODO: might be more efficient to use the c. operator if format w/o missing
 				local cohort_rel_varlist "`cohort_rel_varlist' `n`n`l''_`yy''"
-				if "`saveint'"!=""{
-					loc lnumber : subinstr local l "_k_eq_" ""					
+				loc lnumber : subinstr local l "_k_eq_" ""
+				loc interact_varlist "`interact_varlist' _interact_`lnumber'_c`yy'"
+				if "`saveint'"!=""{				
 					qui gen _interact_`lnumber'_c`yy' = `n`n`l''_`yy''
-					loc interact_varlist "`interact_varlist' _interact_`lnumber'_c`yy'"
 				}
 			}
 		}
@@ -422,10 +422,10 @@ program define _eventols, rclass
 				loc abs "absorb(`i')"
 				loc cmd "areg"
 			}
-		
+			if "`sun_abraham'"=="" {
 			`q' `cmd' `depenvar' `included' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
-			_estimates hold `reg_base', copy
-			if "`sun_abraham'"!=""{
+			}
+			else {
 				qui `cmd' `depenvar' `cohort_rel_varlist' `indepvars' `te' `ttrend' [`weight'`exp'] if `touse', `abs' `options'
 			}			
 		}
@@ -465,9 +465,10 @@ program define _eventols, rclass
 			else {
 				loc abs "absorb(`i' `t' `addabsorb')"	
 			}
+			if "`sun_abraham'"=="" {
 			`q' reghdfe `depenvar' `included' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
-			_estimates hold `reg_base', copy
-			if "`sun_abraham'"!=""{
+			}
+			else {
 				qui reghdfe `depenvar' `cohort_rel_varlist' `indepvars' `ttrend' [`weight'`exp'] if `touse', `abs' `noabsorb' `options'
 			}
 		}
@@ -546,22 +547,37 @@ program define _eventols, rclass
 		matrix rownames `evt_bb' =  `cohort_list'
 		matrix colnames `evt_VV' =  `dvarlist'
 		matrix rownames `evt_VV' =  `cohort_list'
+		
+		*save b and V from the interacted regression 
+		tempname b_ir V_ir
+		mat `b_ir' = e(b)
+		mat `V_ir' = e(V)
+		loc n_interact_varlist = wordcount("`interact_varlist'")
+		loc b_ir_cl : colnames `b_ir'
+		loc n_b_ir_cl = wordcount("`b_ir_cl'")
 
-		*insert SA's estimations into base regresion
-		tempname b_sa_adj v_sa_adj est_sun_abraham
-		_estimates unhold `reg_base'
-		mat `b_sa_adj'=e(b)
-		mat `v_sa_adj'=e(V)
-
-		loc deltanames : colnames(`b_iw')
-		foreach i in `deltanames' {
-			mat `b_sa_adj'[1,colnumb("`b_sa_adj'","`i'")]=`b_iw'[1,"`i'"]
-			foreach j in `deltanames' {
-			mat `v_sa_adj'[rownumb("`v_sa_adj'","`j'"),colnumb("`v_sa_adj'","`i'")]= `V_iw'["`j'","`i'"]	
+		loc b_ir_varlist = ""
+		forvalues i=1/`n_b_ir_cl' {
+			if `i' <= `n_interact_varlist' {
+				loc j = word("`interact_varlist'" ,`i')
+				loc h = word("`b_ir_cl'", `i')
+				loc k = regexr("`h'", "__\w+", "`j'")
+				loc b_ir_varlist = "`b_ir_varlist' `k'"
+			}
+			else {
+				loc k = word("`b_ir_cl'" ,`i')
+				loc b_ir_varlist = "`b_ir_varlist' `k'"
 			}
 		}
 
-		repostdelta `b_sa_adj' `v_sa_adj'
+		matrix colnames `b_ir' = `b_ir_varlist'
+		matrix rownames `V_ir' = `b_ir_varlist'
+		matrix colnames `V_ir' = `b_ir_varlist'
+		
+		*replace b and V in the interacted regression
+		
+		tempname est_sun_abraham
+		repostdelta `b_iw' `V_iw'
 		* Display results	
 		if "`methodt'"=="gmm" loc qq "quietly" 
 		`qq' _coef_table_header
@@ -597,18 +613,25 @@ program define _eventols, rclass
 
 		* Get vector of other coefficients, and their variance
 		tempname Omegapsi_st Omegadeltapsi_st Valladj gmm_trcoefs
-		loc deltanames : colnames(`delta')
-		loc deltanames1: word 1 of `deltanames'
-		loc deltanamesw: word count `deltanames'
-		loc deltanamesl: word `deltanamesw' of `deltanames'
-		loc Vnames : colnames(`VV')
-		loc psinames: list Vnames - deltanames
-		loc psinames1 : word 1 of `psinames'
-		mat psi = `bb'[1,"`psinames1'"...]
-		mat `Omegapsi_st' = `VV'["`psinames1'"...,"`psinames1'"...]
-		mat `Omegadeltapsi_st' = `VV'["`deltanames1'".."`deltanamesl'","`psinames1'"...]
+		* Check whether output included covariates 
+		local bnames : colnames e(b)
+		loc covars: list bnames - included
+		if "`covars'"!="" loc icovars 1
+		else  loc icovars 0
+		if `icovars'==1 { 
+			loc deltanames : colnames(`delta')
+			loc deltanames1: word 1 of `deltanames'
+			loc deltanamesw: word count `deltanames'
+			loc deltanamesl: word `deltanamesw' of `deltanames'
+			loc Vnames : colnames(`VV')
+			loc psinames: list Vnames - deltanames
+			loc psinames1 : word 1 of `psinames'
+			mat psi = `bb'[1,"`psinames1'"...]
+			mat `Omegapsi_st' = `VV'["`psinames1'"...,"`psinames1'"...]
+			mat `Omegadeltapsi_st' = `VV'["`deltanames1'".."`deltanamesl'","`psinames1'"...]	
+		}
 		
-		mata: adjdelta(`gmmtrendsc',`lwindow',`rwindow',"`deltatoadj'","`Vdelta'","`Vtoadj'","`delta'","`Omegapsi_st'","`Omegadeltapsi_st'","`gmm_trcoefs'","`deltaadj'","`Vadj'","`Valladj'")
+		mata: adjdelta(`gmmtrendsc',`lwindow',`rwindow', `icovars',"`deltatoadj'","`Vdelta'","`Vtoadj'","`delta'","`Omegapsi_st'","`Omegadeltapsi_st'","`gmm_trcoefs'","`deltaadj'","`Vadj'","`Valladj'")
 
 		* Post the new results 
 		loc dnames : colnames(`delta')
@@ -650,7 +673,8 @@ program define _eventols, rclass
 		*repostdelta `bbadj' `VVadj'
 		repostdelta `bbadj' `VValladj'
 		
-		`cmd'
+		_coef_table_header
+		_coef_table , bmatrix(e(b)) vmatrix(e(V))
 		
 	}
 	
@@ -931,8 +955,10 @@ program define _eventols, rclass
 	return local y1 = `y1'
 	return local depvar = "`depvar'"
 	if "`sun_abraham'"!=""{
-		return matrix b_interact `evt_bb' //interactions: cohort-relative time effects
-		return matrix V_interact `evt_VV' // variance of the interactions
+		return matrix b_ir `b_ir' // coefficients of variables in the interacted regression 
+		return matrix V_ir `V_ir' // covariance matrix of variables in the interacted regression 
+		return matrix b_interact `evt_bb' //cohort-specific effect for the given relative time
+		return matrix V_interact `evt_VV' // variance estimate of the cohort-specific effect estimator 
 		return matrix ff_w `ff_w' //cohort shares
 		return matrix Sigma_ff `Sigma_ff' //variance estimate of the cohort share estimators
 		return loc sun_abraham = "sun_abraham"
@@ -958,6 +984,7 @@ mata
 	void adjdelta( real scalar trend,
 					real scalar lwindow,
 					real scalar rwindow,
+					real scalar icovars,
 					string scalar getDeltaL,
 					string scalar getOmega,
 					string scalar getOmegaL,
@@ -978,8 +1005,10 @@ mata
 	delta = st_matrix(getdelta)
 	delta = delta'
 	
-	Omegapsi=st_matrix(getOmegapsi)
-	Omegadeltapsi=st_matrix(getOmegadeltapsi)
+	if (icovars == 1) {
+		Omegapsi=st_matrix(getOmegapsi)
+		Omegadeltapsi=st_matrix(getOmegadeltapsi)
+	}
 	/*
 	deltaL
 	Omega
@@ -1016,10 +1045,14 @@ mata
 	
 	/* Get variance of entire adjusted vector. Other coefs do not change but their covariance with delta does */
 	V_star11 = (I(rows(delta)) - H*Lambda)* Omega * (I(rows(delta)) - Lambda'*H')
-	V_star12 = (I(rows(delta)) - H*Lambda) * Omegadeltapsi
-	V_star21 = Omegadeltapsi' * (I(rows(delta)) - Lambda'*H') 
-	V_star22 = Omegapsi
-	V_star = (V_star11,V_star12\V_star21,V_star22)
+	if (icovars == 1) {
+		V_star12 = (I(rows(delta)) - H*Lambda) * Omegadeltapsi
+		V_star21 = Omegadeltapsi' * (I(rows(delta)) - Lambda'*H') 
+		V_star22 = Omegapsi
+		V_star = (V_star11,V_star12\V_star21,V_star22)
+	}
+	else V_star = V_star11
+
 	/* Average to kill eps errors */
 	V_star = 0.5*(V_star + V_star') 
 	
@@ -1040,7 +1073,8 @@ mata
 end
 
 program define repostdelta, eclass
-	ereturn repost b=`1' V=`2'
+	*https://www.statalist.org/forums/forum/general-stata-discussion/general/1496551-ereturn-repost-resize-displays-resize-option-not-allowed
+	ereturn post `1' `2', noclear
 end
 
 * Program to parse trend
