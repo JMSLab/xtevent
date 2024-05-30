@@ -270,7 +270,8 @@ option nozeroline has been specified. The reference line at 0 won't be displayed
 
 . xteventplot, nonormlabel
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . 
 . * Test combinations
@@ -284,7 +285,8 @@ option nozeroline has been specified. The reference line at 0 won't be displayed
 
 option noci has been specified. Confidence intervals won't be displayed
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . xteventplot, nosupt nozeroline
 
@@ -296,7 +298,8 @@ option nozeroline has been specified. The reference line at 0 won't be displayed
 
 option nosupt has been specified. Sup-t confidence intervals won't be displayed or calculated
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . 
 . * A common axis plot with labels
@@ -353,7 +356,8 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 . xteventplot, nonormlabel ylab(-3 0 `"0 (`lab')"' 3) name(g1) /* " */
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . xtevent y2 eta, policyvar(z) timevar(t) window(5)
 
@@ -406,7 +410,8 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 . xteventplot, nonormlabel ylab(-3 0 `"0 (`lab')"' 3) name(g2) /* " */
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . graph combine g1 g2
 
@@ -1009,7 +1014,7 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_eq_m6         double  %10.0g                Left endpoint
 a_eq_m5         double  %10.0g                Event-time = - 5
 a_eq_m4         double  %10.0g                Event-time = - 4
@@ -1028,7 +1033,7 @@ a_eq_p6         double  %10.0g                Right endpoint
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_evtime        long    %12.0g                
 
 . drop a*
@@ -1043,7 +1048,7 @@ No proxy or instruments provided. Implementing OLS estimator
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_eq_m6         double  %10.0g                Left endpoint
 a_eq_m5         double  %10.0g                Event-time = - 5
 a_eq_m4         double  %10.0g                Event-time = - 4
@@ -1062,7 +1067,7 @@ a_eq_p6         double  %10.0g                Right endpoint
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_evtime        long    %12.0g                
 
 . drop a*
@@ -1157,7 +1162,8 @@ Absorbed variable: i                                No. of categories =  1,000
 ------------------------------------------------------------------------------
 F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
-You specified to save the event-time dummy variables using the prefix b, but you already have event-time dummy variables saved with that prefix.
+You specified to save the event-time dummy variables using the prefix b, but you already have event-time dummy v
+> ariables saved with that prefix.
 
 Use the replace suboption to replace the existing variables.
 
@@ -1501,7 +1507,8 @@ The calculated window by window(balanced) is (-1,-1), plus the endpoints -2 and 
 
 Left window can not be positive and right window can not be negative.
 
-Check for first-treated units and last-treated units. Both types of units might have few common periods around treatment time which causes a narrow calculated window.
+Check for first-treated units and last-treated units. Both types of units might have few common periods around t
+> reatment time which causes a narrow calculated window.
 
 . 
 . * Test normalizations
@@ -1836,7 +1843,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -1914,7 +1922,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -1994,7 +2003,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -2066,7 +2076,8 @@ Absorbed degrees of freedom:
 . 
 . /*
 > *Test other standard-error specifications (not allowed)
-> xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(bootstrap) //will show an error message
+> xtevent y eta, policyvar(z) window(3) proxy(x) nofe note addabsorb(k) reghdfe vce(bootstrap) //will show an er
+> ror message
 > */
 . 
 . *Imputation of policyvar without verifying staggered adoption conditions
@@ -2404,8 +2415,9 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 Difference in pre and post-period averages from lincom:
 
- ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m2 + .1428571*_k_eq_p0 + .1428571*_k_eq_p1 + .1428571*_k_eq_p2 + .1428571*_k_eq_p3 +
-       .1428571*_k_eq_p4 + .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
+ ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m2 +
+       .1428571*_k_eq_p0 + .1428571*_k_eq_p1 + .1428571*_k_eq_p2 + .1428571*_k_eq_p3 + .1428571*_k_eq_p4 +
+       .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
 
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
@@ -2458,7 +2470,8 @@ F test of absorbed indicators: F(999, 9979) = 12.378          Prob > F = 0.000
 
 Difference in pre and post-period averages from lincom:
 
- ( 1)  - .2*_k_eq_m5 - .2*_k_eq_m4 - .2*_k_eq_m3 - .2*_k_eq_m2 + .1666667*_k_eq_p0 + .1666667*_k_eq_p1 + .1666667*_k_eq_p2 + .1666667*_k_eq_p3 + .1666667*_k_eq_p4 + .1666667*_k_eq_p5 = 0
+ ( 1)  - .2*_k_eq_m5 - .2*_k_eq_m4 - .2*_k_eq_m3 - .2*_k_eq_m2 + .1666667*_k_eq_p0 + .1666667*_k_eq_p1 +
+       .1666667*_k_eq_p2 + .1666667*_k_eq_p3 + .1666667*_k_eq_p4 + .1666667*_k_eq_p5 = 0
 
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
@@ -2511,8 +2524,9 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 Difference in pre and post-period averages from lincom:
 
- ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m2 - .1666667*_k_eq_m1 + .1428571*_k_eq_p0 + .1428571*_k_eq_p2 + .1428571*_k_eq_p3 +
-       .1428571*_k_eq_p4 + .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
+ ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m2 -
+       .1666667*_k_eq_m1 + .1428571*_k_eq_p0 + .1428571*_k_eq_p2 + .1428571*_k_eq_p3 + .1428571*_k_eq_p4 +
+       .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
 
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
@@ -2565,8 +2579,9 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 Difference in pre and post-period averages from lincom:
 
- ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m2 - .1666667*_k_eq_m1 + .1428571*_k_eq_p0 + .1428571*_k_eq_p1 + .1428571*_k_eq_p3 +
-       .1428571*_k_eq_p4 + .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
+ ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m2 -
+       .1666667*_k_eq_m1 + .1428571*_k_eq_p0 + .1428571*_k_eq_p1 + .1428571*_k_eq_p3 + .1428571*_k_eq_p4 +
+       .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
 
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
@@ -2619,8 +2634,9 @@ F test of absorbed indicators: F(999, 7979) = 10.317          Prob > F = 0.000
 
 Difference in pre and post-period averages from lincom:
 
- ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m1 + .1428571*_k_eq_p0 + .1428571*_k_eq_p1 + .1428571*_k_eq_p2 + .1428571*_k_eq_p3 +
-       .1428571*_k_eq_p4 + .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
+ ( 1)  - .1666667*_k_eq_m6 - .1666667*_k_eq_m5 - .1666667*_k_eq_m4 - .1666667*_k_eq_m3 - .1666667*_k_eq_m1 +
+       .1428571*_k_eq_p0 + .1428571*_k_eq_p1 + .1428571*_k_eq_p2 + .1428571*_k_eq_p3 + .1428571*_k_eq_p4 +
+       .1428571*_k_eq_p5 + .1428571*_k_eq_p6 = 0
 
 ------------------------------------------------------------------------------
            y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
@@ -2894,7 +2910,8 @@ F test of absorbed indicators: F(999, 7980) = 10.318          Prob > F = 0.000
 
 . 
 . *Estimate the event-time coefficients with the Sun-and-Abraham Estimator.
-. xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(variable time_of_treat) control_cohort(variable never_treat) 
+. xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(variable time_of_treat) control_
+> cohort(variable never_treat) 
 
 Using options panelvar and timevar from xtset
 
@@ -2930,7 +2947,8 @@ Absorbed variable: i                                No. of categories =  1,000
 ------------------------------------------------------------------------------
 
 . *Use reghdfe as the underlying estimation command
-. xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(variable time_of_treat) control_cohort(variable never_treat) reghdfe
+. xtevent y eta , policyvar(z) window(5) vce(cluster i) impute(nuchange) cohort(variable time_of_treat) control_
+> cohort(variable never_treat) reghdfe
 
 Using options panelvar and timevar from xtset
 
@@ -3319,7 +3337,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -3501,7 +3520,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -3794,7 +3814,8 @@ F test of absorbed indicators: F(45, 348) = 1.154             Prob > F = 0.240
 . xteventplot
 
 . 
-. *------------------------ 2.2: Replicate 2b and test basic funcionality without controls ----------------------------------
+. *------------------------ 2.2: Replicate 2b and test basic funcionality without controls ---------------------
+> -------------
 . 
 . * load panel dataset
 . use "example31.dta", clear
@@ -4043,7 +4064,8 @@ option nozeroline has been specified. The reference line at 0 won't be displayed
 
 . xteventplot, nonormlabel
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . 
 . * Test if/in
@@ -4562,7 +4584,7 @@ F test of absorbed indicators: F(999, 7980) = 11.903          Prob > F = 0.000
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_eq_m6         double  %10.0g                Left endpoint
 a_eq_m5         double  %10.0g                Event-time = - 5
 a_eq_m4         double  %10.0g                Event-time = - 4
@@ -4581,7 +4603,7 @@ a_eq_p6         double  %10.0g                Right endpoint
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_evtime        long    %12.0g                
 
 . drop a*
@@ -5122,7 +5144,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -5186,7 +5209,8 @@ Exogenous:  _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1 _k_eq_p2
 
 Proxy for the confound specified. Implementing FHS estimator
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -5478,7 +5502,8 @@ Smoothest path won't be displayed.
 
 Proxy for the confound specified. Implementing FHS estimator
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -5731,7 +5756,8 @@ Exogenous:  _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m2 _k_eq_p0 _k_eq_p1 _k_eq_p2
 
 Proxy for the confound specified. Implementing FHS estimator
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -5806,7 +5832,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -5876,7 +5903,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -5944,7 +5972,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6019,7 +6048,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6091,7 +6121,8 @@ option nozeroline has been specified. The reference line at 0 won't be displayed
 
 . xteventplot, nonormlabel
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . 
 . * Test if/in
@@ -6103,7 +6134,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6299,7 +6331,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6385,7 +6418,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6434,7 +6468,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6496,7 +6531,7 @@ Exogenous:  _k_eq_m6 _k_eq_m5 _k_eq_m4 _k_eq_m3 _k_eq_p0 _k_eq_p1 _k_eq_p2
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_eq_m6         double  %10.0g                Left endpoint
 a_eq_m5         double  %10.0g                Event-time = - 5
 a_eq_m4         double  %10.0g                Event-time = - 4
@@ -6515,7 +6550,7 @@ a_eq_p6         double  %10.0g                Right endpoint
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_evtime        long    %12.0g                
 
 . drop a_*
@@ -6533,7 +6568,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6624,7 +6660,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6689,7 +6726,8 @@ proxyiv=select. Selecting lead order of differenced policy variable to use as in
 
 Lead 1 selected.
 
-The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to 2.
+The corresponding coefficient of lead 1 and the normalized coefficient were the same. Lead 1 has been changed to
+>  2.
 
 The coefficient at -1 is normalized to zero.
 
@@ -6895,7 +6933,8 @@ option nozeroline has been specified. The reference line at 0 won't be displayed
 
 . xteventplot, nonormlabel
 
-option nonormlabel has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed
+option nonormlabel has been specified. The label for the value of the dependent variable at event time correspon
+> ding to the normalized coefficient won't be displayed
 
 . 
 . * Must fail
@@ -7016,7 +7055,7 @@ Absorbed variable: i                                No. of categories =  1,000
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_eq_m6         double  %10.0g                Left endpoint
 a_eq_m5         double  %10.0g                Event-time = - 5
 a_eq_m4         double  %10.0g                Event-time = - 4
@@ -7035,7 +7074,7 @@ a_eq_p6         double  %10.0g                Right endpoint
 
 Variable      Storage   Display    Value
     name         type    format    label      Variable label
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 a_evtime        long    %12.0g                
 
 . drop a_*
