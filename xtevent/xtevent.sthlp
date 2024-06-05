@@ -131,13 +131,13 @@ and {opt overidpost()} (See below).
 {opt pre},
 {opt post}, 
 {opt overidpre} and 
-{opt overidpost} offer an alternative way to specify the estimation window with {opt window(windowspec)}:
+{opt overidpost} offer an alternative way to specify the estimation window:
 
 {phang2} {opt pre} is the number of pre-event periods where anticipation effects are allowed. With {opt window}, {opt pre} is 0.
 
 {phang2} {opt post} is the number of post-event periods where policy effects are allowed. With {opt window}, {opt post} is the number
 of periods after the event (not including the period for the event, e.g. event time = 0), 
-except the lastest two periods (assigned to {opt overidpost} for the leveling off test).
+except the latest two periods (assigned to {opt overidpost} for the leveling-off test).
 
 {phang2} {opt overidpre} is the number of pre-event periods for an overidentification test of pre-trends. With {opt window}, {opt overidpre}
 is the number of periods before the event.
@@ -184,7 +184,7 @@ The default is to normalize the coefficient on -1.
 
 {phang}
 {opt diffavg} calculates the difference in averages between the post-event estimated coefficients and the pre-event estimated 
-coefficients periods. It also calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
+coefficients. It also calculates its standard error with {help lincom}. {opt diffavg} is not allowed with {opt static}.
 
 {phang}
 {opt savek(stub [, subopt])} saves variables for time-to-event, event-time, trend, and interaction variables. Event-time dummies are stored as 
@@ -199,7 +199,7 @@ policy change. The dummy variable for the policy change time is {it:stub}_eq_p0.
 users want to customize their regressions and plots.
 
 {phang2}
-{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort} are specified. {opt noe:stimate} and 
+{opt saveint:eract} saves interaction variables if {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified. {opt noe:stimate} and 
 {opt saveint:eract} cannot be specified simultaneously.
 
 {phang2}
@@ -247,12 +247,12 @@ either leads of the policy variable or additional variables as instruments. {opt
 {opt control_cohort} or {opt sunabraham}. 
 
 {phang2}
-{cmd:proxyiv(select)} is the default and selects the lead with the strongest first stage among all possible leads of the 
+{cmd:proxyiv(select)} selects the lead with the strongest first stage among all possible leads of the 
 differenced policy variable to be used as an instrument.
 {cmd:proxyiv(select)} is the default for the one proxy, one instrument case, and it is only available in this case. 
 
 {phang2}
-{cmd:proxyiv(# ...)} specifies a numlist with the leads of the differenced policy variable as instruments. For example, 
+{cmd:proxyiv(# ...)} specifies a {it: numlist} with the leads of the differenced policy variable as instruments. For example, 
 {cmd:proxyiv(1 2)} specifies that the two first leads of the difference of the policy variable will be used as instruments.
 
 {phang2}
@@ -295,7 +295,7 @@ By default, {cmd:xtevent} checks for consistency of the cohort variable and the 
 skip this check. This can be useful when estimating heterogenous treatment effects across groups not defined by treatment cohorts.
 
 {phang2}
-{cmd:cohort(create},{cmd: [,save replace]})  asks {cmd:xtevent} to create the categorical treatment cohort variable based on values of the policy variable.
+{cmd:cohort(create},{cmd: [,save replace]}) asks {cmd:xtevent} to create the categorical treatment cohort variable based on values of the policy variable.
 {opt save} adds the new cohort variable to the dataset as {it: policyvar_cohort}. {opt replace} replaces the cohort variable if it already exists. 
 The automatic creation of the cohort variable is only available in the staggered adoption case. 
  
@@ -423,8 +423,8 @@ See {help get_unit_time_effects}. For fixed-effects estimation, {opt repeatedcs}
 {synoptset 20 tabbed}{...}
 {p2col 5 20 24 2: Macros}{p_end}
 {synopt:{cmd:e(names)}}names of the variables for the event-time dummies{p_end}
-{synopt:{cmd:e(y1)}}mean of dependent variable et event-time = -1{p_end}
-{synopt:{cmd:e(x1)}}mean of proxy variable et event-time = -1, when only one proxy is specified{p_end}
+{synopt:{cmd:e(y1)}}mean of dependent variable at event-time = -1{p_end}
+{synopt:{cmd:e(x1)}}mean of proxy variable at event-time = -1, when only one proxy is specified{p_end}
 {synopt:{cmd:e(trend)}}"trend" if estimation included extrapolation of a linear trend{p_end}
 {synopt:{cmd:e(trendmethod)}}method used to estimate the linear trend: can be "ols" or "gmm"{p_end}
 {synopt:{cmd:e(cmd)}}estimation command: can be {help regress}, {help areg}, {help ivregress}, {help xtivreg}, or {help reghdfe}
@@ -455,14 +455,12 @@ See {help get_unit_time_effects}. For fixed-effects estimation, {opt repeatedcs}
 {synopt:{cmd:e(Vdeltaov)}} variance-covariance matrix of event-study coefficients for overlay plot{p_end}
 {synopt:{cmd:e(mattrendy)}} matrix with y-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
 {synopt:{cmd:e(mattrendx)}} matrix with x-axis values of trend for overlay plot, only when {opt trend(#1)} is specified{p_end}
-{synopt:{cmd:e(b_ir)}} each column vector contains estimates of each cohort-relative-time interaction and controls included in the interaction regression. The interaction variables are named {it:_interact_m#_c#} or {it:_interact_p#_c#}, 
-where {it:m#} indicates {it:#} periods before the policy change, {it:p#} indicates {it:#} periods after the policy change, and {it:c#} indicates the cohort. Available only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(V_ir)}} covariance matrix of the cohort-relative-time interactions and controls included in the interaction regression. The interaction variables are named {it:_interact_m#_c#} or {it:_interact_p#_c#}, 
-where {it:m#} indicates {it:#} periods before the policy change, {it:p#} indicates {it:#} periods after the policy change, and {it:c#} indicates the cohort. Available only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(b_interact)}} each column vector contains estimates of cohort-specific effect for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(V_interact)}} each column vector contains variance estimate of the cohort-specific effect estimator for the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(ff_w)}} Each column vector contains estimates of cohort shares underlying the given relative time, only when {opt cohort} and {opt control_cohort} are specified{p_end}
-{synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort} are specified{p_end}
+{synopt:{cmd:e(b_ir)}} each column vector contains estimates of each cohort-relative-time interaction and controls included in the interaction regression. The interaction variables are named {it:_interact_m#_c#} or {it:_interact_p#_c#}, where {it:m#} indicates {it:#} periods before the policy change, {it:p#} indicates {it:#} periods after the policy change, and {it:c#} indicates the cohort. Available only when {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified{p_end}
+{synopt:{cmd:e(V_ir)}} covariance matrix of the cohort-relative-time interactions and controls included in the interaction regression. The interaction variables are named {it:_interact_m#_c#} or {it:_interact_p#_c#}, where {it:m#} indicates {it:#} periods before the policy change, {it:p#} indicates {it:#} periods after the policy change, and {it:c#} indicates the cohort. Available only when {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified{p_end}
+{synopt:{cmd:e(b_interact)}} each column vector contains estimates of cohort-specific effect for the given relative time, only when {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified{p_end}
+{synopt:{cmd:e(V_interact)}} each column vector contains variance estimate of the cohort-specific effect estimator for the given relative time, only when {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified{p_end}
+{synopt:{cmd:e(ff_w)}} each column vector contains estimates of cohort shares underlying the given relative time, only when {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified{p_end}
+{synopt:{cmd:e(Sigma_ff)}} variance estimate of the cohort share estimators, only when {opt cohort} and {opt control_cohort}, or {opt sunabraham} are specified{p_end}
 
 {synoptset 20 tabbed}{...}
 {p2col 5 20 24 2: Functions}{p_end}
