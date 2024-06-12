@@ -107,7 +107,7 @@ program define xteventplot
 	}
 	
 	if "`ci'"=="noci" di as txt _n "option {bf:noci} has been specified. Confidence intervals won't be displayed"
-	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence intervals won't be displayed or calculated"
+	if "`supt'"=="nosupt" di as txt _n "option {bf:nosupt} has been specified. Sup-t confidence bands won't be displayed or calculated"
 	if "`nozeroline'"=="nozeroline" di as txt _n "option {bf:nozeroline} has been specified. The reference line at 0 won't be displayed"
 	if "`nonormlabel'"=="nonormlabel" di as txt _n "option {bf:nonormlabel} has been specified. The label for the value of the dependent variable at event time corresponding to the normalized coefficient won't be displayed"
 	if "`prepval'"=="noprepval" di as txt _n "option {bf:noprepval} has been specified. The p-value for a pretrends test won't be displayed"
@@ -369,7 +369,7 @@ program define xteventplot
 		if "`ci'"!="noci" {
 			if "`supt'"!="nosupt" {
 				if  "`levels'"!=""  {
-					di _n "Note: Sup-t confidence interval drawn for system confidence level = `=c(level)'"
+					di _n "Note: Sup-t confidence band drawn for system confidence level = `=c(level)'"
 				}
 				loc level=c(level)/100
 				mata: supt(`suptreps',"`se'","`V'",`level')

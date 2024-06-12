@@ -23,7 +23,7 @@
 {synopthdr}
 {synoptline}
 {syntab:Main}
-{synopt:{opth suptreps(integer)}} number of repetitions for sup-t confidence intervals{p_end}
+{synopt:{opth suptreps(integer)}} number of repetitions for sup-t confidence bands{p_end}
 {synopt:{opt overlay(string)}} generate overlay plots{p_end}
 {synopt:{opt y}} generate event study plot for dependent variable in IV setting{p_end}
 {synopt:{opt proxy}} generate event study plot for proxy variable in IV setting{p_end}
@@ -33,15 +33,15 @@
 {synopt:{opt overidpost(integer)}} change post-event coefficients to be tested{p_end}
 
 {syntab:Appearance}
-{synopt: {opt noci}} omit all confidence intervals{p_end}
-{synopt:{opt nosupt}} omit sup-t confidence intervals{p_end}
+{synopt: {opt noci}} omit all confidence intervals and bands{p_end}
+{synopt:{opt nosupt}} omit sup-t confidence bands{p_end}
 {synopt:{opt nozero:line}} omit reference line at 0{p_end}
 {synopt:{opt nonorml:abel}} omit label for value of dependent variable at event-time = -1 {p_end}
 {synopt:{opt noprepval}} omit p-value for pre-trends test{p_end}
 {synopt:{opt nopostpval}} omit p-value for leveling-off test{p_end}
 {synopt:{opt scatterplot:opts(string)}} graphics options for coefficient scatter plot{p_end}
 {synopt:{opt ciplot:opts(string)}} graphics options for confidence interval plot{p_end}
-{synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence interval plot{p_end}
+{synopt:{opt suptciplot:opts(string)}} graphics options for sup-t confidence band plot{p_end}
 {synopt:{opt smplot:opts(string)}} graphics options for smoothest path plot{p_end}
 {synopt:{opt trendplot:opts(string)}} graphics options for extrapolated trend plot{p_end}
 {synopt:{opt staticovplot:opts(string)}} graphics options for the static effect overlay plot {p_end}
@@ -64,7 +64,7 @@
 {dlgtab:Main}
 
 {phang}
-{opth suptreps(integer)} specifies the number of repetitions to calculate Montiel Olea and Plagborg-Møller (2019) sup-t confidence intervals for
+{opth suptreps(integer)} specifies the number of repetitions to calculate Montiel Olea and Plagborg-Møller (2019) sup-t confidence bands for
 the dynamic effects. The default is 10000. See {help xtevent}.
 
 {phang}
@@ -91,9 +91,9 @@ the predicted values on event-time dummy variables.
 {cmd: xtevent, proxy() proxyiv()}.
 
 {phang}
-{opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, xteventplot draws two confidence intervals: a standard one and a sup-t confidence interval.
+{opt levels(numlist)} customizes the confidence level for the confidence intervals in the event-study plot. By default, xteventplot draws a standard confidence interval and a sup-t confidence band.
 {opt levels} allows different confidence levels for standard confidence intervals. For example, {opt levels(90 95)} draws both 90% and 95% level
-confidence intervals, along with a sup-t confidence interval for Stata's default confidence level.
+confidence intervals, along with a sup-t confidence band for Stata's default confidence level.
 
 {phang}
 {opt smpath([type , subopt])}} displays the "least wiggly" path through the Wald confidence region of the event-time coefficients.
@@ -136,11 +136,11 @@ For example, with a window of 3, {opt overidpre(2)} tests that the coefficients 
 {dlgtab:Appearance}
 
 {phang}
-{opt noci} omits the display and calculation of both Wald and sup-t confidence intervals. {opt noci} overrides {opt suptreps} if it is specified.
+{opt noci} omits the display and calculation of both Wald and sup-t confidence bands. {opt noci} overrides {opt suptreps} if it is specified.
 {opt noci} is not allowed with {opt smpath}.
 
 {phang}
-{opt nosupt} omits the display and calculation of sup-t confidence intervals. {opt nosupt} overrides {opt suptreps} if it is specified.
+{opt nosupt} omits the display and calculation of sup-t confidence bands. {opt nosupt} overrides {opt suptreps} if it is specified.
 
 {phang}
 {opt nozeroline} omits the display of the reference line at 0. Note that reference lines with different styles can be obtained by removing the 
@@ -167,7 +167,7 @@ plot. These options are disabled if {opt noci} is specified.
 
 {phang}
 {opt suptciplotopts} specifies options to be passed to {cmd:rcap} for the sup-t confidence
- interval's plot. These options are disabled if {opt nosupt} is specified.
+ band's plot. These options are disabled if {opt nosupt} is specified.
  
 {phang}
 {opt smplotopts} specifies options to be passed to {cmd:line} for the smoothest path through 
@@ -211,7 +211,7 @@ tests. These options are disabled if {opt noprepval} and {opt nopostval} are spe
 {pstd}Simple plot{p_end}
 {phang2}{cmd:. {stata xteventplot}}{p_end}
 
-{pstd}Supress confidence intervals or sup-t confidence intervals{p_end}
+{pstd}Supress confidence intervals or sup-t confidence bands{p_end}
 {phang2}{cmd:. {stata xteventplot, noci}}{p_end}
 {phang2}{cmd:. {stata xteventplot, nosupt}}{p_end}
 

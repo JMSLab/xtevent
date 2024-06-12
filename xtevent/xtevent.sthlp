@@ -220,7 +220,7 @@ option requires {help reghdfe} and {help ftools} to be installed. For IV estimat
  and unit fixed effects. {opt addabsorb} requires {opt reghdfe}.
 
 {phang}
-{opt plot} displays a default event-study plot with standard and sup-t confidence intervals (Montiel Olea and Plagborg-Møller 2019).
+{opt plot} displays a default event-study plot with standard confidence intervals and sup-t confidence bands (Montiel Olea and Plagborg-Møller 2019).
 Additional options are available with the postestimation command {help xteventplot}.
 
 {phang}
