@@ -98,7 +98,7 @@ help xtevent
 
 ### Examples
 
-Using xtevent 2.2.0
+Using xtevent 3.1.0
 
 #### xtevent
 ```stata
@@ -119,7 +119,7 @@ order time union union2, after(year)
 *Estimate a basic event study with clustered standard errors 
 *Impute the policy variable assuming no unobserved changes
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) impute(nuchange)
+            pol(union2) w(3) cluster(idcode) impute(nuchange)
 	   
 *Omit unit and time fixed effects
 *Impute the policy variable verifying staggered adoption
@@ -134,7 +134,7 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 			
 *Freyaldenhoven, Hansen and Shapiro (2019) estimator with proxy variables
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-      pol(union) w(3) vce(cluster idcode) proxy(wks_work) ///
+      pol(union2) w(3) vce(cluster idcode) proxy(wks_work) ///
 	    impute(stag)
 			          
 *reghdfe and two-way clustering
@@ -143,16 +143,9 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             proxy(wks_work) 
             
 *Sun and Abraham (2021) Estimator
-*Generate the variable that indicates cohort
-gen timet=year if union2==1
-by idcode: egen time_of_treat=min(timet)
-*Generate the variable that indicates the control cohort 
-*We use the never-treated units as the control cohort 
-gen never_treat=time_of_treat==.
-*estimate the event-time coefficients with the Sun-and-Abraham (2021) Estimator
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
             policyvar(union2) window(3) impute(stag) vce(cluster idcode) ///			
-            reghdfe cohort(time_of_treat) control_cohort(never_treat) 
+            reghdfe cohort(create) 
 ```
 
 #### xteventplot
