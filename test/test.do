@@ -73,7 +73,7 @@ xtevent y eta, panelvar(i) timevar(t) policyvar(z) window(5) nofe note plot
 xtevent eta, panelvar(i) timevar(t) policyvar(z) window(4) 
 xteventplot, smpath(scatter)
 xteventplot, smpath(line)
-xteventplot, smpath(line, technique("nr 10 bfgs 10"))
+xteventplot, smpath(line, technique("dfp"))
 
 * Test more suptreps
 
