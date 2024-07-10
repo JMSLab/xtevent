@@ -1,6 +1,6 @@
 
 {smcl}
-{* *! version 3.0.0 Feb 23 2024}{...}
+{* *! version 3.1.0 July 7 2024}{...}
 {cmd:help xtevent}
 {hline}
 

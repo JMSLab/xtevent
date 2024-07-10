@@ -1,4 +1,4 @@
-*! xteventplot.ado 3.0.0 February 23, 2024
+*! xteventplot.ado 3.1.0 July 7, 2024
 
 version 13
 
