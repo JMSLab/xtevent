@@ -115,7 +115,7 @@ variables {it:panelvar}, {it:timevar}, and {it:_unittimeeffects}. The variable {
 
 {title:References}
 
-{pstd}Hansen, C. (2007) . "Generalized Least Squares Inference in Panel and Multilevel Models 
+{pstd}Hansen, C. (2007). "Generalized Least Squares Inference in Panel and Multilevel Models 
 with Serial Correlation and Fixed Effects" Journal of Econometrics, 140(2), 670-694.{p_end}
 
  

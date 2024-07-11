@@ -145,7 +145,7 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 *Sun and Abraham (2021) Estimator
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
             policyvar(union2) window(3) impute(stag) vce(cluster idcode) ///			
-            reghdfe cohort(create) 
+            reghdfe sunabraham
 ```
 
 #### xteventplot
