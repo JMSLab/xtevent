@@ -1,4 +1,4 @@
-xtevent 3.0.0 - February 23 2024
+xtevent 3.1.0 - July 11 2024
 
 
 Authors:
@@ -18,8 +18,9 @@ Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapir
 
 
 Changelog:
-- Increase default replications for sup-t confidence intervals.
-- Change the name of the option to omit the label for the value of the dependent variable from -nominus1label- to -nonormlabel-.
-- Fixed bugs present in version 2.2.0.
+- Options for choosing the largest available estimation window, and the largest available balanced estimation window
+- Simpler syntax for Sun and Abraham (2021) estimation with automatic cohort variables generation
+- New default graph style for Stata 18 
+- Fixed bugs present in version 3.0.0
 
-For more information, see https://github.com/JMSLab/xtevent/releases/tag/v3.0.0.
+For more information, see https://github.com/JMSLab/xtevent/releases/tag/v3.1.0.

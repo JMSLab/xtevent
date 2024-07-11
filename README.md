@@ -7,11 +7,18 @@
 `xtevent` is a Stata package to estimate linear panel event-study models. It includes three commands: `xtevent` for estimation; `xteventplot` to create event-study plots and; `xteventtest` for post-estimation hypotheses testing. 
 
 
-- Last version: 3.0.0 (23feb2024)
+- Last version: 3.1.0 (07jul2024)
 - Current SSC version: 2.2.0 (15mar2023)
 -----------
 
 ### Updates
+
+* **Version 3.1.0 (07jul2024)**:
+    - Options for choosing the largest available estimation window, and the largest available balanced estimation window [#170](https://github.com/JMSLab/xtevent/issues/170) 
+    - Simpler syntax for Sun and Abraham (2021) estimation with automatic cohort variables generation [#179](https://github.com/JMSLab/xtevent/issues/179)
+    - New default graph style for Stata 18 [#214](https://github.com/JMSLab/xtevent/issues/214)
+    - Fixed bugs present in version 3.0.0 [#181](https://github.com/JMSLab/xtevent/issues/181), [#186](https://github.com/JMSLab/xtevent/issues/186), [#188](https://github.com/JMSLab/xtevent/issues/188), [#189](https://github.com/JMSLab/xtevent/issues/189), [#203](https://github.com/JMSLab/xtevent/issues/203), [#204](https://github.com/JMSLab/xtevent/issues/204), [#217](https://github.com/JMSLab/xtevent/issues/217), [#222](https://github.com/JMSLab/xtevent/issues/222)
+    - See [here](https://github.com/JMSLab/xtevent/releases/tag/v3.1.0) for the complete update list.
 
 * **Version 3.0.0 (23feb2024)**:
     - Increase default replications for sup-t confidence intervals: [#153](https://github.com/JMSLab/xtevent/issues/153)
@@ -98,7 +105,7 @@ help xtevent
 
 ### Examples
 
-Using xtevent 2.2.0
+Using xtevent 3.1.0
 
 #### xtevent
 ```stata
@@ -119,7 +126,7 @@ order time union union2, after(year)
 *Estimate a basic event study with clustered standard errors 
 *Impute the policy variable assuming no unobserved changes
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-            pol(union) w(3) cluster(idcode) impute(nuchange)
+            pol(union2) w(3) cluster(idcode) impute(nuchange)
 	   
 *Omit unit and time fixed effects
 *Impute the policy variable verifying staggered adoption
@@ -134,7 +141,7 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
 			
 *Freyaldenhoven, Hansen and Shapiro (2019) estimator with proxy variables
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
-      pol(union) w(3) vce(cluster idcode) proxy(wks_work) ///
+      pol(union2) w(3) vce(cluster idcode) proxy(wks_work) ///
 	    impute(stag)
 			          
 *reghdfe and two-way clustering
@@ -143,16 +150,9 @@ xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure , ///
             proxy(wks_work) 
             
 *Sun and Abraham (2021) Estimator
-*Generate the variable that indicates cohort
-gen timet=year if union2==1
-by idcode: egen time_of_treat=min(timet)
-*Generate the variable that indicates the control cohort 
-*We use the never-treated units as the control cohort 
-gen never_treat=time_of_treat==.
-*estimate the event-time coefficients with the Sun-and-Abraham (2021) Estimator
 xtevent ln_w age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure, ///
             policyvar(union2) window(3) impute(stag) vce(cluster idcode) ///			
-            reghdfe cohort(time_of_treat) control_cohort(never_treat) 
+            reghdfe sunabraham
 ```
 
 #### xteventplot
@@ -227,4 +227,5 @@ Our YouTube channel, [Linear Panel Event-Study Design](https://www.youtube.com/w
 Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, and Jesse M. Shapiro. "Visualization, Identification, and Estimation in the Linear Panel Event-Study Design." [NBER Working Paper No. 29170](https://www.nber.org/papers/w29170),
 August 2021; forthcoming in _Advances in Economics and Econometrics: Twelfth World Congress_.
 
-Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, Jesse M. Shapiro, and Constantino Carreto. "Estimation and Visualization in the Linear Panel Event-Study Design." [Article to accompany Stata package](https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf), October 2023.
+Simon Freyaldenhoven, Christian Hansen, Jorge Pérez Pérez, Jesse M. Shapiro, and Constantino Carreto. "xtevent: Estimation and Visualization in the Linear Panel Event-Study Design." [Article to accompany Stata package](https://scholar.harvard.edu/sites/scholar.harvard.edu/files/shapiro/files/xtevent.pdf), July 2024.
+
