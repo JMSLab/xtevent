@@ -1,16 +1,17 @@
-v 3
-d XTEVENT: Estimation of Panel Event Study
+v 3.1.0
+d XTEVENT: Estimation and Visualization in the Linear Panel Event-Study Design 
 d
 d Simon Freyaldenhoven, Federal Reserve Bank of Philadelphia
 d Christian Hansen, University of Chicago
 d Jorge Pérez Pérez, Banco de México 
 d Jesse M. Shapiro, Harvard University and NBER
+d Constantino Carreto, Banco de México
 d
 d Support:
 d https://github.com/JMSLab/xtevent/issues
 d Jorge Pérez Pérez (jorgepp@banxico.org.mx)
 d
-d Distribution-Date: 20240223
+d Distribution-Date: 20240711
 d License: MIT
 d 
 
