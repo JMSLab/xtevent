@@ -56,7 +56,7 @@
 -----------
 ### Installation
 
-#### To install version 2.2.0 from SSC:
+#### To install version 3.1.0 from SSC:
 ```stata
 ssc install xtevent
 ```
