@@ -8,7 +8,7 @@
 
 
 - Last version: 3.1.0 (07jul2024)
-- Current SSC version: 2.2.0 (15mar2023)
+- Current SSC version: 3.1.0 (07jul2024)
 -----------
 
 ### Updates
