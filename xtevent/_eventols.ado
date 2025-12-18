@@ -227,7 +227,7 @@ program define _eventols, rclass
 		foreach var of varlist `kvstub'* {	
 			if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
 			else loc kvomit "p`=abs(`norm')'"
-			if "`var'"=="`kvstub'_evtime" | "`var'" == "`kvstub'_eq_`kvomit'" continue	
+			if "`var'"=="`kvstub'_evtime" continue	
 			if "`kvstub'"!="_k" {
 				loc sub : subinstr local var "`kvstub'" "_k", all
 				qui clonevar `sub' = `var'
@@ -240,7 +240,10 @@ program define _eventols, rclass
 			* "
 			loc included "`included' `sub'"
 			loc ++ j			
-		}		
+		}
+		loc remove "_k_eq_`kvomit'"
+		loc included : list local included - remove
+		loc names : subinstr local names `""_k_eq_`kvomit'".."' ""
 	}	
 	loc komit "`norm'`komittrend'"
 	loc komit = strtrim("`komit'")
