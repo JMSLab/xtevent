@@ -339,10 +339,10 @@ program define _eventiv, rclass
 		foreach var of varlist `kvstub'* {	
 			if `norm' < 0 loc kvomit = "m`=abs(`norm')'"
 			else loc kvomit "p`=abs(`norm')'"
-			if "`var'"=="`kvstub'_evtime" | "`var'" == "`kvstub'_eq_`kvomit'" continue	
+			if "`var'"=="`kvstub'_evtime" continue	
 			if "`kvstub'"!="_k" {
 				loc sub : subinstr local var "`kvstub'" "_k", all
-				clonevar `sub' = `var'
+				qui clonevar `sub' = `var'
 			}
 			else {
 				loc sub = "`var'"
@@ -354,7 +354,10 @@ program define _eventiv, rclass
 			loc ++ j			
 		}		
 		loc komittrend=r(komittrend)
-		if "`komittrend'"=="." loc komittrend = ""	
+		if "`komittrend'"=="." loc komittrend = ""
+		loc remove "_k_eq_`kvomit'"
+		loc included : list local included - remove
+		loc names : subinstr local names `""_k_eq_`kvomit'".."' ""
 	}		
 	*"
 	loc komit "`norm' `komittrend'"
