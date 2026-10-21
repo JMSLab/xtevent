@@ -1040,7 +1040,8 @@ mata
 	
 	/* Get variance of the adjusted deltas */
 
-	Lambda = (J(rows(phi_hat),1,0),LambdaL,J(rows(phi_hat),rows(delta)-1-cols(LambdaL),0))
+	/* delta starts at the left endpoint (lwindow-1) and deltaL at the trend start, trend-lwindow+1 positions later */
+	Lambda = (J(rows(phi_hat),trend-lwindow+1,0),LambdaL,J(rows(phi_hat),rows(delta)-(trend-lwindow+1)-cols(LambdaL),0))
 	Vdelta_star = Omega - H*Lambda*Omega - Omega'*Lambda'*H' + H*Lambda*Omega*Lambda'*H'
 	
 	/* Get variance of entire adjusted vector. Other coefs do not change but their covariance with delta does */
