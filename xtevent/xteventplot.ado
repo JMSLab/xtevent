@@ -962,13 +962,24 @@ mata
 				string scalar V,
 				real scalar level
 	)
-	{	real matrix senum,Vnum,Vcor,rmv,am
+	{	real matrix senum,Vnum,Vcor,rmv,am,keep,C,X
+		real rowvector L
 		real scalar q
 	
 		senum = st_matrix(se)
 		Vnum = st_matrix(V)
+		/* coefficients with zero variance (e.g. the trend start after trend(-2)) do not enter the band */
+		keep = selectindex(senum :> 0)
+		senum = senum[keep]
+		Vnum = Vnum[keep,keep]
 		Vcor=cholinv(diag(senum))*Vnum*cholinv(diag(senum))
-		rmv=rnormal(suptreps,1,J(1,cols(senum),0),J(1,cols(senum),1))*(cholesky(Vcor)')
+		C = cholesky(Vcor)
+		/* the trend-adjusted covariance is singular; fall back to a symmetric factor */
+		if (hasmissing(C)) {
+			symeigensystem(Vcor,X,L)
+			C = X*diag(sqrt(L:*(L:>0)))
+		}
+		rmv=rnormal(suptreps,1,J(1,cols(senum),0),J(1,cols(senum),1))*(C')
 		am = rowmax(abs(rmv))
 		q = mm_quantile(am,1,level)		
 		st_numscalar("q",q)		

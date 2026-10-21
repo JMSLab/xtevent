@@ -208,6 +208,30 @@ graph combine g1 g2 g3, rows(2)
 
 graph drop _all
 
+*Trend adjustment starting after the left end of the window. With trend(-2) the
+*adjusted coefficients are delta_k + (k+1)*delta_{-2}, so their variance follows
+*from the unadjusted regression. The coefficient at -2 is zero with zero standard error.
+xtevent y eta, policyvar(z) timevar(t) window(5)
+mat b0 = e(b)
+mat V0 = e(V)
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-2)
+loc j2 = colnumb(V0,"_k_eq_m2")
+forv k = -6/6 {
+	if `k' == -1 continue
+	if `k' < 0 loc c "_k_eq_m`=abs(`k')'"
+	else loc c "_k_eq_p`k'"
+	loc j = colnumb(V0,"`c'")
+	loc bk = el(b0,1,`j') + (`k'+1)*el(b0,1,`j2')
+	loc vk = el(V0,`j',`j') + 2*(`k'+1)*el(V0,`j',`j2') + (`k'+1)^2*el(V0,`j2',`j2')
+	assert reldif(_b[`c'], `bk') < 1e-7
+	assert reldif(_se[`c'], sqrt(max(`vk',0))) < 1e-7
+}
+mat drop b0 V0
+*Sup-t bands with a zero-variance coefficient and with the singular trend-adjusted covariance
+xteventplot
+xtevent y eta, policyvar(z) timevar(t) window(5) trend(-5)
+xteventplot
+
 *Sun and Abraham Estimator (2021) 
 *Generate cohort indicator
 * This works because of staggered adoption
